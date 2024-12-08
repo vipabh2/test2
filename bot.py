@@ -80,7 +80,7 @@ def handle_strike(message):
 @bot.message_handler(regexp=r'\انا')
 def handle_incoming_message(message):
     chat_id = message.chat.id
-id = call.message.chat.id
+id = message.chat.id
 correct_answer = random.randint(1, 6)  
 bot.send_message(chat_id, f"تم اختيار الرقم السري! اللعبة جاهزة. لفتح العضمة أرسل 'طك <رقم>'.")
 

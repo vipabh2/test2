@@ -49,7 +49,7 @@ def strt(message):
     if not group_game_status[chat_id]['is_game_started2']:
         group_game_status[chat_id]['is_game_started2'] = True
         group_game_status[chat_id]['joker_player'] = None
-        correct_answer = random.randint(1, 6)  
+        correct_answer = random.randint(1, 2)  
         bot.reply_to(message, f"تم بدء اللعبة! لفتح العضمة ارسل 'طك رقم العضمة' للمشاركة.")
 
 

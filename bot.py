@@ -81,16 +81,9 @@ def handle_strike(message):
 @bot.message_handler(regexp=r'\انا')
 def handle_incoming_message(message):
     chat_id = message.chat.id
-    if chat_id not in group_game_status:
-        group_game_status[chat_id] = {'is_game_started2': False, 'joker_player': None}
-    if group_game_status[chat_id]['is_game_started2'] and not group_game_status[chat_id]['joker_player']:
-        group_game_status[chat_id]['joker_player'] = message.from_user.id
-
-@bot.callback_query_handler(func=lambda call: call.data == "start_game")
-def handle_start_game(call):
-    chat_id = call.message.chat.id
-    correct_answer = random.randint(1, 6)  
-    bot.send_message(chat_id, f"تم اختيار الرقم السري! اللعبة جاهزة. لفتح العضمة أرسل 'طك <رقم>'.")
+id = call.message.chat.id
+correct_answer = random.randint(1, 6)  
+bot.send_message(chat_id, f"تم اختيار الرقم السري! اللعبة جاهزة. لفتح العضمة أرسل 'طك <رقم>'.")
 
 
 @bot.message_handler(regexp=r'\جيب (\d+)')
@@ -119,7 +112,8 @@ def handle_guess(message):
             else:
                 bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
         except (IndexError, ValueError):
-            bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 
+            bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
 
 # بدء البوت
 bot.polling()
+

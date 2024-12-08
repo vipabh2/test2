@@ -1,8 +1,7 @@
-
 import os
 import random
 import telebot
-from telebot import types 
+from telebot import types  # إصلاح استيراد types
 
 bot = telebot.TeleBot("7273443857:AAFt8PtcI_gdYp0QbtcJH1Tu1oFJn9-H0yk")
 
@@ -22,7 +21,7 @@ def format_board(game_board, numbers_board):
     return formatted_board
 
 def reset_game(chat_id):
-    global game_board, correct_answer, group_game_status, correct_answer 
+    global game_board, correct_answer, group_game_status
     game_board = [row[:] for row in original_game_board]
     correct_answer = None
     group_game_status[chat_id]['is_game_started2'] = False
@@ -30,8 +29,7 @@ def reset_game(chat_id):
 
 @bot.message_handler(func=lambda message: message.text == 'محيبس')
 def strt(message):
-    global correct_answer 
-    markup = types.InlineKeyboardMarkup() 
+    markup = types.InlineKeyboardMarkup()  # استخدام types هنا بشكل صحيح
     markup.add(types.InlineKeyboardButton("ابدأ اللعبة", callback_data="start_game"))
 
     username = message.from_user.username or "unknown"
@@ -51,9 +49,6 @@ def strt(message):
         group_game_status[chat_id]['is_game_started2'] = True
         group_game_status[chat_id]['joker_player'] = None
         correct_answer = random.randint(1, 6)  
-        bot.reply_to(message, f"تم بدء اللعبة! لفتح العضمة ارسل 'طك رقم العضمة' للمشاركة.")
-
-
 
 @bot.message_handler(regexp=r'\طك (\d+)')
 def handle_strike(message):
@@ -70,10 +65,11 @@ def handle_strike(message):
                 reset_game(chat_id) 
             else:
                 abh = [
-    "تلعب وخوش تلعب 👏🏻",
-    "لك عاش يابطل استمر 💪🏻",
-    "على كيفك ركزززز انتَ كدها 🤨",
-    "لك وعلي ذيييب 😍"]
+                    "تلعب وخوش تلعب 👏🏻",
+                    "لك عاش يابطل استمر 💪🏻",
+                    "على كيفك ركزززز انتَ كدها 🤨",
+                    "لك وعلي ذيييب 😍"
+                ]
                 
                 iuABH = random.choice(abh)
 
@@ -116,4 +112,6 @@ def handle_guess(message):
                     bot.reply_to(message, f"**المحبس غير موجود هنا!** \n{format_board(game_board, numbers_board)}")
         except (IndexError, ValueError):
             bot.reply_to(message, "يرجى إدخال رقم صحيح بين 1 و 6.")
+
+# بدء البوت
 bot.polling()

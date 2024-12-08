@@ -109,5 +109,8 @@ def handle_guess(message):
     else:
         bot.reply_to(message, "❗ اللعبة لم تبدأ بعد. أرسل 'محيبس' لبدء اللعبة.")
 
-# تشغيل البوت
+try:
+    # تشغيل الكود الرئيسي هنا
+except Exception as e:
+    print(f"Error occurred: {e}")
 bot.polling()

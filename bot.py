@@ -108,9 +108,7 @@ def handle_guess(message):
             bot.reply_to(message, "❗ يرجى إدخال رقم صحيح.")
     else:
         bot.reply_to(message, "❗ اللعبة لم تبدأ بعد. أرسل 'محيبس' لبدء اللعبة.")
-
-try:
-    # تشغيل الكود الرئيسي هنا
-except Exception as e:
-    print(f"Error occurred: {e}")
+        try:
+            except Exception as e:
+                print(f"Error occurred: {e}")
 bot.polling()

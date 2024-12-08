@@ -57,7 +57,7 @@ def strt(message):
 
 @bot.message_handler(regexp=r'\طك (\d+)')
 def handle_strike(message):
-    global correct_answer, game_board  # تأكد من أنك تستخدم المتغيرات بشكل صحيح
+    global game_board, correct_answer, group_game_status
 
     chat_id = message.chat.id
     if chat_id in group_game_status and group_game_status[chat_id]['is_game_started2']:
@@ -65,13 +65,20 @@ def handle_strike(message):
             strike_position = int(message.text.split()[1])
             if strike_position == correct_answer:
                 game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-                winner_id = message.from_user.id
-                points[winner_id] = points.get(winner_id, 0) + 1  # إضافة نقطة للفائز
-                bot.reply_to(message, f"**مبروك! لقد فزت!** 🎉 \n{format_board(game_board, numbers_board)}")
-                reset_game(chat_id)  # إعادة تعيين اللعبة
+                
+                bot.reply_to(message, f"**خسرت!** \n{format_board(game_board, numbers_board)}")
+                reset_game(chat_id) 
             else:
+                abh = [
+    "تلعب وخوش تلعب 👏🏻",
+    "لك عاش يابطل استمر 💪🏻",
+    "على كيفك ركزززز انتَ كدها 🤨",
+    "لك وعلي ذيييب 😍"]
+                
+                iuABH = random.choice(abh)
+
                 game_board[0][strike_position - 1] = '🖐️'
-                bot.reply_to(message, f"**العضمة لم تجد المحبس!** \n{format_board(game_board, numbers_board)}")
+                bot.reply_to(message, f" {iuABH} \n{format_board(game_board, numbers_board)}")
         except (IndexError, ValueError):
             bot.reply_to(message, "يرجى إدخال رقم صحيح بين 1 و 6.")
 
@@ -82,7 +89,12 @@ def handle_incoming_message(message):
         group_game_status[chat_id] = {'is_game_started2': False, 'joker_player': None}
     if group_game_status[chat_id]['is_game_started2'] and not group_game_status[chat_id]['joker_player']:
         group_game_status[chat_id]['joker_player'] = message.from_user.id
-        bot.reply_to(message, f"**تم تسجيلك في المسابقة!** \n{format_board(game_board, numbers_board)}")
+
+@bot.callback_query_handler(func=lambda call: call.data == "start_game")
+def handle_start_game(call):
+    chat_id = call.message.chat.id
+    correct_answer = random.randint(1, 6)  
+    bot.send_message(chat_id, f"تم اختيار الرقم السري! اللعبة جاهزة. لفتح العضمة أرسل 'طك <رقم>'.")
 
 @bot.message_handler(regexp=r'\جيب (\d+)')
 def handle_guess(message):
@@ -104,9 +116,4 @@ def handle_guess(message):
                     bot.reply_to(message, f"**المحبس غير موجود هنا!** \n{format_board(game_board, numbers_board)}")
         except (IndexError, ValueError):
             bot.reply_to(message, "يرجى إدخال رقم صحيح بين 1 و 6.")
-
-
-
-
 bot.polling()
-

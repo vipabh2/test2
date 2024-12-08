@@ -1,8 +1,7 @@
 import os
 import random
 import telebot
-from telebot import types  # إصلاح استيراد types
-
+from telebot import types  
 bot = telebot.TeleBot("7273443857:AAFt8PtcI_gdYp0QbtcJH1Tu1oFJn9-H0yk")
 
 game_board = [["👊", "👊", "👊", "👊", "👊", "👊"]]
@@ -29,7 +28,7 @@ def reset_game(chat_id):
 
 @bot.message_handler(func=lambda message: message.text == 'محيبس')
 def strt(message):
-    markup = types.InlineKeyboardMarkup()  # استخدام types هنا بشكل صحيح
+    markup = types.InlineKeyboardMarkup() 
     markup.add(types.InlineKeyboardButton("ابدأ اللعبة", callback_data="start_game"))
 
     username = message.from_user.username or "unknown"
@@ -40,7 +39,7 @@ def strt(message):
         parse_mode="Markdown",
         reply_markup=markup
     ) 
-    
+ 
     chat_id = message.chat.id
     if chat_id not in group_game_status:
         group_game_status[chat_id] = {'is_game_started2': False, 'joker_player': None}
@@ -48,7 +47,7 @@ def strt(message):
     if not group_game_status[chat_id]['is_game_started2']:
         group_game_status[chat_id]['is_game_started2'] = True
         group_game_status[chat_id]['joker_player'] = None
-        correct_answer = random.randint(1, 6)  # تعيين الرقم السري عند بدء اللعبة
+        correct_answer = random.randint(1, 6)  
 
 @bot.message_handler(regexp=r'\طك (\d+)')
 def handle_strike(message):
@@ -76,7 +75,15 @@ def handle_strike(message):
                 game_board[0][strike_position - 1] = '🖐️'
                 bot.reply_to(message, f" {iuABH} \n{format_board(game_board, numbers_board)}")
         except (IndexError, ValueError):
-            bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
+            bot.reply_to(message, "يرجى إدخال رقم صحيح بين 1 و 6.")
+
+@bot.message_handler(regexp=r'\انا')
+def handle_incoming_message(message):
+    chat_id = message.chat.id
+id = call.message.chat.id
+correct_answer = random.randint(1, 6)  
+bot.send_message(chat_id, f"تم اختيار الرقم السري! اللعبة جاهزة. لفتح العضمة أرسل 'طك <رقم>'.")
+
 
 @bot.message_handler(regexp=r'\جيب (\d+)')
 def handle_guess(message):
@@ -108,3 +115,4 @@ def handle_guess(message):
 
 # بدء البوت
 bot.polling()
+

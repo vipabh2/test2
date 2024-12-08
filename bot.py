@@ -92,6 +92,7 @@ def handle_start_game(call):
     correct_answer = random.randint(1, 6)  
     bot.send_message(chat_id, f"تم اختيار الرقم السري! اللعبة جاهزة. لفتح العضمة أرسل 'طك <رقم>'.")
 
+
 @bot.message_handler(regexp=r'\جيب (\d+)')
 def handle_guess(message):
     global group_game_status, correct_answer, game_board, points
@@ -102,16 +103,23 @@ def handle_guess(message):
             guess = int(message.text.split()[1])
             if 1 <= guess <= 6:
                 if guess == correct_answer:
+                    # إذا كان التخمين صحيحًا
                     winner_id = message.from_user.id
                     points[winner_id] = points.get(winner_id, 0) + 1
                     sender_first_name = message.from_user.first_name
                     game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-                    bot.send_message(chat_id, f'الف مبروووك 🎉 الاعب ( {sender_first_name} ) وجد المحبس 💍!\n{format_board(game_board, numbers_board)}')
+                    bot.send_message(chat_id, f'🎉 الف مبروك! اللاعب ({sender_first_name}) وجد المحبس 💍!\n{format_board(game_board, numbers_board)}')
                     reset_game(chat_id)
                 else:
-                    bot.reply_to(message, f"**المحبس غير موجود هنا!** \n{format_board(game_board, numbers_board)}")
+                    # إذا كان التخمين خاطئًا
+                    sender_first_name = message.from_user.first_name
+                    game_board = [["❌" if i == guess - 1 else "🖐️" for i in range(6)]]
+                    bot.send_message(chat_id, f"❌ اللاعب ({sender_first_name}) خسر اللعبة! المحبس لم يكن هنا.\n{format_board(game_board, numbers_board)}")
+                    reset_game(chat_id)
+            else:
+                bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
         except (IndexError, ValueError):
-            bot.reply_to(message, "يرجى إدخال رقم صحيح بين 1 و 6.")
+            bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 
 
 # بدء البوت
 bot.polling()

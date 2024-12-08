@@ -85,7 +85,7 @@ def handle_guess(message):
                 else:
                     sender_first_name = message.from_user.first_name
                     game_board = [["❌" if i == guess - 1 else "🖐️" for i in range(6)]]
-                    bot.send_message(chat_id, f"❌ اللاعب ({sender_first_name}) خسر اللعبة! المحبس لم يكن هنا.\n{format_board(game_board, numbers_board)}")
+                    bot.send_message(chat_id, f"ضاع البات ماضن بعد تلگونة ☹️ \n{format_board(game_board, numbers_board)}")
                     reset_game(chat_id)
             else:
                 bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")

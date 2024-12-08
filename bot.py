@@ -103,7 +103,7 @@ def handle_strike(message):
             if strike_position == correct_answer:
                 game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
                 
-                bot.reply_to(message, f"**خسرت!** \n{format_board(game_board, numbers_board)}")
+                bot.reply_to(message, f"خسرت شبيك مستعجل وجه الچوب 😒 \n{format_board(game_board, numbers_board)}")
                 reset_game(chat_id) 
             else:
                 abh = [

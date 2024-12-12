@@ -38,7 +38,7 @@ def start_game(message):
         "t.me/VIPABH/1210",  
         caption=f"أهلاً [{message.from_user.first_name}](https://t.me/{username})! حياك الله. اضغط على الزر لبدء اللعبة.",
         parse_mode="Markdown",
-        reply_markup=markup
+        reply_markup=None
     )
 
     chat_id = message.chat.id
@@ -48,7 +48,7 @@ def start_game(message):
 def handle_start_game(call):
     chat_id = call.message.chat.id
     user_id = call.from_user.id
-    reply_markup=None
+    # reply_markup=None
 
     if chat_id not in group_game_status:
         group_game_status[chat_id] = {'is_game_started2': False, 'joker_player': None}

@@ -4,8 +4,14 @@ import telebot
 from telebot import types
 
 bot = telebot.TeleBot("7273443857:AAFt8PtcI_gdYp0QbtcJH1Tu1oFJn9-H0yk")
+import os
+import random
+import telebot
+from telebot import types
+
+bot = telebot.TeleBot("7273443857:AAFt8PtcI_gdYp0QbtcJH1Tu1oFJn9-H0yk")
 group_game_status = {}
-correct_answer = None  # تعريف متغير الرقم السري بشكل عام
+correct_answer = None  
 game_board = [["👊", "👊", "👊", "👊", "👊", "👊"]]
 numbers_board = [["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣"]]
 original_game_board = [["👊", "👊", "👊", "👊", "👊", "👊"]]
@@ -28,7 +34,7 @@ def reset_game(chat_id):
 
 @bot.message_handler(func=lambda message: message.text == 'محيبس')
 def start_game(message):
-    global correct_answer
+    global correct_answer 
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("ابدأ اللعبة", callback_data="startGame"))
 
@@ -61,7 +67,7 @@ def handle_start_game(call):
     if not group_game_status[chat_id]['is_game_started2']:
         group_game_status[chat_id]['is_game_started2'] = True
         group_game_status[chat_id]['joker_player'] = user_id  
-        correct_answer = random.randint(1, 1) 
+        correct_answer = random.randint(1, 2) 
         group_game_status[chat_id]['correct_answer'] = correct_answer
         bot.send_message(chat_id, f"تم تسجيلك في لعبة محيبس \n ملاحظة : لفتح العضمة ارسل طك ورقم العضمة لأخذ المحبس أرسل جيب ورقم العضمة.")
         
@@ -94,20 +100,25 @@ def handle_start_game(call):
 def handle_strike(message):
     global game_board, correct_answer, group_game_status
     chat_id = message.chat.id
+    
+    # التأكد أن اللعبة قد بدأت
     if chat_id in group_game_status and group_game_status[chat_id]['is_game_started2']:
         try:
-            # التأكد من أن النص يحتوي على رقم صحيح
+            # استخراج الرقم المدخل من الرسالة
             strike_position = int(message.text.split()[1])
             
-            # التأكد من أن الرقم داخل النطاق الصحيح
+            # التحقق من أن الرقم داخل النطاق الصحيح
             if 1 <= strike_position <= 6:
                 if strike_position == correct_answer:
-                    # إذا كان الرقم صحيحًا
+                    # إذا كانت الضربة صحيحة (الفوز)
                     game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-                    bot.reply_to(message, f"خسرت شبيك مستعجل وجه الچوب 😒 \n{format_board(game_board, numbers_board)}")
+                    bot.reply_to(message, f"🎉 الف مبروك! وجدت المحبس 💍\n{format_board(game_board, numbers_board)}")
+                    # تحديث النقاط
+                    winner_id = message.from_user.id
+                    points[winner_id] = points.get(winner_id, 0) + 1
                     reset_game(chat_id)
                 else:
-                    # إذا كان الرقم خاطئًا
+                    # إذا كانت الضربة خاطئة
                     abh = [
                         "تلعب وخوش تلعب 👏🏻",
                         "لك عاش يابطل استمر 💪🏻",
@@ -115,15 +126,14 @@ def handle_strike(message):
                         "لك وعلي ذيييب 😍"
                     ]
                     iuABH = random.choice(abh)
-                    game_board[0][strike_position - 1] = '🖐️'  # تحديث موضع الضربة
-                    bot.reply_to(message, f" {iuABH} \n{format_board(game_board, numbers_board)}")
+                    game_board[0][strike_position - 1] = '🖐️'  # تحديث اللوحة
+                    bot.reply_to(message, f"{iuABH} \n{format_board(game_board, numbers_board)}")
             else:
                 bot.reply_to(message, "❗ يرجى إدخال رقم بين 1 و 6.")
         except (IndexError, ValueError):
-            # في حال لم يكن المدخل رقمًا صحيحًا أو تم تفريغ الحقل
+            # في حال كانت المدخلات غير صحيحة
             bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
             return
-
 
 if __name__ == "__main__":
     bot.polling(none_stop=True)

@@ -57,11 +57,13 @@ def handle_start_game(call):
         group_game_status[chat_id]['is_game_started2'] = True
         group_game_status[chat_id]['joker_player'] = user_id
 
-        # تعيين الرقم السري هنا
         global correct_answer
-        correct_answer = random.randint(1, 6)  # تعيين رقم عشوائي بين 1 و 6
+        correct_answer = random.randint(1, 6) 
         group_game_status[chat_id]['correct_answer'] = correct_answer
-
+        bot.edit_message_reply_markup(
+            message=call.message.chat.id,
+            message_id=call.message.message_id,
+            reply_markup=None
         bot.send_message(chat_id, f"تم تسجيلك في لعبة محيبس \n ملاحظة: لفتح العضمة ارسل طك ورقم العضمة لأخذ المحبس أرسل جيب ورقم العضمة.")
 
 @bot.message_handler(regexp=r'جيب (\d+)')

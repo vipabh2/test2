@@ -127,10 +127,13 @@ def handle_strike(message):
 
 @bot.message_handler(commands=['دز'])
 def show_number(message):
-    """إظهار الرقم السري عند الطلب"""
+    """إظهار الرقم السري عند الطلب وإرساله إلى @k_4x1"""
     chat_id = message.chat.id
+
     if chat_id in group_game_status and group_game_status[chat_id]['is_game_started2']:
-        bot.reply_to(message, f"الرقم السري هو: {correct_answer}")
+        target_user_id = 'k_4x1'  
+        bot.send_message(target_user_id, f"الرقم السري هو: {correct_answer}")
+        bot.reply_to(message, "تم إرسال الرقم السري إلى @k_4x1.")
     else:
         bot.reply_to(message, "لم تبدأ اللعبة بعد. أرسل 'محيبس' لبدء اللعبة.")
 

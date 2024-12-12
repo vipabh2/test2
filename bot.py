@@ -48,7 +48,6 @@ def start_game(message):
 def handle_start_game(call):
     chat_id = call.message.chat.id
     user_id = call.from_user.id
-    reply_markup=None
 
     if chat_id not in group_game_status:
         group_game_status[chat_id] = {'is_game_started2': False, 'joker_player': None}
@@ -64,7 +63,8 @@ def handle_start_game(call):
             message=call.message.chat.id,
             message_id=call.message.message_id,
             reply_markup=None
-        bot.send_message(chat_id, f"تم تسجيلك في لعبة محيبس \n ملاحظة: لفتح العضمة ارسل طك ورقم العضمة لأخذ المحبس أرسل جيب ورقم العضمة.")
+        )
+            bot.send_message(chat_id, f"تم تسجيلك في لعبة محيبس \n ملاحظة: لفتح العضمة ارسل طك ورقم العضمة لأخذ المحبس أرسل جيب ورقم العضمة.")
 
 @bot.message_handler(regexp=r'جيب (\d+)')
 def handle_guess(message):

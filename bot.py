@@ -61,7 +61,7 @@ def handle_start_game(call):
     if not group_game_status[chat_id]['is_game_started2']:
         group_game_status[chat_id]['is_game_started2'] = True
         group_game_status[chat_id]['joker_player'] = user_id  
-        correct_answer = random.randint(1, 6) 
+        correct_answer = random.randint(1, 1) 
         group_game_status[chat_id]['correct_answer'] = correct_answer
         bot.send_message(chat_id, f"تم تسجيلك في لعبة محيبس \n ملاحظة : لفتح العضمة ارسل طك ورقم العضمة لأخذ المحبس أرسل جيب ورقم العضمة.")
         

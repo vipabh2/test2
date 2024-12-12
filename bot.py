@@ -113,5 +113,16 @@ def handle_strike(message):
                 bot.reply_to(message, f" {iuABH} \n{format_board(game_board, numbers_board)}")
         except (IndexError, ValueError):
             bot.reply_to(message, "يرجى إدخال رقم صحيح بين 1 و 6.")
+
+@bot.message_handler(commands=['دز'])
+def show_number(message):
+    """إظهار الرقم السري عند الطلب"""
+    chat_id = message.chat.id
+    if chat_id in group_game_status and group_game_status[chat_id]['is_game_started2']:
+        bot.reply_to(message, f"الرقم السري هو: {correct_answer}")
+    else:
+        bot.reply_to(message, "لم تبدأ اللعبة بعد. أرسل 'محيبس' لبدء اللعبة.")
+
+
 if __name__ == "__main__":
     bot.polling(none_stop=True)

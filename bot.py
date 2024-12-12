@@ -64,7 +64,7 @@ def handle_start_game(call):
             message_id=call.message.message_id,
             reply_markup=None
         )
-            bot.send_message(chat_id, f"تم تسجيلك في لعبة محيبس \n ملاحظة: لفتح العضمة ارسل طك ورقم العضمة لأخذ المحبس أرسل جيب ورقم العضمة.")
+        bot.send_message(chat_id, f"تم تسجيلك في لعبة محيبس \n ملاحظة: لفتح العضمة ارسل طك ورقم العضمة لأخذ المحبس أرسل جيب ورقم العضمة.")
 
 @bot.message_handler(regexp=r'جيب (\d+)')
 def handle_guess(message):

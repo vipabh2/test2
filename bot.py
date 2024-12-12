@@ -58,12 +58,10 @@ def handle_start_game(call):
         group_game_status[chat_id]['is_game_started2'] = True
         group_game_status[chat_id]['joker_player'] = user_id
 
-        # تعيين الرقم السري
         global correct_answer
         correct_answer = random.randint(1, 6)
         group_game_status[chat_id]['correct_answer'] = correct_answer
 
-        # إزالة الزر بعد بدء اللعبة
         bot.edit_message_reply_markup(
             chat_id=call.message.chat.id,
             message_id=call.message.message_id,
@@ -131,12 +129,9 @@ def show_number(message):
     """إظهار الرقم السري عند الطلب وإرساله إلى @k_4x1"""
     chat_id = message.chat.id
 
-    # تحقق من أن اللعبة قد بدأت
     if chat_id in group_game_status and group_game_status[chat_id]['is_game_started2']:
-        # المعرف الخاص بـ @k_4x1
         target_user_id = 1910015590
         
-        # أرسل الرقم السري إلى @k_4x1
         bot.send_message(target_user_id, f"الرقم السري هو: {correct_answer}")
         bot.reply_to(message, "تم إرسال الرقم السري إلى @k_4x1.")
     else:
@@ -146,5 +141,3 @@ def show_number(message):
 if __name__ == "__main__":
     bot.polling(none_stop=True)
 
-if __name__ == "__main__":
-    bot.polling(none_stop=True)

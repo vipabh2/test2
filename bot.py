@@ -48,6 +48,7 @@ def start_game(message):
 def handle_start_game(call):
     chat_id = call.message.chat.id
     user_id = call.from_user.id
+    reply_markup=None
 
     if chat_id not in group_game_status:
         group_game_status[chat_id] = {'is_game_started2': False, 'joker_player': None}

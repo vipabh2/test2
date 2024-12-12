@@ -130,8 +130,12 @@ def show_number(message):
     """إظهار الرقم السري عند الطلب وإرساله إلى @k_4x1"""
     chat_id = message.chat.id
 
+    # تحقق من أن اللعبة قد بدأت
     if chat_id in group_game_status and group_game_status[chat_id]['is_game_started2']:
-        target_user_id = 'k_4x1'  
+        # المعرف الخاص بـ @k_4x1
+        target_user_id = 1910015590
+        
+        # أرسل الرقم السري إلى @k_4x1
         bot.send_message(target_user_id, f"الرقم السري هو: {correct_answer}")
         bot.reply_to(message, "تم إرسال الرقم السري إلى @k_4x1.")
     else:

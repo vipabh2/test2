@@ -90,31 +90,40 @@ def handle_start_game(call):
                         bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
                 except (IndexError, ValueError):
                     bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
+@bot.message_handler(regexp=r'طك (\d+)')
+def handle_strike(message):
+    global game_board, correct_answer, group_game_status
+    chat_id = message.chat.id
+    if chat_id in group_game_status and group_game_status[chat_id]['is_game_started2']:
+        try:
+            # التأكد من أن النص يحتوي على رقم صحيح
+            strike_position = int(message.text.split()[1])
+            
+            # التأكد من أن الرقم داخل النطاق الصحيح
+            if 1 <= strike_position <= 6:
+                if strike_position == correct_answer:
+                    # إذا كان الرقم صحيحًا
+                    game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
+                    bot.reply_to(message, f"خسرت شبيك مستعجل وجه الچوب 😒 \n{format_board(game_board, numbers_board)}")
+                    reset_game(chat_id)
+                else:
+                    # إذا كان الرقم خاطئًا
+                    abh = [
+                        "تلعب وخوش تلعب 👏🏻",
+                        "لك عاش يابطل استمر 💪🏻",
+                        "على كيفك ركزززز انتَ كدها 🤨",
+                        "لك وعلي ذيييب 😍"
+                    ]
+                    iuABH = random.choice(abh)
+                    game_board[0][strike_position - 1] = '🖐️'  # تحديث موضع الضربة
+                    bot.reply_to(message, f" {iuABH} \n{format_board(game_board, numbers_board)}")
+            else:
+                bot.reply_to(message, "❗ يرجى إدخال رقم بين 1 و 6.")
+        except (IndexError, ValueError):
+            # في حال لم يكن المدخل رقمًا صحيحًا أو تم تفريغ الحقل
+            bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
+            return
 
-        @bot.message_handler(regexp=r'طك (\d+)')
-        def handle_strike(message):
-            global game_board, correct_answer, group_game_status
-            chat_id = message.chat.id
-            if chat_id in group_game_status and group_game_status[chat_id]['is_game_started2']:
-                try:
-                    strike_position = int(message.text.split()[1])
-                    if strike_position == correct_answer:
-                        game_board = [["💍" if i == correct_answer - 1 else "🖐️" for i in range(6)]]
-                        bot.reply_to(message, f"خسرت شبيك مستعجل وجه الچوب 😒 \n{format_board(game_board, numbers_board)}")
-                        reset_game(chat_id)
-                    else:
-                        abh = [
-                            "تلعب وخوش تلعب 👏🏻",
-                            "لك عاش يابطل استمر 💪🏻",
-                            "على كيفك ركزززز انتَ كدها 🤨",
-                            "لك وعلي ذيييب 😍"
-                        ]
-                        iuABH = random.choice(abh)
-                        game_board[0][strike_position - 1] = '🖐️'
-                        bot.reply_to(message, f" {iuABH} \n{format_board(game_board, numbers_board)}")
-                except (IndexError, ValueError):
-                    bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
-                    return
 
 if __name__ == "__main__":
     bot.polling(none_stop=True)

@@ -4,7 +4,7 @@ import telebot
 from telebot import types
 
 bot_token = os.getenv("BOT_TOKEN")
-bot = telebot.TeleBot(bot_token)
+
 
 
 group_game_status = {}

@@ -2,7 +2,9 @@ import os
 import random
 import telebot
 from telebot import types
-bot = telebot.TeleBot("7273443857:AAFt8PtcI_gdYp0QbtcJH1Tu1oFJn9-H0yk")
+
+bot_token = os.getenv("BOT_TOKEN")
+bot = telebot.TeleBot(bot_token)
 
 
 group_game_status = {}

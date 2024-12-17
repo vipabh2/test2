@@ -20,7 +20,7 @@ basimurl = (
 @bot.message_handler(func=lambda message: message.text in ['لطمية'])
 def abh(message):
     rl = random.choice(basimurl) 
- audio_url = f"https://t.me/sossosic/{rl}"
+    audio_url = f"https://t.me/sossosic/{rl}"
     bot.send_audio(
         chat_id=message.chat.id, 
         audio=audio_url, 

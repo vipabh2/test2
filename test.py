@@ -44,7 +44,6 @@ def abh(call):
         caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
-    call.message.chat.id, call.message.message_id
 
 
 

@@ -335,4 +335,3 @@ if __name__ == "__main__":
         bot.polling(none_stop=True)
     except Exception as e:
         print(f"حدث خطأ: {e}")
-        time.sleep(15)  

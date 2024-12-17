@@ -32,7 +32,7 @@ def abh(message):
 def abh(message):
     rl = random.choice(basimurl) 
     audio_url = f"https://t.me/sossosic/{rl}"
-    bot.reply_to(message, url, parse_mode="html")
+    bot.reply_to(message, audio_url, parse_mode="html")
     bot.send_audio(
         chat_id=message.chat.id, 
         audio=audio_url, 

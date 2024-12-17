@@ -16,15 +16,12 @@ basimurl = (
     "110", "111", "112", "113", "114", "115", "116", "117", "118"
 )
 
- 
+
 @bot.message_handler(func=lambda message: message.text in ['لطمية'])
-
 def abh(message):
-    rl = random.randint(basimurl)
-    url = f"t.me/sossosic/{rl}"
-    bot._reply_to(message.chat_id, url, caption="᯽︙  اذكر القائم ", parse_mode="html")
-    message.delete()
-
+    rl = random.choice(basimurl) 
+    url = f"https://t.me/sossosic/{rl}" 
+    bot.reply_to(message, url, parse_mode="html")
 
 
 

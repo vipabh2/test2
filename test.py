@@ -19,10 +19,13 @@ basimurl = (
 
 @bot.message_handler(func=lambda message: message.text in ['لطمية'])
 def abh(message):
-    rl = random.choice(basimurl) 
-    url = f"https://t.me/sossosic/{rl}" 
-    bot.reply_to(message, url, parse_mode="html")
-
+ audio_url = f"https://t.me/sossosic/{rl}"
+    bot.send_audio(
+        chat_id=message.chat.id, 
+        audio=audio_url, 
+        caption="᯽︙اذكر القائم",
+        parse_mode="html"
+    )
 
 
 

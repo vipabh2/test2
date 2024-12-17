@@ -20,7 +20,7 @@ basimurl = (
 @bot.message_handler(func=lambda message: message.text in ['لطمية'])
 
 def abh(message):
-    rl = random.randin(basimurl)
+    rl = random.randint(basimurl)
     url = f"t.me/sossosic/{rl}"
     bot._reply_to(message.chat_id, url, caption="᯽︙  اذكر القائم ", parse_mode="html")
     message.delete()

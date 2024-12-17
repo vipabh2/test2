@@ -28,6 +28,18 @@ def abh(message):
         parse_mode="html"
     )
 
+@bot.message_handler(func=lambda message: message.text in ['دز'])
+def abh(message):
+    rl = random.choice(basimurl) 
+    audio_url = f"https://t.me/sossosic/{rl}"
+    bot.reply_to(message, url, parse_mode="html")
+    bot.send_audio(
+        chat_id=message.chat.id, 
+        audio=audio_url, 
+        caption="᯽︙اذكر القائم",
+        parse_mode="html"
+    )
+
 
 
 

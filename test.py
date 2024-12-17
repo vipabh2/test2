@@ -1,7 +1,7 @@
 import telebot
+from telebot import types
+from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import random
-import time
-import os
 
 # bot_token = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot("7273443857:AAFt8PtcI_gdYp0QbtcJH1Tu1oFJn9-H0yk")
@@ -17,28 +17,53 @@ basimurl = (
 )
 
 
-@bot.message_handler(func=lambda message: message.text in ['لطمية'])
-def abh(message):
+
+@bot.message_handler(commands=['دز'])
+def vipabh(message):
+       
+    username = message.from_user.username if message.from_user.username else "لا يوجد اسم مستخدم"
+    markup = types.InlineKeyboardMarkup()
+    markup.add(types.InlineKeyboardButton("ابدأ اللعبة", callback_data="start_game"))
+    bot.send_video(
+        message.chat.id,
+        "https://t.me/VIPABH/1204",
+        caption=f"اهلا [{message.from_user.first_name}](https://t.me/{username}) حياك الله! اضغط على الزر لبدء اللعبة.",
+        parse_mode="Markdown",
+        reply_markup=markup
+    )
+@bot.callback_query_handler(func=lambda call: call.data == "start_game")
+def abh(call):
     rl = random.choice(basimurl) 
     audio_url = f"https://t.me/sossosic/{rl}"
+    bot.reply_to(call.message, audio_url, parse_mode="html")
     bot.send_audio(
-        chat_id=message.chat.id, 
+        chat_id=call.message.chat.id, 
         audio=audio_url, 
         caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
 
-@bot.message_handler(func=lambda message: message.text in ['دز'])
-def abh(message):
-    rl = random.choice(basimurl) 
-    audio_url = f"https://t.me/sossosic/{rl}"
-    bot.reply_to(message, audio_url, parse_mode="html")
-    bot.send_audio(
-        chat_id=message.chat.id, 
-        audio=audio_url, 
-        caption="᯽︙اذكر القائم",
-        parse_mode="html"
-    )
+
+
+
+
+
+
+
+
+
+# @bot.message_handler(func=lambda message: message.text in ['لطمية'])
+# def abh(message):
+#     rl = random.choice(basimurl) 
+#     audio_url = f"https://t.me/sossosic/{rl}"
+#     bot.send_audio(
+#         chat_id=message.chat.id, 
+#         audio=audio_url, 
+#         caption="᯽︙اذكر القائم",
+#         parse_mode="html"
+#     )
+
+
 
 
 

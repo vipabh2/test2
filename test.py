@@ -289,3 +289,9 @@ def abh(message):
 #                             chat_id = message.chat.id
 #                         except Exception as e:
 #                             print(f"حدث خطأ أثناء حذف الرسالة: {e}")
+if __name__ == "__main__":
+    try:
+        bot.polling(none_stop=True)
+    except Exception as e:
+        print(f"حدث خطأ: {e}")
+        time.sleep(15)  

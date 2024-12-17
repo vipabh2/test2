@@ -2,6 +2,7 @@ import telebot
 from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import random
+import time
 
 # bot_token = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot("7273443857:AAFt8PtcI_gdYp0QbtcJH1Tu1oFJn9-H0yk")
@@ -341,7 +342,10 @@ def abh(call):
 #                         except Exception as e:
 #                             print(f"حدث خطأ أثناء حذف الرسالة: {e}")
 if __name__ == "__main__":
-    try:
-        bot.polling(none_stop=True)
-    except Exception as e:
-        print(f"حدث خطأ: {e}")
+    while True:
+        try:
+            print("البوت يعمل...")
+            bot.polling(none_stop=True)
+        except Exception as e:
+            print(f"حدث خطأ: {e}")
+            time.sleep(5)  # انتظر قليلاً قبل المحاولة مجددًا

@@ -38,12 +38,13 @@ def abh(call):
     audio_url = f"https://t.me/sossosic/{rl}"
     bot.reply_to(call.message, audio_url, parse_mode="html")
     bot.send_audio(
-        chat_id=call.message.chat.id, 
+        call.message.chat.id, 
+        call.message.message_id,
         audio=audio_url, 
         caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
-
+    call.message.chat.id, call.message.message_id
 
 
 

@@ -18,7 +18,8 @@ basimurl = (
 
 
 
-@bot.message_handler(commands=['دز'])
+# @bot.message_handler(commands=['دز'])
+@bot.message_handler(func=lambda message: message.text in ['باسم'])
 def vipabh(message):
        
     username = message.from_user.username if message.from_user.username else "لا يوجد اسم مستخدم"
@@ -26,8 +27,8 @@ def vipabh(message):
     markup.add(types.InlineKeyboardButton("ابدأ اللعبة", callback_data="start_game"))
     bot.send_video(
         message.chat.id,
-        "https://t.me/VIPABH/1204",
-        caption=f"اهلا [{message.from_user.first_name}](https://t.me/{username}) حياك الله! اضغط على الزر لبدء اللعبة.",
+        "https://t.me/VIPABH/1212",
+        caption=f"اهلا [{message.from_user.first_name}](https://t.me/{username}) حياك الله! اضغط على الزر ل ارسال اللطمية.",
         parse_mode="Markdown",
         reply_markup=markup
     )

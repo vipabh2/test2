@@ -1,5 +1,6 @@
 import telebot
 import random
+import time
 import os
 
 # bot_token = os.getenv("BOT_TOKEN")

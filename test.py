@@ -20,7 +20,7 @@ basimurl = (
 
 
 # @bot.message_handler(commands=['دز'])
-@bot.message@bot.message_handler(func=lambda message: message.text in ['باسم'])
+@bot.message_handler(func=lambda message: message.text in ['باسم'])
 def vipabh(message):
     username = message.from_user.username if message.from_user.username else "لا يوجد اسم مستخدم"
     markup = types.InlineKeyboardMarkup()

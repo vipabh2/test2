@@ -41,7 +41,7 @@ def send_audio_from_basim_list(call):
     bot.send_audio(
         chat_id=call.message.chat.id,
         audio=audio_url,
-        caption=text=audio_url,
+        caption=text = audio_url,
         # caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
@@ -60,7 +60,7 @@ def send_audio_from_mohmurl_list(call):
         chat_id=call.message.chat.id,
         audio=audio_url,
         # caption="᯽︙اذكر القائم",
-        caption=text=audio_url,
+        caption=text = audio_url,
         parse_mode="html"
     )
     # bot.send_message(

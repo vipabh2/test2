@@ -47,7 +47,12 @@ def abh(call):
         caption="᯽︙اذكر القائم",  
         parse_mode="html"
     )
-    
+        bot.send_message(
+        chat_id=call.message.chat.id,  
+        "audio",  
+
+    )
+
 if __name__ == "__main__":
     print("البوت يعمل...")
     bot.polling(none_stop=True)

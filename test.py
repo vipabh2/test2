@@ -75,7 +75,7 @@ if not basimurl:
         chat_id=call.message.chat.id,
         text="⚠️ لا توجد ملفات صوتية لإرسالها حاليًا."
     )
-    return
+    
 
 
 

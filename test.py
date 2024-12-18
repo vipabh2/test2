@@ -42,24 +42,14 @@ def abh(call):
         "جارٍ تشغيل الصوت...",
         parse_mode="html"
     )
+    bot.reply_to(call.message, audio_url, parse_mode="html")
     bot.send_audio(
-        chat_id=call.message.chat.id,
-        audio=audio_url,
-        caption="᯽︙اذكر القائم",
-        reply_to_message_id=call.message.message_id,  
-        parse_mode="html"
-    )
-
-
-
-    # bot.reply_to(call.message, audio_url, parse_mode="html")
-    # bot.send_audio(
-    #     call.message.chat.id, 
-    #     call.message.message_id,
-    #     audio=audio_url, 
-    #     caption="᯽︙اذكر القائم",
-    #     parse_mode="html"
-    # )
+        call.message.chat.id, 
+        call.message.message_id
+        audio=audio_url, 
+    caption="᯽︙اذكر القائم",
+    parse_mode="html"
+     )
 
 
 

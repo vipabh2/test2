@@ -41,15 +41,16 @@ def send_audio_from_basim_list(call):
     bot.send_audio(
         chat_id=call.message.chat.id,
         audio=audio_url,
-        caption="᯽︙اذكر القائم",
+        caption="text=audio_url",
+        # caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text=audio_url, 
-        parse_mode="html"
+    # bot.send_message(
+    #     chat_id=call.message.chat.id,
+    #     text=audio_url, 
+    #     parse_mode="html"
 
-    )
+    # )
 
 def send_audio_from_mohmurl_list(call):
     rl = random.choice(mohmurl) 
@@ -58,13 +59,14 @@ def send_audio_from_mohmurl_list(call):
     bot.send_audio(
         chat_id=call.message.chat.id,
         audio=audio_url,
-        caption="᯽︙اذكر القائم",
+        # caption="᯽︙اذكر القائم",
+        caption="text=audio_url",
         parse_mode="html"
     )
-    bot.send_message(
-        chat_id=call.message.chat.id,
-        text=audio_url
-    )
+    # bot.send_message(
+    #     chat_id=call.message.chat.id,
+    #     text=audio_url
+    # )
 
 @bot.callback_query_handler(func=lambda call: call.data == "باسم")
 def send_basim(call):

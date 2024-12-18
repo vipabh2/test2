@@ -6,7 +6,6 @@ import time
 
 # bot_token = os.getenv("BOT_TOKEN")
 bot = telebot.TeleBot("7273443857:AAFt8PtcI_gdYp0QbtcJH1Tu1oFJn9-H0yk")
-
 basimurl = (
     "50", "51", "52", "53", "54", "55", "56", "57", "58", "59",
     "60", "61", "62", "63", "64", "65", "66", "67", "68", "69",
@@ -21,7 +20,6 @@ mohmurl = (
     "129", "130", "131", "132", "133", "134", "135", "136", "137", "138"
 )
 
-# @bot.message_handler(commands=['دز'])
 @bot.message_handler(func=lambda message: message.text in ['باسم'])
 def vipabh(message):
     username = message.from_user.username if message.from_user.username else "لا يوجد اسم مستخدم"
@@ -36,26 +34,43 @@ def vipabh(message):
         reply_markup=markup
     )
     
-def send_audio_from_list(call, audio_list):
-    rl = random.choice(audio_list)
-    audio_url = f"https://t.me/sossosic/{rl}"
-
+def send_audio_from_basim_list(call, basimurl):
+    rl = random.choice(basimurl)
+    basimurl = f"https://t.me/sossosic/{rl}"
+    
     bot.send_audio(
         chat_id=call.message.chat.id,
-        audio=audio_url,
+        audio=basimurl,
         caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
     bot.send_message(
         chat_id=call.message.chat.id,
-        text=audio_url
+        text=basimurl
+    )
+    
+def send_audio_from_mohmurl_list(call, mohmurl):
+    rl = random.choice(mohmurl)
+    mohmurl = f"https://t.me/sossosic/{rl}"
+
+    bot.send_audio(
+        chat_id=call.message.chat.id,
+        audio=mohmurl,
+        caption="᯽︙اذكر القائم",
+        parse_mode="html"
+    )
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text=mohmurl
     )
 
 @bot.callback_query_handler(func=lambda call: call.data == "لطمية")
 def send_basim(call):
-    @bot.callback_query_handler(func=lambda call: call.data == "الخاقاني")
-    def send_khaqani(call):
-        send_audio_from_list(call, mohmurl)
+    send_audio_from_basim_list
+    
+@bot.callback_query_handler(func=lambda call: call.data == "الخاقاني")
+def send_khaqani(call):
+        send_audio_from_mohmurl_list(call, mohmurl)
 
 
     

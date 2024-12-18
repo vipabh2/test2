@@ -49,7 +49,8 @@ def abh(call):
     )
     bot.send_message(
         chat_id=call.message.chat.id,  
-        audio)
+        audio_url
+    )
 
 if __name__ == "__main__":
     print("البوت يعمل...")

@@ -46,7 +46,9 @@ def send_audio_from_basim_list(call):
     )
     bot.send_message(
         chat_id=call.message.chat.id,
-        text=audio_url
+        text=audio_url, 
+        parse_mode="html"
+
     )
 
 def send_audio_from_mohmurl_list(call):

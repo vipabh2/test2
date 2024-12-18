@@ -20,12 +20,19 @@ mohmurl = (
     "129", "130", "131", "132", "133", "134", "135", "136", "137", "138"
 )
 
+musurl = ('139', '140', '141', '142', '143', '144', '145', '146', '147',
+            '148', '149', '150', '151', '152', '153', '154'
+            )
+
+
+
 @bot.message_handler(func=lambda message: message.text in ['ل'])
 def vipabh(message):
     username = message.from_user.username if message.from_user.username else "لا يوجد اسم مستخدم"
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("باسم", callback_data="باسم"))
     markup.add(types.InlineKeyboardButton("الخاقاني", callback_data="الخاقاني"))
+    markup.add(types.InlineKeyboardButton("مسلم", callback_data="مسلم"))
     bot.send_video(
         message.chat.id,
         "https://t.me/VIPABH/1212",  
@@ -45,15 +52,21 @@ def send_audio_from_basim_list(call):
         # caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
-    # bot.send_message(
-    #     chat_id=call.message.chat.id,
-    #     text=audio_url, 
-    #     parse_mode="html"
 
-    # )
+def send_audio_from_mus_list(call):
+    rl = random.choice(basimurl)  
+    audio_url = f"https://t.me/sossosic/{rl}"  
+    
+    bot.send_audio(
+        chat_id=call.message.chat.id,
+        audio=audio_url,
+        caption=f"{audio_url}", 
+        # caption="᯽︙اذكر القائم",
+        parse_mode="html"
+    )
 
 def send_audio_from_mohmurl_list(call):
-    rl = random.choice(mohmurl) 
+    rl = random.choice(musurl) 
     audio_url = f"https://t.me/sossosic/{rl}" 
 
     bot.send_audio(
@@ -63,10 +76,6 @@ def send_audio_from_mohmurl_list(call):
         caption=f"{audio_url}", 
         parse_mode="html"
     )
-    # bot.send_message(
-    #     chat_id=call.message.chat.id,
-    #     text=audio_url
-    # )
 
 @bot.callback_query_handler(func=lambda call: call.data == "باسم")
 def send_basim(call):
@@ -75,6 +84,10 @@ def send_basim(call):
 @bot.callback_query_handler(func=lambda call: call.data == "الخاقاني")
 def send_khaqani(call):
     send_audio_from_mohmurl_list(call)
+
+@bot.callback_query_handler(func=lambda call: call.data == "مسلم")
+def send_khaqani(call):
+    send_audio_from_mus_list(call)
 
 
     

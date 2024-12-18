@@ -26,6 +26,8 @@ musurl = ('139', '140', '141', '142', '143', '144', '145', '146', '147',
 
 nurl = ('164', '165', '166', '167', '168', '169', '170')
 
+furl = ('171', '172', '173', '174')
+
 
 
 @bot.message_handler(func=lambda message: message.text in ['ل'])
@@ -36,12 +38,25 @@ def vipabh(message):
     markup.add(types.InlineKeyboardButton("الخاقاني", callback_data="الخاقاني"))
     markup.add(types.InlineKeyboardButton("مسلم", callback_data="مسلم"))
     markup.add(types.InlineKeyboardButton("نزلة", callback_data="نزلة"))
+    markup.add(types.InlineKeyboardButton("فاقد", callback_data="فاقد"))
     bot.send_video(
         message.chat.id,
         "https://t.me/VIPABH/1212",  
         caption=f"اهلا [{message.from_user.first_name}](https://t.me/{username}) حياك الله! اضغط على الزر لإرسال اللطمية.",
         parse_mode="Markdown",
         reply_markup=markup
+    )
+
+def send_audio_from_f_list(call):
+    rl = random.choice(furl)  
+    audio_url = f"https://t.me/sossosic/{rl}"  
+    
+    bot.send_audio(
+        chat_id=call.message.chat.id,
+        audio=audio_url,
+        caption=f"{audio_url}", 
+        # caption="᯽︙اذكر القائم",
+        parse_mode="html"
     )
 
 def send_audio_from_n_list(call):
@@ -58,7 +73,7 @@ def send_audio_from_n_list(call):
 
 
 def send_audio_from_basim_list(call):
-    rl = random.choice(basimurl)  
+    rl = random.choice(furl)  
     audio_url = f"https://t.me/sossosic/{rl}"  
     
     bot.send_audio(
@@ -108,6 +123,10 @@ def send_mus(call):
 @bot.callback_query_handler(func=lambda call: call.data == "نزلة")
 def send_mus(call):
     send_audio_from_n_list(call)
+
+@bot.callback_query_handler(func=lambda call: call.data == "فاقد")
+def send_mus(call):
+    send_audio_from_f_list(call)
 
 
     

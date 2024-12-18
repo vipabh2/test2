@@ -53,8 +53,8 @@ def send_audio_from_basim_list(call):
         parse_mode="html"
     )
 
-def send_audio_from_mus_list(call):
-    rl = random.choice(basimurl)  
+def send_audio_from_mohmurl_list(call):
+    rl = random.choice(mohmurl)  
     audio_url = f"https://t.me/sossosic/{rl}"  
     
     bot.send_audio(

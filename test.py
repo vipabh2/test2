@@ -37,11 +37,7 @@ def vipabh(message):
 def abh(call):
     rl = random.choice(basimurl) 
     audio_url = f"https://t.me/sossosic/{rl}"
-    bot.reply_to(
-        call.message,
-        "جارٍ تشغيل الصوت...",
-        parse_mode="html"
-    )
+
     bot.reply_to(call.message, audio_url, parse_mode="html")
     bot.send_audio(
         call.message.chat.id, 

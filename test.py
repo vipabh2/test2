@@ -49,7 +49,7 @@ def abh(call):
     )
     bot.send_message(
         chat_id=call.message.chat.id,  
-        audio_url
+        text=audio_url 
     )
 
 if __name__ == "__main__":

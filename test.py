@@ -36,43 +36,67 @@ def vipabh(message):
         reply_markup=markup
     )
 
-
-@bot.callback_query_handler(func=lambda call: call.data == "باسم")
-def abh(call):
-    rl = random.choice(basimurl)  
-    audio_url = f"https://t.me/sossosic/{rl}"  
-
+def send_audio_from_list(call, audio_list):
+    rl = random.choice(audio_list)
+    audio_url = f"https://t.me/sossosic/{rl}"
 
     bot.send_audio(
-        chat_id=call.message.chat.id,  
-        audio=audio_url,  
-        caption="᯽︙اذكر القائم",  
+        chat_id=call.message.chat.id,
+        audio=audio_url,
+        caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
     bot.send_message(
-        chat_id=call.message.chat.id,  
-        text=audio_url 
+        chat_id=call.message.chat.id,
+        text=audio_url
     )
+
+@bot.callback_query_handler(func=lambda call: call.data == "لطمية")
+def send_basim(call):
+    send_audio_from_list(call, basimurl)
 
 @bot.callback_query_handler(func=lambda call: call.data == "الخاقاني")
-def abh(call):
-    rl = random.choice(mohmurl)  
-    audio_url = f"https://t.me/sossosic/{rl}"  
+def send_khaqani(call):
+    send_audio_from_list(call, mohmurl)
 
 
-    bot.send_audio(
-        chat_id=call.message.chat.id,  
-        audio=audio_url,  
-        caption="᯽︙اذكر القائم",  
-        parse_mode="html"
-    )
-    bot.send_message(
-        chat_id=call.message.chat.id,  
-        text=audio_url 
-    )
+
+# @bot.callback_query_handler(func=lambda call: call.data == "لطمية")
+# def abh(call):
+#     rl = random.choice(basimurl)  
+#     audio_url = f"https://t.me/sossosic/{rl}"  
+
+
+#     bot.send_audio(
+#         chat_id=call.message.chat.id,  
+#         audio=audio_url,  
+#         caption="᯽︙اذكر القائم",  
+#         parse_mode="html"
+#     )
+#     bot.send_message(
+#         chat_id=call.message.chat.id,  
+#         text=audio_url 
+#     )
+
+# @bot.callback_query_handler(func=lambda call: call.data == "الخاقاني")
+# def abh(call):
+#     rl = random.choice(mohmurl)  
+#     audio_url = f"https://t.me/sossosic/{rl}"  
+
+
+#     bot.send_audio(
+#         chat_id=call.message.chat.id,  
+#         audio=audio_url,  
+#         caption="᯽︙اذكر القائم",  
+#         parse_mode="html"
+#     )
+#     bot.send_message(
+#         chat_id=call.message.chat.id,  
+#         text=audio_url 
+#     )
 
 if __name__ == "__main__":
-    print("البوت يعمل...")
+    # print("البوت يعمل...")
     bot.polling(none_stop=True)
 
 

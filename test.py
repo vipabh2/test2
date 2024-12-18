@@ -65,7 +65,7 @@ def send_audio_from_mus_list(call):
         parse_mode="html"
     )
 
-def send_audio_from_mohmurl_list(call):
+def send_audio_from_mus_list(call):
     rl = random.choice(musurl) 
     audio_url = f"https://t.me/sossosic/{rl}" 
 
@@ -86,7 +86,7 @@ def send_khaqani(call):
     send_audio_from_mohmurl_list(call)
 
 @bot.callback_query_handler(func=lambda call: call.data == "مسلم")
-def send_khaqani(call):
+def send_mus(call):
     send_audio_from_mus_list(call)
 
 

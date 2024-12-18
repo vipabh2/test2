@@ -34,24 +34,23 @@ def vipabh(message):
         reply_markup=markup
     )
 
+
 @bot.callback_query_handler(func=lambda call: call.data == "start_game")
 def abh(call):
     rl = random.choice(basimurl)  
     audio_url = f"https://t.me/sossosic/{rl}"  
 
-    # إرسال ملف الصوت
+
     bot.send_audio(
-        chat_id=call.message.chat.id, 
-        audio=audio_url,
-        caption="᯽︙اذكر القائم",
+        chat_id=call.message.chat.id,  
+        audio=audio_url,  
+        caption="᯽︙اذكر القائم",  
         parse_mode="html"
     )
-
-
+    
 if __name__ == "__main__":
     print("البوت يعمل...")
     bot.polling(none_stop=True)
-
 
 
 

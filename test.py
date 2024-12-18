@@ -42,7 +42,7 @@ def vipabh(message):
     bot.send_video(
         message.chat.id,
         "https://t.me/VIPABH/1212",  
-        caption=f"اهلا [{message.from_user.first_name}](https://t.me/{username}) حياك الله! اضغط على الزر لإرسال اللطمية.",
+        caption=f"اهلا [{message.from_user.first_name}](https://t.me/{username}) حياك الله! اضغط على الرادود.",
         parse_mode="Markdown",
         reply_markup=markup
     )

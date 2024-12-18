@@ -20,12 +20,12 @@ mohmurl = (
     "129", "130", "131", "132", "133", "134", "135", "136", "137", "138"
 )
 
-@bot.message_handler(func=lambda message: message.text in ['باسم'])
+@bot.message_handler(func=lambda message: message.text in ['ل'])
 def vipabh(message):
     username = message.from_user.username if message.from_user.username else "لا يوجد اسم مستخدم"
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("باسم", callback_data="باسم"))
-    markup.add(types.InlineKeyboardButton("الخاقاني", callback_data="الخقاني"))
+    markup.add(types.InlineKeyboardButton("الخاقاني", callback_data="الخاقاني"))
     bot.send_video(
         message.chat.id,
         "https://t.me/VIPABH/1212",  
@@ -33,44 +33,44 @@ def vipabh(message):
         parse_mode="Markdown",
         reply_markup=markup
     )
-    
-def send_audio_from_basim_list(call, basimurl):
-    rl = random.choice(basimurl)
-    basimurl = f"https://t.me/sossosic/{rl}"
+
+def send_audio_from_basim_list(call):
+    rl = random.choice(basimurl)  
+    audio_url = f"https://t.me/sossosic/{rl}"  
     
     bot.send_audio(
         chat_id=call.message.chat.id,
-        audio=basimurl,
+        audio=audio_url,
         caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
     bot.send_message(
         chat_id=call.message.chat.id,
-        text=basimurl
+        text=audio_url
     )
-    
-def send_audio_from_mohmurl_list(call, mohmurl):
-    rl = random.choice(mohmurl)
-    mohmurl = f"https://t.me/sossosic/{rl}"
+
+def send_audio_from_mohmurl_list(call):
+    rl = random.choice(mohmurl) 
+    audio_url = f"https://t.me/sossosic/{rl}" 
 
     bot.send_audio(
         chat_id=call.message.chat.id,
-        audio=mohmurl,
+        audio=audio_url,
         caption="᯽︙اذكر القائم",
         parse_mode="html"
     )
     bot.send_message(
         chat_id=call.message.chat.id,
-        text=mohmurl
+        text=audio_url
     )
 
-@bot.callback_query_handler(func=lambda call: call.data == "لطمية")
+@bot.callback_query_handler(func=lambda call: call.data == "باسم")
 def send_basim(call):
-    send_audio_from_basim_list
-    
+    send_audio_from_basim_list(call)
+
 @bot.callback_query_handler(func=lambda call: call.data == "الخاقاني")
 def send_khaqani(call):
-        send_audio_from_mohmurl_list(call, mohmurl)
+    send_audio_from_mohmurl_list(call)
 
 
     

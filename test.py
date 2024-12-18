@@ -16,16 +16,18 @@ basimurl = (
     "100", "101", "102", "103", "104", "105", "106", "107", "108", "109",
     "110", "111", "112", "113", "114", "115", "116", "117", "118"
 )
-
-
+mohmurl = (
+    "119", "120", "121", "122", "123", "124", "125", "126", "127", "128",
+    "129", "130", "131", "132", "133", "134", "135", "136", "137", "138"
+)
 
 # @bot.message_handler(commands=['دز'])
 @bot.message_handler(func=lambda message: message.text in ['باسم'])
 def vipabh(message):
     username = message.from_user.username if message.from_user.username else "لا يوجد اسم مستخدم"
     markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("ابدأ اللعبة", callback_data="start_game"))
-    
+    markup.add(types.InlineKeyboardButton("باسم", callback_data="باسم"))
+    markup.add(types.InlineKeyboardButton("الخاقاني", callback_data="الخقاني"))
     bot.send_video(
         message.chat.id,
         "https://t.me/VIPABH/1212",  
@@ -35,9 +37,26 @@ def vipabh(message):
     )
 
 
-@bot.callback_query_handler(func=lambda call: call.data == "start_game")
+@bot.callback_query_handler(func=lambda call: call.data == "باسم")
 def abh(call):
     rl = random.choice(basimurl)  
+    audio_url = f"https://t.me/sossosic/{rl}"  
+
+
+    bot.send_audio(
+        chat_id=call.message.chat.id,  
+        audio=audio_url,  
+        caption="᯽︙اذكر القائم",  
+        parse_mode="html"
+    )
+    bot.send_message(
+        chat_id=call.message.chat.id,  
+        text=audio_url 
+    )
+
+@bot.callback_query_handler(func=lambda call: call.data == "الخاقاني")
+def abh(call):
+    rl = random.choice(mohmurl)  
     audio_url = f"https://t.me/sossosic/{rl}"  
 
 

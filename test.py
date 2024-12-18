@@ -20,32 +20,37 @@ basimurl = (
 
 
 # @bot.message_handler(commands=['دز'])
-@bot.message_handler(func=lambda message: message.text in ['باسم'])
+@bot.message@bot.message_handler(func=lambda message: message.text in ['باسم'])
 def vipabh(message):
-       
     username = message.from_user.username if message.from_user.username else "لا يوجد اسم مستخدم"
     markup = types.InlineKeyboardMarkup()
     markup.add(types.InlineKeyboardButton("ابدأ اللعبة", callback_data="start_game"))
+    
     bot.send_video(
         message.chat.id,
-        "https://t.me/VIPABH/1212",
-        caption=f"اهلا [{message.from_user.first_name}](https://t.me/{username}) حياك الله! اضغط على الزر ل ارسال اللطمية.",
+        "https://t.me/VIPABH/1212",  
+        caption=f"اهلا [{message.from_user.first_name}](https://t.me/{username}) حياك الله! اضغط على الزر لإرسال اللطمية.",
         parse_mode="Markdown",
         reply_markup=markup
     )
+
 @bot.callback_query_handler(func=lambda call: call.data == "start_game")
 def abh(call):
-    rl = random.choice(basimurl) 
-    audio_url = f"https://t.me/sossosic/{rl}"
+    rl = random.choice(basimurl)  
+    audio_url = f"https://t.me/sossosic/{rl}"  
 
-    bot.reply_to(call.message, audio_url, parse_mode="html")
+    # إرسال ملف الصوت
     bot.send_audio(
-        call.message.chat.id, 
-        call.message.message_id,
-        audio=audio_url, 
-    caption="᯽︙اذكر القائم",
-    parse_mode="html"
-     )
+        chat_id=call.message.chat.id, 
+        audio=audio_url,
+        caption="᯽︙اذكر القائم",
+        parse_mode="html"
+    )
+
+
+if __name__ == "__main__":
+    print("البوت يعمل...")
+    bot.polling(none_stop=True)
 
 
 

@@ -35,7 +35,6 @@ def vipabh(message):
         parse_mode="Markdown",
         reply_markup=markup
     )
-
 def send_audio_from_list(call, audio_list):
     rl = random.choice(audio_list)
     audio_url = f"https://t.me/sossosic/{rl}"
@@ -52,12 +51,31 @@ def send_audio_from_list(call, audio_list):
     )
 
 @bot.callback_query_handler(func=lambda call: call.data == "لطمية")
-def send_basim(call):
+def send_latmia(call):
     send_audio_from_list(call, basimurl)
 
 @bot.callback_query_handler(func=lambda call: call.data == "الخاقاني")
 def send_khaqani(call):
     send_audio_from_list(call, mohmurl)
+
+try:
+    bot.send_audio(
+        chat_id=call.message.chat.id,
+        audio=audio_url,
+        caption="᯽︙اذكر القائم",
+        parse_mode="html"
+    )
+except Exception as e:
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text="⚠️ حدث خطأ أثناء إرسال الصوت. حاول مرة أخرى لاحقًا."
+    )
+if not basimurl:
+    bot.send_message(
+        chat_id=call.message.chat.id,
+        text="⚠️ لا توجد ملفات صوتية لإرسالها حاليًا."
+    )
+    return
 
 
 

@@ -24,6 +24,8 @@ musurl = ('139', '140', '141', '142', '143', '144', '145', '146', '147',
             '148', '149', '150', '151', '152', '153', '154'
             )
 
+nurl = ('164', '165', '166', '167', '168', '169', '170')
+
 
 
 @bot.message_handler(func=lambda message: message.text in ['ل'])
@@ -33,6 +35,7 @@ def vipabh(message):
     markup.add(types.InlineKeyboardButton("باسم", callback_data="باسم"))
     markup.add(types.InlineKeyboardButton("الخاقاني", callback_data="الخاقاني"))
     markup.add(types.InlineKeyboardButton("مسلم", callback_data="مسلم"))
+    markup.add(types.InlineKeyboardButton("نزلة", callback_data="نزلة"))
     bot.send_video(
         message.chat.id,
         "https://t.me/VIPABH/1212",  
@@ -40,6 +43,19 @@ def vipabh(message):
         parse_mode="Markdown",
         reply_markup=markup
     )
+
+def send_audio_from_n_list(call):
+    rl = random.choice(nurl)  
+    audio_url = f"https://t.me/sossosic/{rl}"  
+    
+    bot.send_audio(
+        chat_id=call.message.chat.id,
+        audio=audio_url,
+        caption=f"{audio_url}", 
+        # caption="᯽︙اذكر القائم",
+        parse_mode="html"
+    )
+
 
 def send_audio_from_basim_list(call):
     rl = random.choice(basimurl)  
@@ -89,62 +105,14 @@ def send_khaqani(call):
 def send_mus(call):
     send_audio_from_mus_list(call)
 
+@bot.callback_query_handler(func=lambda call: call.data == "نزلة")
+def send_mus(call):
+    send_audio_from_n_list(call)
+
 
     
 
 
-
-# @bot.callback_query_handler(func=lambda call: call.data == "لطمية")
-# def abh(call):
-#     rl = random.choice(basimurl)  
-#     audio_url = f"https://t.me/sossosic/{rl}"  
-
-
-#     bot.send_audio(
-#         chat_id=call.message.chat.id,  
-#         audio=audio_url,  
-#         caption="᯽︙اذكر القائم",  
-#         parse_mode="html"
-#     )
-#     bot.send_message(
-#         chat_id=call.message.chat.id,  
-#         text=audio_url 
-#     )
-
-# @bot.callback_query_handler(func=lambda call: call.data == "الخاقاني")
-# def abh(call):
-#     rl = random.choice(mohmurl)  
-#     audio_url = f"https://t.me/sossosic/{rl}"  
-
-
-#     bot.send_audio(
-#         chat_id=call.message.chat.id,  
-#         audio=audio_url,  
-#         caption="᯽︙اذكر القائم",  
-#         parse_mode="html"
-#     )
-#     bot.send_message(
-#         chat_id=call.message.chat.id,  
-#         text=audio_url 
-#     )
-
-if __name__ == "__main__":
-    # print("البوت يعمل...")
-    bot.polling(none_stop=True)
-
-
-
-
-# @bot.message_handler(func=lambda message: message.text in ['لطمية'])
-# def abh(message):
-#     rl = random.choice(basimurl) 
-#     audio_url = f"https://t.me/sossosic/{rl}"
-#     bot.send_audio(
-#         chat_id=message.chat.id, 
-#         audio=audio_url, 
-#         caption="᯽︙اذكر القائم",
-#         parse_mode="html"
-#     )
 
 
 
@@ -418,4 +386,4 @@ if __name__ == "__main__":
             bot.polling(none_stop=True)
         except Exception as e:
             print(f"حدث خطأ: {e}")
-            time.sleep(5)  # انتظر قليلاً قبل المحاولة مجددًا
+            time.sleep(5) 

@@ -5,7 +5,7 @@ import random
 import time
 
 # bot_token = os.getenv("BOT_TOKEN")
-bot = telebot.TeleBot("7273443857:AAFt8PtcI_gdYp0QbtcJH1Tu1oFJn9-H0yk")
+bot = telebot.TeleBot("6387632922:AAFAV-VSkoyoJcMPIHeO9OUnygFhhvNSawA")
 basimurl = (
     "50", "51", "52", "53", "54", "55", "56", "57", "58", "59",
     "60", "61", "62", "63", "64", "65", "66", "67", "68", "69",

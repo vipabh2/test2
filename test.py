@@ -90,16 +90,16 @@ def handle_guess(message):
         except (IndexError, ValueError):
             sent_msg6 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
 
-@bot.message_handler(commands=['محيبس'])
-def show_number(message):
-    """إظهار الرقم السري عند الطلب وإرساله إلى @k_4x1"""
-    chat_id = message.chat.id
-    if chat_id in group_game_status and group_game_status[chat_id]['game_active']:
-        target_user_id = 1910015590
-        sent_msg9 = bot.send_message(target_user_id, f"الرقم السري هو: {number2}")
-        sent_msg10 = bot.reply_to(message, "تم إرسال الرقم السري إلى @k_4x1.")
-    else:
-        sent_msg11 = bot.reply_to(message, "لم تبدأ اللعبة بعد. أرسل 'محيبس' لبدء اللعبة.")
+# @bot.message_handler(commands=['محيبس'])
+# def show_number(message):
+#     """إظهار الرقم السري عند الطلب وإرساله إلى @k_4x1"""
+#     chat_id = message.chat.id
+#     if chat_id in group_game_status and group_game_status[chat_id]['game_active']:
+#         target_user_id = 1910015590
+#         sent_msg9 = bot.send_message(target_user_id, f"الرقم السري هو: {number2}")
+#         sent_msg10 = bot.reply_to(message, "تم إرسال الرقم السري إلى @k_4x1.")
+#     else:
+#         sent_msg11 = bot.reply_to(message, "لم تبدأ اللعبة بعد. أرسل 'محيبس' لبدء اللعبة.")
 @bot.message_handler(regexp=r'\طك (\d+)')
 async def handle_strike(message):
     global game_board, number2, group_game_status
@@ -125,63 +125,7 @@ async def handle_strike(message):
             sent_msg8 = bot.reply_to(message, "يرجى إدخال رقم صحيح بين 1 و 6.")
             await delete_message_after(message.chat.id, sent_msg8.message_id, delay=3)
 
-group_game_status = {}
-number2 = None
-game_board = [["👊", "👊", "👊", "👊", "👊", "👊"]]
-numbers_board = [["1️⃣", "2️⃣", "3️⃣", "4️⃣", "5️⃣", "6️⃣"]]
-original_game_board = [["👊", "👊", "👊", "👊", "👊", "👊"]]
-points = {}
 
-def format_board(game_board, numbers_board):
-    """تنسيق الجدول للعرض بشكل مناسب"""
-    formatted_board = ""
-    formatted_board += " ".join(numbers_board[0]) + "\n"
-    formatted_board += " ".join(game_board[0]) + "\n"
-    return formatted_board
-
-def reset_game(chat_id):
-    """إعادة تعيين حالة اللعبة بعد انتهائها"""
-    global game_board, number2, group_game_status
-    game_board = [row[:] for row in original_game_board]
-    number2 = None
-    group_game_status[chat_id]['game_active'] = False
-    group_game_status[chat_id]['active_player_id'] = None
-
-@bot.message_handler(func=lambda message: message.text == 'محيبس')
-def start_game(message):
-    global number2
-    markup = types.InlineKeyboardMarkup()
-    markup.add(types.InlineKeyboardButton("ابدأ اللعبة", callback_data="startGame"))
-    username = message.from_user.username or "unknown"
-    sent_msg = bot.send_video(
-        message.chat.id,
-        "t.me/VIPABH/1210",  
-        caption=f"أهلاً [{message.from_user.first_name}](https://t.me/{username})! حياك الله. اضغط على الزر لبدء اللعبة.",
-        parse_mode="Markdown",
-        reply_markup=markup
-    )
-
-@bot.callback_query_handler(func=lambda call: call.data == "startGame")
-def handle_start_game(call):
-    chat_id = call.message.chat.id
-    user_id = call.from_user.id
-    if chat_id not in group_game_status:
-        group_game_status[chat_id] = {'game_active': False, 'active_player_id': None}
-    if not group_game_status[chat_id]['game_active']:
-        group_game_status[chat_id]['game_active'] = True
-        group_game_status[chat_id]['active_player_id'] = user_id
-        global number2
-        number2 = random.randint(1, 6)
-        group_game_status[chat_id]['number2'] = number2
-        bot.edit_message_reply_markup(
-            chat_id=call.message.chat.id,
-            message_id=call.message.message_id,
-            reply_markup=None 
-        )
-        sent_msg2 = bot.send_message(
-            chat_id,
-            "تم تسجيلك في لعبة محيبس \n ملاحظة: لفتح العضمة ارسل طك ورقم العضمة لأخذ المحبس أرسل جيب ورقم العضمة."
-        )
 
 @bot.message_handler(regexp=r'جيب (\d+)')
 def handle_guess(message):

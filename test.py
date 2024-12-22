@@ -90,16 +90,6 @@ def handle_guess(message):
         except (IndexError, ValueError):
             sent_msg6 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
 
-# @bot.message_handler(commands=['محيبس'])
-# def show_number(message):
-#     """إظهار الرقم السري عند الطلب وإرساله إلى @k_4x1"""
-#     chat_id = message.chat.id
-#     if chat_id in group_game_status and group_game_status[chat_id]['game_active']:
-#         target_user_id = 1910015590
-#         sent_msg9 = bot.send_message(target_user_id, f"الرقم السري هو: {number2}")
-#         sent_msg10 = bot.reply_to(message, "تم إرسال الرقم السري إلى @k_4x1.")
-#     else:
-#         sent_msg11 = bot.reply_to(message, "لم تبدأ اللعبة بعد. أرسل 'محيبس' لبدء اللعبة.")
 @bot.message_handler(regexp=r'\طك (\d+)')
 async def handle_strike(message):
     global game_board, number2, group_game_status
@@ -125,32 +115,30 @@ async def handle_strike(message):
             sent_msg8 = bot.reply_to(message, "يرجى إدخال رقم صحيح بين 1 و 6.")
             await delete_message_after(message.chat.id, sent_msg8.message_id, delay=3)
 
-
-
-@bot.message_handler(regexp=r'جيب (\d+)')
-def handle_guess(message):
-    global number2, game_board, points, group_game_status
-    chat_id = message.chat.id
-    if chat_id in group_game_status and group_game_status[chat_id]['game_active']:
-        try:
-            guess = int(message.text.split()[1])
-            if 1 <= guess <= 6:
-                if guess == number2:
-                    winner_id = message.from_user.id
-                    points[winner_id] = points.get(winner_id, 0) + 1
-                    sender_first_name = message.from_user.first_name
-                    game_board = [["💍" if i == number2 - 1 else "🖐️" for i in range(6)]]
-                    sent_msg3 = bot.reply_to(message, f'🎉 الف مبروك! اللاعب ({sender_first_name}) وجد المحبس 💍!\n{format_board(game_board, numbers_board)}')
-                    reset_game(chat_id)
-                else:
-                    sender_first_name = message.from_user.first_name
-                    game_board = [["❌" if i == guess - 1 else "🖐️" for i in range(6)]]
-                    sent_msg4 = bot.reply_to(message, f"ضاع البات ماضن بعد تلگونة ☹️ \n{format_board(game_board, numbers_board)}")
-                    reset_game(chat_id)
-            else:
-                sent_msg5 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
-        except (IndexError, ValueError):
-            sent_msg6 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
+# @bot.message_handler(regexp=r'جيب (\d+)')
+# def handle_guess(message):
+#     global number2, game_board, points, group_game_status
+#     chat_id = message.chat.id
+#     if chat_id in group_game_status and group_game_status[chat_id]['game_active']:
+#         try:
+#             guess = int(message.text.split()[1])
+#             if 1 <= guess <= 6:
+#                 if guess == number2:
+#                     winner_id = message.from_user.id
+#                     points[winner_id] = points.get(winner_id, 0) + 1
+#                     sender_first_name = message.from_user.first_name
+#                     game_board = [["💍" if i == number2 - 1 else "🖐️" for i in range(6)]]
+#                     sent_msg3 = bot.reply_to(message, f'🎉 الف مبروك! اللاعب ({sender_first_name}) وجد المحبس 💍!\n{format_board(game_board, numbers_board)}')
+#                     reset_game(chat_id)
+#                 else:
+#                     sender_first_name = message.from_user.first_name
+#                     game_board = [["❌" if i == guess - 1 else "🖐️" for i in range(6)]]
+#                     sent_msg4 = bot.reply_to(message, f"ضاع البات ماضن بعد تلگونة ☹️ \n{format_board(game_board, numbers_board)}")
+#                     reset_game(chat_id)
+#             else:
+#                 sent_msg5 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
+#         except (IndexError, ValueError):
+#             sent_msg6 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
 
 @bot.message_handler(commands=['محيبس'])
 def show_number(message):

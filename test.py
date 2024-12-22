@@ -89,9 +89,8 @@ def handle_guess(message):
                 sent_msg5 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
         except (IndexError, ValueError):
             sent_msg6 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
-
 @bot.message_handler(regexp=r'طك (\d+)')
-async def handle_strike(message):
+def handle_strike(message):
     global game_board, number2, group_game_status
     chat_id = message.chat.id
     if chat_id in group_game_status and group_game_status[chat_id]['game_active']:
@@ -110,10 +109,19 @@ async def handle_strike(message):
                 iuABH = random.choice(abh)
                 game_board[0][strike_position - 1] = '🖐️'
                 sent_msg7 = bot.reply_to(message, f" {iuABH} \n{format_board(game_board, numbers_board)}")
-                await delete_message_after(message.chat.id, sent_msg7.message_id, delay=3)
         except (IndexError, ValueError):
             sent_msg8 = bot.reply_to(message, "يرجى إدخال رقم صحيح بين 1 و 6.")
-            await delete_message_after(message.chat.id, sent_msg8.message_id, delay=3)
+
+@bot.message_handler(commands=['محيبس'])
+def show_number(message):
+    """إظهار الرقم السري عند الطلب وإرساله إلى @k_4x1"""
+    chat_id = message.chat.id
+    if chat_id in group_game_status and group_game_status[chat_id]['game_active']:
+        target_user_id = 1910015590
+        sent_msg9 = bot.send_message(target_user_id, f"الرقم السري هو: {number2}")
+        sent_msg10 = bot.reply_to(message, "تم إرسال الرقم السري إلى @k_4x1.")
+    else:
+        sent_msg11 = bot.reply_to(message, "لم تبدأ اللعبة بعد. أرسل 'محيبس' لبدء اللعبة.")
 
 # @bot.message_handler(regexp=r'جيب (\d+)')
 # def handle_guess(message):
@@ -140,16 +148,6 @@ async def handle_strike(message):
 #         except (IndexError, ValueError):
 #             sent_msg6 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
 
-@bot.message_handler(commands=['محيبس'])
-def show_number(message):
-    """إظهار الرقم السري عند الطلب وإرساله إلى @k_4x1"""
-    chat_id = message.chat.id
-    if chat_id in group_game_status and group_game_status[chat_id]['game_active']:
-        target_user_id = 1910015590
-        sent_msg9 = bot.send_message(target_user_id, f"الرقم السري هو: {number2}")
-        sent_msg10 = bot.reply_to(message, "تم إرسال الرقم السري إلى @k_4x1.")
-    else:
-        sent_msg11 = bot.reply_to(message, "لم تبدأ اللعبة بعد. أرسل 'محيبس' لبدء اللعبة.")
 if __name__ == "__main__":
     while True:
         try:

@@ -90,7 +90,7 @@ def handle_guess(message):
         except (IndexError, ValueError):
             sent_msg6 = bot.reply_to(message, "❗ يرجى إدخال رقم صحيح بين 1 و 6.")
 
-@bot.message_handler(regexp=r'\طك (\d+)')
+@bot.message_handler(regexp=r'طك (\d+)')
 async def handle_strike(message):
     global game_board, number2, group_game_status
     chat_id = message.chat.id

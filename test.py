@@ -3,8 +3,8 @@ from telebot import types
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 import random
 import time
+bot = telebot.TeleBot("6387632922:AAFAV-VSkoyoJcMPIHeO9OUnygFhhvNSawA")
 
-# bot_token = os.getenv("BOT_TOKEN")
 def delete_after_delay99(chat_id, message_id, delay=30):
     threading.Timer(delay, lambda: bot.delete_message(chat_id, message_id)).start()
 group_game_status = {}

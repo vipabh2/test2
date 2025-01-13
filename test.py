@@ -1,6 +1,5 @@
 import re
-from telethon import TelegramClient, events
-from telethon.tl.types import InputBotInlineResult, InputBotInlineMessageText
+from telethon import TelegramClient, events, Button
 
 # إعدادات البوت
 api_id = "20464188"  # ضع معرف API الخاص بك
@@ -20,15 +19,18 @@ async def inline_query_handler(event):
         message_text = match.group(1).strip()  # النص المستهدف
         target_user = match.group(2)  # اسم المستخدم الهدف بدون @
 
-        # إنشاء النتيجة المرسلة في الوضع Inline
+        # إنشاء النتيجة المرسلة في الوضع Inline مع زر
         result = [
             InputBotInlineResult(
                 id="1",
                 type="article",
                 title=f"إرسال همسة إلى @{target_user}",
-                description=f"النص الذي سيتم إرساله: {message_text}",
+                description=f"اضغط لعرض الهمسة إلى @{target_user}",
                 send_message=InputBotInlineMessageText(
-                    message=f"⚡ تم إرسال همسة خاصة:\n\n💌 {message_text}\n\n👤 إلى: @{target_user}."
+                    message="💌 اضغط على الزر أدناه لعرض الهمسة الخاصة.",
+                    buttons=[
+                        [Button.inline("👀 عرض الهمسة", data=f"{message_text}")]
+                    ]
                 )
             )
         ]
@@ -48,6 +50,12 @@ async def inline_query_handler(event):
 
     # إرسال النتيجة
     await event.answer(result, cache_time=0)
+
+@client.on(events.CallbackQuery)
+async def callback_query_handler(event):
+    # معالجة الزر عند الضغط عليه
+    message_text = event.data.decode("utf-8")  # قراءة النص من الزر
+    await event.edit(f"💌 الهمسة الخاصة:\n\n{message_text}")
 
 # تشغيل البوت
 print("💡 البوت يعمل الآن...")

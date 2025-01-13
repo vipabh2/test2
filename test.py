@@ -27,7 +27,7 @@ async def inline_query_handler(event):
                 type="article",
                 title=f"إرسال همسة إلى @{target_user}",
                 description=f"النص الذي سيتم إرساله: {message_text}",
-                send_message=InputBotInlineMessageText(
+                # send_message=InputBotInlineMessageText(
                     message=f"تم إرسال الهمسة:\n{message_text}\nإلى @{target_user}. اضغط لتأكيد الإرسال."
                 )
             )

@@ -1,6 +1,7 @@
 import re
 from telethon import TelegramClient, events, Button
-from telethon.tl.types import InlineQueryResultArticle, InputBotInlineMessageText  # تأكد من الاستيراد بشكل صحيح
+from telethon.tl.custom import InlineQueryResultArticle  # استيراد بشكل صحيح من telethon.tl.custom
+from telethon.tl.types import InputBotInlineMessageText  # استيراد بشكل صحيح
 
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"

@@ -1,8 +1,5 @@
 from telethon import TelegramClient, events, Button
-from db import create_table, save_whisper
-
-# إعداد قاعدة البيانات
-create_table()  # إنشاء الجداول إذا لم تكن موجودة
+from db import create_table, save_whisper  # type: ignore
 
 # إعداد البوت
 api_id = "20464188"
@@ -10,27 +7,27 @@ api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
+# تأكد من إنشاء الجداول عند بدء البوت
+create_table()
+
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
     global message, username
     builder = event.builder
     query = event.text
 
-    if query.strip():  # التأكد من أن الاستعلام ليس فارغًا
+    if query.strip(): 
         parts = query.split(' ')
-        if len(parts) >= 2:  # التأكد من أن هناك رسالة واسم مستخدم
-            message = ' '.join(parts[:-1])  # الرسالة هي كل النص عدا الجزء الأخير
-            username = parts[-1]  # الجزء الأخير هو اسم المستخدم
+        if len(parts) >= 2: 
+            message = ' '.join(parts[:-1]) 
+            username = parts[-1] 
             
-            # إضافة @ إذا لم تكن موجودة
             if not username.startswith('@'):
                 username = f'@{username}'
-            
+
             try:
-                # تحقق من الكيان
                 user_entity = await client.get_entity(username)
                 
-                # التأكد أن المستخدم الحالي هو نفسه المستهدف
                 if event.sender_id != user_entity.id:
                     await event.answer([], switch_pm='هذه الهمسة ليست موجهة لك!', switch_pm_param='no_access')
                     return
@@ -38,11 +35,11 @@ async def inline_query_handler(event):
                 # حفظ الهمسة في قاعدة البيانات
                 save_whisper(message, event.sender_id, username)
 
-                # إنشاء الهمسة باستخدام تنسيق Markdown
+                # إنشاء الهمسة
                 result = builder.article(
                     title='اضغط لارسال الهمسة',
                     description=f'إرسال الرسالة إلى {username}',
-                    text=f"**همسة سرية إلى** \n{username} \nالله يثخن اللبن عمي!",
+                    text=f"همسة سرية إلى \n الله يثخن اللبن عمي ({username})",
                     buttons=[ 
                         [Button.inline(text='tap to see', data=f'send:{username}:{message}')]
                     ]
@@ -50,16 +47,16 @@ async def inline_query_handler(event):
             except Exception as e:
                 # التعامل مع الخطأ إذا لم يتم العثور على الكيان
                 result = builder.article(
-                    title='حدث خطأ',
-                    description="لم يتم العثور على المستخدم",
-                    text='حدث خطأ أثناء محاولة إرسال الهمسة. يرجى المحاولة لاحقًا.'
+                    title='لرؤية المزيد حول الهمس',
+                    description="همس",
+                    text='اضغط هنا'
                 )
         else:
             # إذا كان التنسيق غير صحيح
             result = builder.article(
                 title='خطأ في التنسيق',
-                description='يرجى استخدام التنسيق الصحيح: <message> @<username>',
-                text='الرجاء إرسال الرسالة باستخدام التنسيق الصحيح: <message> @<username>'
+                description='يرجى استخدام التنسيق الصحيح: @games_abh <message> @<username>',
+                text='خطأ في التنسيق: يرجى استخدام التنسيق الصحيح: @games_abh <message> @<username>'
             )
 
         # الرد بنتيجة الاستعلام

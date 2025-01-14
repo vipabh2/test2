@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events, Button
-from database import Whisper, engine
+from database import Whisper, engine  # استيراد Whisper هنا
 
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
@@ -21,14 +21,10 @@ async def inline_query_handler(event):
                 username = f'@{username}'
 
             try:
-                # Fetch user information
                 user_entity = await client.get_entity(username)
-                
-                # Generate a unique whisper ID
                 whisper_id = str(event.sender_id) + "_" + username
-                
-                # Store the whisper in the database
-                Whisper.store_whisper(whisper_id, event.sender_id, username, message)
+
+                Whisper.store_whisper(whisper_id, event.sender_id, username, message)  # استخدام Whisper هنا
 
                 result = builder.article(
                     title='اضغط لارسال الهمسة',
@@ -58,7 +54,7 @@ async def callback_query_handler(event):
     data = event.data.decode('utf-8')
     if data.startswith('send:'):
         whisper_id = data.split(":")[1]
-        whisper = Whisper.get_whisper(whisper_id)
+        whisper = Whisper.get_whisper(whisper_id)  # استخدام Whisper هنا
 
         if whisper:
             await event.answer(f"الرسالة: {whisper.message}", alert=True)

@@ -1,12 +1,10 @@
 from telethon import TelegramClient, events, Button
 from database import Whisper, engine
 
-
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
-
 
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
@@ -23,9 +21,13 @@ async def inline_query_handler(event):
                 username = f'@{username}'
 
             try:
+                # Fetch user information
                 user_entity = await client.get_entity(username)
+                
+                # Generate a unique whisper ID
                 whisper_id = str(event.sender_id) + "_" + username
-                await client.get_entity(username)
+                
+                # Store the whisper in the database
                 Whisper.store_whisper(whisper_id, event.sender_id, username, message)
 
                 result = builder.article(
@@ -62,6 +64,5 @@ async def callback_query_handler(event):
             await event.answer(f"الرسالة: {whisper.message}", alert=True)
         else:
             await event.answer("هذه الهمسة غير موجودة.", alert=True)
-
 
 client.run_until_disconnected()

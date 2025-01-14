@@ -20,7 +20,7 @@ class Whisper(BASE):
 
     @classmethod
     def store_whisper(cls, whisper_id, sender_id, username, message, created_at):
-        whisper = cls(whisper_id=whisper_id, sender_id=sender_id, username=username, message=message, created_at=created_at)
+        whisper = cls(whisper_id=whisper_id, sender_id=sender_id, username=username, message=message)
         SESSION.add(whisper)
         SESSION.commit()
 

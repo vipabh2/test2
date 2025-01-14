@@ -3,11 +3,11 @@ from datetime import datetime
 
 class Whisper(BASE):
     __tablename__ = "whispers"
-    id = Column(Integer, primary_key=True, index=True)
-    whisper_id = Column(String, index=True)
-    sender_id = Column(String)
-    username = Column(String)
-    message = Column(String)
+    whisper_id = Column(String(255), primary_key=True)
+    sender_id = Column(Integer)
+    username = Column(String(255))
+    message = Column(String(255))
+    created_at = Column(Integer)
 
     def __init__(self, whisper_id, sender_id, username, message):
         self.whisper_id = whisper_id

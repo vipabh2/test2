@@ -24,7 +24,7 @@ class Whisper(BASE):
     @classmethod
     def get_whisper(cls, whisper_id):
         try:
-            SESSION.commit()
+            return SESSION.query(cls).filter(cls.whisper_id == whisper_id).first()
         except Exception as e:
-            SESSION.rollback()  # التراجع عن المعاملة الفاشلة
-            print(f"حدث خطأ أثناء المعاملة: {e}")
+            print(f"حدث خطأ أثناء استرجاع البيانات: {e}")
+            return None  # إعادة قيمة فارغة في حال حدوث خطأ

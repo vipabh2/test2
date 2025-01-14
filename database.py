@@ -23,6 +23,11 @@ class Whisper(BASE):
         whisper = cls(whisper_id=whisper_id, sender_id=sender_id, username=username, message=message, created_at=created_at)
         SESSION.add(whisper)
         SESSION.commit()
+        try:
+            SESSION.commit()
+        except Exception as e:
+            SESSION.rollback()  # التراجع عن المعاملة الفاشلة
+            print(f"حدث خطأ أثناء المعاملة: {e}")
 
     @classmethod
     def get_whisper(cls, whisper_id):

@@ -1,6 +1,5 @@
 from db import BASE, SESSION, engine
-from sqlalchemy import Column, Integer, String, DateTime
-from datetime import datetime
+from sqlalchemy import Column, Integer, String
 
 class Whisper(BASE):
     __tablename__ = "whispers"
@@ -25,7 +24,6 @@ class Whisper(BASE):
     @classmethod
     def get_whisper(cls, whisper_id):
         return SESSION.query(cls).filter(cls.whisper_id == whisper_id).first()
-
 
     @classmethod
     def get_all_whispers(cls):

@@ -1,3 +1,4 @@
+from db import BASE, SESSION, engine
 from sqlalchemy import Column, Integer, String, DateTime
 from datetime import datetime
 

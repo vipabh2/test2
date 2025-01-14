@@ -1,5 +1,7 @@
 import re
 from telethon import TelegramClient, events, Button
+from database import SESSION, store_whisper, get_whisper, UserScore  # استيراد الدوال والجداول من db.py
+from telethon import TelegramClient, events, Button
 from telethon.tl.custom import InlineQueryResultArticle  # استيراد بشكل صحيح من telethon.tl.custom
 from telethon.tl.types import InputBotInlineMessageText  # استيراد بشكل صحيح
 

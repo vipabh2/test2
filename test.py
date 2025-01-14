@@ -13,6 +13,7 @@ async def delete_old_whispers():
     while True:
         current_time = datetime.utcnow()
         expiration_time = timedelta(days=1, hours=12)  # يوم ونصف
+        expiration_time = timedelta(seconds=10)  # يوم ونصف
         whispers = Whisper.get_all_whispers()  # دالة لاسترجاع كل الهمسات
         for whisper in whispers:
             created_at = whisper.created_at

@@ -25,7 +25,6 @@ class Whisper(BASE):
 
 # إنشاء الجلسة
 SessionLocal = sessionmaker(bind=engine)
-SESSION = SessionLocal()
 
 # دالة لإنشاء الجداول في قاعدة البيانات
 def create_table():

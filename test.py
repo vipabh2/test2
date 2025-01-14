@@ -27,7 +27,7 @@ async def inline_query_handler(event):
                 user_entity = await client.get_entity(username)
                 whisper_id = str(event.sender_id) + "_" + username
 
-                Whisper.store_whisper(whisper_id, event.sender_id, username, message, created_at)
+                Whisper.store_whisper(whisper_id, event.sender_id, username, message)
 
                 result = builder.article(
                     title='اضغط لارسال الهمسة',

@@ -38,28 +38,28 @@ async def inline_query_handler(event):
                 # حفظ الهمسة في قاعدة البيانات
                 save_whisper(message, event.sender_id, username)
 
-                # إنشاء الهمسة
+                # إنشاء الهمسة باستخدام تنسيق Markdown
                 result = builder.article(
                     title='اضغط لارسال الهمسة',
                     description=f'إرسال الرسالة إلى {username}',
-                    text=f"همسة سرية إلى \n الله يثخن اللبن عمي ({username})",
+                    text=f"**همسة سرية إلى** \n{username} \nالله يثخن اللبن عمي!",
                     buttons=[ 
-                        [Button.inline(text='tape to see', data=f'send:{username}:{message}')]
+                        [Button.inline(text='tap to see', data=f'send:{username}:{message}')]
                     ]
                 )
             except Exception as e:
                 # التعامل مع الخطأ إذا لم يتم العثور على الكيان
                 result = builder.article(
-                    title='لرؤية المزيد حول الهمس',
-                    description="همس",
-                    text='اضغط هنا'
+                    title='حدث خطأ',
+                    description="لم يتم العثور على المستخدم",
+                    text='حدث خطأ أثناء محاولة إرسال الهمسة. يرجى المحاولة لاحقًا.'
                 )
         else:
             # إذا كان التنسيق غير صحيح
             result = builder.article(
                 title='خطأ في التنسيق',
-                description='يرجى استخدام التنسيق الصحيح: @games_abh <message> @<username>',
-                text='خطأ في التنسيق: يرجى استخدام التنسيق الصحيح: @games_abh <message> @<username>'
+                description='يرجى استخدام التنسيق الصحيح: <message> @<username>',
+                text='الرجاء إرسال الرسالة باستخدام التنسيق الصحيح: <message> @<username>'
             )
 
         # الرد بنتيجة الاستعلام

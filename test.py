@@ -1,7 +1,6 @@
 from telethon import TelegramClient, events, Button
 from database import Whisper, engine
-from datetime import datetime, timedelta
-import asyncio
+
 
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
@@ -26,7 +25,7 @@ async def inline_query_handler(event):
             try:
                 user_entity = await client.get_entity(username)
                 whisper_id = str(event.sender_id) + "_" + username
-
+                await client.get_entity(username)
                 Whisper.store_whisper(whisper_id, event.sender_id, username, message)
 
                 result = builder.article(

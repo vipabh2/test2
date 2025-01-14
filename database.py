@@ -1,6 +1,6 @@
 from sqlalchemy import Column, Integer, String, DateTime
+from db import BASE, SESSION, engine
 from datetime import datetime
-
 class Whisper(BASE):
     __tablename__ = "whispers"
     whisper_id = Column(String(255), primary_key=True)

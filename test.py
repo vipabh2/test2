@@ -1,11 +1,14 @@
 from telethon import TelegramClient, events, Button
+from db import create_table, save_whisper
+
+# إعداد قاعدة البيانات
+create_table()  # إنشاء الجداول إذا لم تكن موجودة
 
 # إعداد البوت
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
-
 
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
@@ -32,12 +35,15 @@ async def inline_query_handler(event):
                     await event.answer([], switch_pm='هذه الهمسة ليست موجهة لك!', switch_pm_param='no_access')
                     return
 
+                # حفظ الهمسة في قاعدة البيانات
+                save_whisper(message, event.sender_id, username)
+
                 # إنشاء الهمسة
                 result = builder.article(
                     title='اضغط لارسال الهمسة',
                     description=f'إرسال الرسالة إلى {username}',
                     text=f"همسة سرية إلى \n الله يثخن اللبن عمي ({username})",
-                    buttons=[
+                    buttons=[ 
                         [Button.inline(text='tape to see', data=f'send:{username}:{message}')]
                     ]
                 )

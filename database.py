@@ -23,8 +23,8 @@ class Whisper(BASE):
 
     @classmethod
     def get_whisper(cls, whisper_id):
-        return SESSION.query(cls).filter(cls.whisper_id == whisper_id).first()
-
-    @classmethod
-    def get_all_whispers(cls):
-        return SESSION.query(cls).all()
+        try:
+            SESSION.commit()
+        except Exception as e:
+            SESSION.rollback()  # التراجع عن المعاملة الفاشلة
+            print(f"حدث خطأ أثناء المعاملة: {e}")

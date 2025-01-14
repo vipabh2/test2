@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events, Button
-from database import Whisper, engine  # استيراد Whisper هنا
+from database import Whisper, engine  
 
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"

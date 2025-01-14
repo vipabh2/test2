@@ -9,17 +9,15 @@ class Whisper(BASE):
     sender_id = Column(String)
     username = Column(String)
     message = Column(String)
-    created_at = Column(DateTime, default=datetime.utcnow)
 
-    def __init__(self, whisper_id, sender_id, username, message, created_at):
+    def __init__(self, whisper_id, sender_id, username, message):
         self.whisper_id = whisper_id
         self.sender_id = sender_id
         self.username = username
         self.message = message
-        self.created_at = created_at
 
     @classmethod
-    def store_whisper(cls, whisper_id, sender_id, username, message, created_at):
+    def store_whisper(cls, whisper_id, sender_id, username, message):
         whisper = cls(whisper_id=whisper_id, sender_id=sender_id, username=username, message=message)
         SESSION.add(whisper)
         SESSION.commit()

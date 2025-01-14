@@ -8,17 +8,6 @@ api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# دالة لحذف الهمسات القديمة
-async def delete_old_whispers():
-    while True:
-        current_time = datetime.utcnow()
-        expiration_time = timedelta(days=1, hours=12)  # يوم ونصف
-        whispers = Whisper.get_all_whispers()  # دالة لاسترجاع كل الهمسات
-        for whisper in whispers:
-            created_at = whisper.created_at
-            if current_time - created_at > expiration_time:
-                Whisper.delete_whisper(whisper.id)  # دالة لحذف الهمسة
-        await asyncio.sleep(3600)  # الانتظار لمدة ساعة قبل التحقق مرة أخرى
 
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
@@ -37,7 +26,6 @@ async def inline_query_handler(event):
             try:
                 user_entity = await client.get_entity(username)
                 whisper_id = str(event.sender_id) + "_" + username
-                created_at = datetime.utcnow()  # حفظ الوقت الحالي
 
                 Whisper.store_whisper(whisper_id, event.sender_id, username, message, created_at)
 
@@ -76,7 +64,5 @@ async def callback_query_handler(event):
         else:
             await event.answer("هذه الهمسة غير موجودة.", alert=True)
 
-# بدء جدولة الحذف
-client.loop.create_task(delete_old_whispers())
 
 client.run_until_disconnected()

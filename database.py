@@ -1,10 +1,9 @@
-from sqlalchemy import Column, Integer, String
-from db import BASE, SESSION, engine
+import os
 from sqlalchemy import Column, Integer, String, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import os
-DATABASE_URL = os.getenv('DATABASE_URL')
+
+DATABASE_URL = f"sqlite:///{os.path.join(os.getcwd(), 'whispers.db')}"
 engine = create_engine(DATABASE_URL, connect_args={"check_same_thread": False})
 BASE = declarative_base()
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
@@ -66,13 +65,10 @@ class Whisper(BASE):
         whisper = SESSION.query(cls).filter(cls.whisper_id == whisper_id).first()
         return whisper
 
-UserScore.create_table()
-Whisper.create_table()
+UserScore.create_table() 
+Whisper.create_table() 
 
 Whisper.store_whisper('whisper123', '12345', '@user1', 'هذه همسة سرية')
 
 whisper = Whisper.get_whisper('whisper123')
-if whisper:
-    print(f"الهمسة: {whisper.message} المرسل: {whisper.sender_id} المستلم: {whisper.recipient_username}")
-else:
-    print("لم يتم العثور على الهمسة.")
+

@@ -1,5 +1,5 @@
-from db import BASE, SESSION, engine
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, DateTime
+from datetime import datetime
 
 class Whisper(BASE):
     __tablename__ = "whispers"
@@ -23,8 +23,15 @@ class Whisper(BASE):
 
     @classmethod
     def get_whisper(cls, whisper_id):
-        try:
-            return SESSION.query(cls).filter(cls.whisper_id == whisper_id).first()
-        except Exception as e:
-            print(f"حدث خطأ أثناء استرجاع البيانات: {e}")
-            return None  # إعادة قيمة فارغة في حال حدوث خطأ
+        return SESSION.query(cls).filter(cls.whisper_id == whisper_id).first()
+
+    @classmethod
+    def delete_whisper(cls, whisper_id):
+        whisper = SESSION.query(cls).filter(cls.whisper_id == whisper_id).first()
+        if whisper:
+            SESSION.delete(whisper)
+            SESSION.commit()
+
+    @classmethod
+    def get_all_whispers(cls):
+        return SESSION.query(cls).all()

@@ -7,6 +7,7 @@ api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN') 
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
+
 players = {}
 game_active = False
 
@@ -43,7 +44,7 @@ async def random_selection():
         if len(players) == 1:
             winner_id = list(players.keys())[0]
             winner_name = players[winner_id]['name']
-            await client.send_message(winner_id, f"تهانينا! اللاعب {winner_name} هو الفائز 🎉🐍!")
+            await ABH.send_message(winner_id, f"تهانينا! اللاعب {winner_name} هو الفائز 🎉🐍!")
             game_active = False
             players = {}
             return

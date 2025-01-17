@@ -10,7 +10,7 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 players = {}
 game_active = False
 
-@client.on(events.NewMessage(pattern='^الافاعي$'))
+@ABH.on(events.NewMessage(pattern='^الافاعي$'))
 async def start_game(event):
     global game_active, players
     if game_active:
@@ -20,7 +20,7 @@ async def start_game(event):
         await event.reply("تم بدء لعبة الافاعي 🐍\nأرسل `انا` لدخول اللعبة.")
         asyncio.create_task(random_selection())
 
-@client.on(events.NewMessage(pattern='^انا$'))
+@ABH.on(events.NewMessage(pattern='^انا$'))
 async def join_game(event):
     global game_active
     if not game_active:

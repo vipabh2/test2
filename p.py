@@ -50,12 +50,12 @@ async def random_selection():
             return
         random_player_id = random.choice(list(players.keys()))
         random_player_name = players[random_player_id]['name']
-        await client.send_message(random_player_id, f"انتقل اللاعب {random_player_name} إلى رحمة الله 🪦\nسبب الوفاة: عضته حية 🐍")
+        await ABH.send_message(random_player_id, f"انتقل اللاعب {random_player_name} إلى رحمة الله 🪦\nسبب الوفاة: عضته حية 🐍")
         del players[random_player_id]
         if len(players) == 1:
             winner_id = list(players.keys())[0]
             winner_name = players[winner_id]['name']
-            await client.send_message(winner_id, f"الاعب {winner_name} نجى من الموت ب اعجوبة \n شكد فكر")
+            await ABH.send_message(winner_id, f"الاعب {winner_name} نجى من الموت ب اعجوبة \n شكد فكر")
             game_active = False
             players = {}
 if __name__ == "__main__":

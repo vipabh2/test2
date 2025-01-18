@@ -21,12 +21,15 @@ async def start_game(event):
         await event.reply("تم بدء لعبة الافاعي 🐍\nأرسل `انا` لدخول اللعبة.")
         asyncio.create_task(random_selection(event))
 
+import asyncio
+
 @ABH.on(events.NewMessage(pattern='^انا$'))
 async def join_game(event):
     global game_active
     if not game_active:
         await event.reply("لا توجد لعبة جارية حاليًا. ابدأ لعبة جديدة بكتابة `الافاعي`.")
         return
+
     user_id = event.sender_id
     if user_id not in players:
         players[user_id] = {'name': event.sender.first_name}
@@ -34,6 +37,8 @@ async def join_game(event):
     else:
         await event.reply("أنت مسجل بالفعل في اللعبة.")
         await time.sleep(8)
+        if len(players) < 3: 
+            await event.reply("لا يمكن بدء اللعبة بأقل من ثلاث أشخاص.")
 
 async def random_selection(event):
     global game_active, players

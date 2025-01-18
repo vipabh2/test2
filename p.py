@@ -7,11 +7,10 @@ api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN') 
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-
 players = {}
 game_active = False
 
-@ABH.on(events.NewMessage(pattern='^الافاعي$'))
+@client.on(events.NewMessage(pattern='^الافاعي$'))
 async def start_game(event):
     global game_active, players
     if game_active:
@@ -19,9 +18,9 @@ async def start_game(event):
     else:
         game_active = True
         await event.reply("تم بدء لعبة الافاعي 🐍\nأرسل `انا` لدخول اللعبة.")
-        asyncio.create_task(random_selection())
+        asyncio.create_task(random_selection(event))
 
-@ABH.on(events.NewMessage(pattern='^انا$'))
+@client.on(events.NewMessage(pattern='^انا$'))
 async def join_game(event):
     global game_active
     if not game_active:
@@ -34,7 +33,7 @@ async def join_game(event):
     else:
         await event.reply("أنت مسجل بالفعل في اللعبة.")
 
-async def random_selection():
+async def random_selection(event):
     global game_active, players
     while game_active:
         await asyncio.sleep(30)
@@ -44,20 +43,21 @@ async def random_selection():
         if len(players) == 1:
             winner_id = list(players.keys())[0]
             winner_name = players[winner_id]['name']
-            await ABH.send_message(winner_id, f"تهانينا! اللاعب {winner_name} هو الفائز 🎉🐍!")
+            await event.reply(f"تهانينا! اللاعب {winner_name} هو الفائز 🎉🐍!")
             game_active = False
             players = {}
             return
         random_player_id = random.choice(list(players.keys()))
         random_player_name = players[random_player_id]['name']
-        await ABH.send_message(random_player_id, f"انتقل اللاعب {random_player_name} إلى رحمة الله 🪦\nسبب الوفاة: عضته حية 🐍")
+        await event.reply(f"انتقل اللاعب {random_player_name} إلى رحمة الله 🪦\nسبب الوفاة: عضته حية 🐍")
         del players[random_player_id]
         if len(players) == 1:
             winner_id = list(players.keys())[0]
             winner_name = players[winner_id]['name']
-            await ABH.send_message(winner_id, f"الاعب {winner_name} نجى من الموت ب اعجوبة \n شكد فكر")
+            await event.reply(f"الاعب {winner_name} نجى من الموت ب اعجوبة \n شكد فكر")
             game_active = False
             players = {}
+print("Bot is running...")
 if __name__ == "__main__":
     while True:
         try:

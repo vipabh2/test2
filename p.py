@@ -32,11 +32,12 @@ async def join_game(event):
         await event.reply(f"تم تسجيلك في اللعبة، {event.sender.first_name}!")
     else:
         await event.reply("أنت مسجل بالفعل في اللعبة.")
+        await asyncio.sleep(8)
 
 async def random_selection(event):
     global game_active, players
     while game_active:
-        await asyncio.sleep(30)
+        await asyncio.sleep(7)
         if not players:
             game_active = False
             return

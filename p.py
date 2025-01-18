@@ -64,7 +64,6 @@ async def random_selection(event):
             await event.reply(f"الاعب {winner_name} نجى من الموت ب اعجوبة \n شكد فكر")
             game_active = False
             players = {}
-print("Bot is running...")
 if __name__ == "__main__":
     while True:
         try:

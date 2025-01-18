@@ -2,6 +2,7 @@ from telethon import TelegramClient, events, Button
 import requests, os, operator, asyncio, random
 from googletrans import Translator
 from bs4 import BeautifulSoup
+import time
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
@@ -32,12 +33,12 @@ async def join_game(event):
         await event.reply(f"تم تسجيلك في اللعبة، {event.sender.first_name}!")
     else:
         await event.reply("أنت مسجل بالفعل في اللعبة.")
-        await asyncio.sleep(30)
+        await time.sleep(8)
 
 async def random_selection(event):
     global game_active, players
     while game_active:
-        await asyncio.sleep(7)
+        await asyncio.sleep(30)
         if not players:
             game_active = False
             return

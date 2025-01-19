@@ -27,7 +27,7 @@ async def add_group(event):
 async def handle_edited_message(event):
     global report_text
     if event.is_group and event.message.media:
-        message = await event.get_message()
+        message = event.message  # Obtain the message directly from the event
         sender = await event.client.get_entity(message.sender_id)
         message_link = f"https://t.me/c/{str(event.chat_id)[4:]}/{message.id}" 
         # اسم المستخدم، المعرف، والـID
@@ -61,7 +61,7 @@ async def callback_handler(event):
             participant = await event.client.get_permissions(event.chat_id, me)
             
             if participant.is_admin:
-                original_message = await event.get_message()
+                original_message = event.message  # Obtain the message directly from the event
                 await original_message.delete()  # حذف الرسالة الأصلية
                 await event.reply("تم مسح الرسالة.")
             else:

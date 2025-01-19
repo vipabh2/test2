@@ -61,8 +61,8 @@ async def callback_handler(event):
             participant = await event.client.get_permissions(event.chat_id, me)
             
             if participant.is_admin:
-                original_message = event.message  # Obtain the message directly from the event
-                await original_message.delete()  # حذف الرسالة الأصلية
+                edited_message = event.message  # Obtain the edited message directly from the event
+                await edited_message.delete()  # حذف الرسالة المعدلة
                 await event.reply("تم مسح الرسالة.")
             else:
                 await event.reply("لا يمكنك مسح هذه الرسالة، فقط المشرفين يمكنهم ذلك.")

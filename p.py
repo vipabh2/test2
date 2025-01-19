@@ -22,7 +22,8 @@ async def callback_handler(event):
     if event.data == b"ban_and_delete":
         try:
             # Check if the bot is an admin
-            participant = await event.client.get_permissions(event.chat_id, event.client.get_me())
+            me = await event.client.get_me()
+            participant = await event.client.get_permissions(event.chat_id, me)
             if participant.is_admin:
                 await event.delete()  # Delete the message
                 # Ban the user

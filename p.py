@@ -20,9 +20,17 @@ async def handle_edited_message(event):
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):
     if event.data == b"ban_and_delete":
-        await event.delete()  # Delete the message
-        # Ban the user (this is just an example, you need to implement the actual banning logic)
-        await event.client.edit_permissions(event.chat_id, event.sender_id, view_messages=False)
+        try:
+            # Check if the bot is an admin
+            participant = await event.client.get_permissions(event.chat_id, event.client.get_me())
+            if participant.is_admin:
+                await event.delete()  # Delete the message
+                # Ban the user
+                await event.client.edit_permissions(event.chat_id, event.sender_id, view_messages=False)
+            else:
+                await event.reply("لا أملك صلاحيات الحظر.")
+        except Exception as e:
+            await event.reply(f"حدث خطأ: {str(e)}")
     elif event.data == b"delete_only":
         await event.delete()  # Delete the message
 

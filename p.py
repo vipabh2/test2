@@ -11,7 +11,7 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
-    await event.reply("تم تعديل هذه الرسالة")
+    await event.reply("ها هههههه")
     pass
 
 ABH.run_until_disconnected()

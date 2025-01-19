@@ -26,8 +26,8 @@ async def add_group(event):
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
     global report_text
-    if event.is_group and event.message.media:
-        message = event.message  # Obtain the message directly from the event
+    if event.is_group and hasattr(event.original_update, 'message') and event.original_update.message.media:
+        message = event.original_update.message  # Obtain the message directly from the event
         sender = await event.client.get_entity(message.sender_id)
         message_link = f"https://t.me/c/{str(event.chat_id)[4:]}/{message.id}" 
         # اسم المستخدم، المعرف، والـID
@@ -61,7 +61,7 @@ async def callback_handler(event):
             participant = await event.client.get_permissions(event.chat_id, me)
             
             if participant.is_admin:
-                edited_message = event.message  # Obtain the edited message directly from the event
+                edited_message = event.original_update.message  # Obtain the edited message directly from the event
                 await edited_message.delete()  # حذف الرسالة المعدلة
                 await event.reply("تم مسح الرسالة.")
             else:

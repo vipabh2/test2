@@ -44,7 +44,6 @@ async def handle_edited_message(event):
             f"📎 [رابط الرسالة المعدلة]({message_link})"
         )
 
-        
         buttons = [
             [Button.inline("إبلاغ المشرفين", b"notify_admins"), Button.inline("مسح", b"delete_only")]
         ]
@@ -63,7 +62,7 @@ async def callback_handler(event):
             if participant.is_admin:
                 if hasattr(event.original_update, 'message'):
                     edited_message = event.original_update.message  # Obtain the edited message directly from the event
-                    await edited_message.delete()  # حذف الرسالة المعدلة
+                    await edited_message.delete()  
                     await event.reply("تم مسح الرسالة.")
                 else:
                     await event.reply("الرسالة المعدلة غير موجودة.")
@@ -71,18 +70,21 @@ async def callback_handler(event):
                 await event.reply("لا يمكنك مسح هذه الرسالة، فقط المشرفين يمكنهم ذلك.")
     except Exception as e:
         await event.reply(f"حدث خطأ: {str(e)}")
+
 # وظيفة لإبلاغ المشرفين في كروب التبليغ
 async def notify_admins(event):
     global report_text
     global notification_group_id  # الوصول إلى معرف كروب التبليغ
     if not notification_group_id:
         await event.reply("لم يتم تعيين كروب التبليغ بعد. استخدم الأمر 'اضف كروب <معرف>'.")
+        return  # إيقاف التنفيذ هنا إذا لم يكن المعرف موجودًا
 
-    # إرسال البلاغ إلى كروب التبليغ
-    await event.client.send_message(notification_group_id, report_text, link_preview=False)
-    await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
-    # except Exception as e:
-    #     await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
+    try:
+        # إرسال البلاغ إلى كروب التبليغ
+        await event.client.send_message(notification_group_id, report_text, link_preview=False)
+        await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
+    except Exception as e:
+        await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
 
 # تشغيل البوت
 ABH.run_until_disconnected()

@@ -27,15 +27,13 @@ async def add_group(event):
 async def handle_edited_message(event):
     global report_text, message
     if event.is_group and hasattr(event.original_update, 'message') and event.original_update.message.media:
-        message = event.original_update.message  # Obtain the message directly from the event
+        message = event.original_update.message
         sender = await event.client.get_entity(message.sender_id)
         message_link = f"https://t.me/c/{str(event.chat_id)[4:]}/{message.id}" 
         # اسم المستخدم، المعرف، والـID
         sender_name = sender.first_name if sender.first_name else "غير معروف"
         sender_username = f"@{sender.username}" if sender.username else "لا يوجد"
         sender_id = sender.id
-
-        # نص البلاغ
         report_text = (
             f"🚨 **تم تعديل رسالة في المجموعة**: {event.chat.title}\n"
             f"👤 **المعدل**: {sender_name}\n"
@@ -43,7 +41,6 @@ async def handle_edited_message(event):
             f"🆔 **الايدي**: `{sender_id}`\n"
             f"📎 [رابط الرسالة المعدلة]({message_link})"
         )
-
         buttons = [
             [Button.inline("إبلاغ المشرفين", b"notify_admins"), Button.inline("مسح", b"delete_only")]
         ]
@@ -57,8 +54,8 @@ async def callback_handler(event):
             await notify_admins(event)
         elif event.data == b"delete_only":
             if hasattr(event.original_update, 'message'):
-                edited_message = event.original_update.message  # الحصول على الرسالة المعدلة من الحدث
-                await edited_message.delete()
+                # edited_message = event.original_update.message  # الحصول على الرسالة المعدلة من الحدث
+                await message.delete()
                 await event.reply("تم مسح الرسالة.")
             else:
                 await event.reply("الرسالة المعدلة غير موجودة.")

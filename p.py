@@ -1,16 +1,17 @@
 from telethon import TelegramClient, events, Button
 from telethon.tl.types import ChannelParticipantsAdmins
 from telethon.errors.rpcerrorlist import PeerIdInvalidError
-import requests, os, operator, asyncio, random
-from googletrans import Translator
-from bs4 import BeautifulSoup
-import time
+import os, asyncio
 
+# الحصول على متغيرات البيئة
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
+
+# تهيئة عميل البوت
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
+# معالجة الرسائل المعدلة في المجموعات
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
     if event.is_group and event.message.media:
@@ -19,27 +20,38 @@ async def handle_edited_message(event):
         ]
         await event.reply("تم تعديل هذه الرسالة", buttons=buttons)
 
+# معالجة ردود الأزرار
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):
-    if event.data == b"notify_admins":
-        await notify_admins(event)
-    elif event.data == b"delete_only":
-        me = await event.client.get_me()
-        participant = await event.client.get_permissions(event.chat_id, me)
-        if participant.is_admin:
-            original_message = await event.get_message()
-            await original_message.delete()  # Delete the original edited message
-            await event.reply("تم مسح الرسالة.")
-        else:
-            await event.reply("لا يمكنك مسح هذه الرسالة، فقط المشرفين يمكنهم ذلك.")
+    try:
+        if event.data == b"notify_admins":
+            await notify_admins(event)
+        elif event.data == b"delete_only":
+            me = await event.client.get_me()
+            participant = await event.client.get_permissions(event.chat_id, me)
+            
+            if participant.is_admin:
+                original_message = await event.get_message()
+                await original_message.delete()  # حذف الرسالة الأصلية
+                await event.reply("تم مسح الرسالة.")
+            else:
+                await event.reply("لا يمكنك مسح هذه الرسالة، فقط المشرفين يمكنهم ذلك.")
+    except Exception as e:
+        # للتأكد من التعامل مع الأخطاء بشكل آمن
+        await event.reply(f"حدث خطأ: {str(e)}")
 
+# وظيفة لإبلاغ المشرفين
 async def notify_admins(event):
-    admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
-    for admin in admins:
-        try:
-            await event.client.send_message(admin.id, f"تم تعديل رسالة في المجموعة {event.chat.title}.")
-        except PeerIdInvalidError:
-            continue
-    await event.reply("تم إبلاغ المشرفين.")
+    try:
+        admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
+        for admin in admins:
+            try:
+                await event.client.send_message(admin.id, f"تم تعديل رسالة في المجموعة {event.chat.title}.")
+            except PeerIdInvalidError:
+                continue
+        await event.reply("تم إبلاغ المشرفين.")
+    except Exception as e:
+        await event.reply(f"تعذر إبلاغ المشرفين: {str(e)}")
 
+# تشغيل البوت
 ABH.run_until_disconnected()

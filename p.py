@@ -61,14 +61,16 @@ async def callback_handler(event):
             participant = await event.client.get_permissions(event.chat_id, me)
             
             if participant.is_admin:
-                edited_message = event.original_update.message  # Obtain the edited message directly from the event
-                await edited_message.delete()  # حذف الرسالة المعدلة
-                await event.reply("تم مسح الرسالة.")
+                if hasattr(event.original_update, 'message'):
+                    edited_message = event.original_update.message  # Obtain the edited message directly from the event
+                    await edited_message.delete()  # حذف الرسالة المعدلة
+                    await event.reply("تم مسح الرسالة.")
+                else:
+                    await event.reply("الرسالة المعدلة غير موجودة.")
             else:
                 await event.reply("لا يمكنك مسح هذه الرسالة، فقط المشرفين يمكنهم ذلك.")
     except Exception as e:
         await event.reply(f"حدث خطأ: {str(e)}")
-
 # وظيفة لإبلاغ المشرفين في كروب التبليغ
 async def notify_admins(event):
     global report_text

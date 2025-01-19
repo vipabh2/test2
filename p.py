@@ -74,7 +74,7 @@ async def notify_admins(event):
         # نص البلاغ
         report_text = (
             f"🚨 **تم تعديل رسالة في المجموعة**: {event.chat.title}\n"
-            f"👤 **المرسل**: {sender_name}\n"
+            f"👤 **المعدل**: {sender_name}\n"
             f"🔗 **المعرف**: {sender_username}\n"
             f"🆔 **الايدي**: `{sender_id}`\n"
             f"📎 [رابط الرسالة المعدلة]({message_link})"

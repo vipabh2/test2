@@ -11,7 +11,7 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
-    if event.message.media:
+    if event.is_group and event.message.media:
         await event.reply("تم تعديل هذه الرسالة")
     pass
 

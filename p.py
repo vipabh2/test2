@@ -11,6 +11,20 @@ bot_token = os.getenv('BOT_TOKEN')
 # تهيئة عميل البوت
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
+# متغير لتخزين معرف كروب التبليغ
+notification_group_id = None
+
+# أمر لإضافة كروب التبليغ باستخدام ID
+@ABH.on(events.NewMessage(pattern=r'^اضف كروب (\d+)$'))
+async def add_group(event):
+    global notification_group_id  # الوصول إلى المتغير العام
+    match = event.pattern_match  # استخراج الرقم من الأمر
+    if match:
+        notification_group_id = int(match.group(1))
+        await event.reply(f"تم تعيين الكروب بمعرف: {notification_group_id} ككروب التبليغ.")
+    else:
+        await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `اضف كروب 123456789`")
+
 # معالجة الرسائل المعدلة في المجموعات
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
@@ -37,24 +51,21 @@ async def callback_handler(event):
             else:
                 await event.reply("لا يمكنك مسح هذه الرسالة، فقط المشرفين يمكنهم ذلك.")
     except Exception as e:
-        # للتأكد من التعامل مع الأخطاء بشكل آمن
         await event.reply(f"حدث خطأ: {str(e)}")
 
-# وظيفة لإبلاغ المشرفين
+# وظيفة لإبلاغ المشرفين في كروب التبليغ
 async def notify_admins(event):
-    try:
-        admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
-        for admin in admins:
-            if admin.bot:  # التحقق إذا كان المشرف بوتًا
-                continue  # تجاوز البوتات
+    global notification_group_id  # الوصول إلى معرف كروب التبليغ
+    if not notification_group_id:
+        await event.reply("لم يتم تعيين كروب التبليغ بعد. استخدم الأمر 'اضف كروب <معرف>'.")
+        return
 
-            try:
-                await event.client.send_message(admin.id, f"تم تعديل رسالة في المجموعة {event.chat.title}.")
-            except PeerIdInvalidError:
-                continue
-        await event.reply("تم إبلاغ المشرفين.")
+    try:
+        # إرسال تنبيه إلى كروب التبليغ
+        await event.client.send_message(notification_group_id, f"تم تعديل رسالة في المجموعة {event.chat.title}.")
+        await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
     except Exception as e:
-        await event.reply(f"تعذر إبلاغ المشرفين: {str(e)}")
+        await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
 
 # تشغيل البوت
 ABH.run_until_disconnected()

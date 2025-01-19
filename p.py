@@ -76,10 +76,9 @@ async def notify_admins(event):
     if not notification_group_id:
         await event.reply("لم يتم تعيين كروب التبليغ بعد. استخدم الأمر 'اضف كروب <معرف>'.")
 
-
-        # إرسال البلاغ إلى كروب التبليغ
-        await event.client.send_message(notification_group_id, report_text, link_preview=False)
-        await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
+    # إرسال البلاغ إلى كروب التبليغ
+    await event.client.send_message(notification_group_id, report_text, link_preview=False)
+    await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
     # except Exception as e:
     #     await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
 

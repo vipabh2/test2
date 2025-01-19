@@ -56,22 +56,16 @@ async def callback_handler(event):
         if event.data == b"notify_admins":
             await notify_admins(event)
         elif event.data == b"delete_only":
-            me = await event.client.get_me()
-            participant = await event.client.get_permissions(event.chat_id, me)
-            
-            if participant.is_admin:
-                if hasattr(event.original_update, 'message'):
-                    edited_message = event.original_update.message  # Obtain the edited message directly from the event
-                    await edited_message.delete()  
-                    await event.reply("تم مسح الرسالة.")
-                else:
-                    await event.reply("الرسالة المعدلة غير موجودة.")
+            if hasattr(event.original_update, 'message'):
+                edited_message = event.original_update.message  # الحصول على الرسالة المعدلة من الحدث
+                await edited_message.delete()  # مسح الرسالة المعدلة
+                await event.reply("تم مسح الرسالة.")
             else:
-                await event.reply("لا يمكنك مسح هذه الرسالة، فقط المشرفين يمكنهم ذلك.")
+                await event.reply("الرسالة المعدلة غير موجودة.")
     except Exception as e:
         await event.reply(f"حدث خطأ: {str(e)}")
 
-# وظيفة لإبلاغ المشرفين في كروب التبليغ
+
 async def notify_admins(event):
     global report_text
     global notification_group_id  # الوصول إلى معرف كروب التبليغ

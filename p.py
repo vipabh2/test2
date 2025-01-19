@@ -1,5 +1,6 @@
 from telethon import TelegramClient, events, Button
 from telethon.tl.types import ChannelParticipantsAdmins
+from telethon.errors.rpcerrorlist import PeerIdInvalidError
 import requests, os, operator, asyncio, random
 from googletrans import Translator
 from bs4 import BeautifulSoup
@@ -26,7 +27,7 @@ async def callback_handler(event):
         me = await event.client.get_me()
         participant = await event.client.get_permissions(event.chat_id, me)
         if participant.is_admin:
-            original_message = await event.get_reply_message()
+            original_message = await event.get_message()
             await original_message.delete()  # Delete the original edited message
             await event.reply("تم مسح الرسالة.")
         else:
@@ -35,7 +36,10 @@ async def callback_handler(event):
 async def notify_admins(event):
     admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
     for admin in admins:
-        await event.client.send_message(admin.id, f"تم تعديل رسالة في المجموعة {event.chat.title}.")
+        try:
+            await event.client.send_message(admin.id, f"تم تعديل رسالة في المجموعة {event.chat.title}.")
+        except PeerIdInvalidError:
+            continue
     await event.reply("تم إبلاغ المشرفين.")
 
 ABH.run_until_disconnected()

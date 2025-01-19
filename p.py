@@ -11,10 +11,8 @@ bot_token = os.getenv('BOT_TOKEN')
 # تهيئة عميل البوت
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-# متغير لتخزين معرف كروب التبليغ
 notification_group_id = None
 
-# أمر لإضافة كروب التبليغ باستخدام ID
 @ABH.on(events.NewMessage(pattern=r'^اضف كروب (\d+)$'))
 async def add_group(event):
     global notification_group_id  # الوصول إلى المتغير العام
@@ -34,7 +32,6 @@ async def handle_edited_message(event):
         ]
         await event.reply("تم تعديل هذه الرسالة", buttons=buttons)
 
-# معالجة ردود الأزرار
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):
     try:

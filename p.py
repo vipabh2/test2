@@ -53,11 +53,15 @@ async def callback_handler(event):
     try:
         if event.data == b"notify_admins":
             await notify_admins(event)
-            await event.edit("تم إبلاغ المشرفين في كروب التبليغ.")
+            buttons = [[Button.inline("مسح", b"delete_only")]]
+            await event.edit(buttons=buttons)
+            await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
         elif event.data == b"delete_only":
             if edited_message:
                 await edited_message.delete()
-                await event.edit("تم مسح الرسالة.")
+                buttons = [[Button.inline("إبلاغ المشرفين", b"notify_admins")]]
+                await event.edit(buttons=buttons)
+                await event.reply("تم مسح الرسالة.")
                 edited_message = None  # إعادة تعيين المتغير بعد حذف الرسالة
             else:
                 await event.reply("الرسالة المعدلة غير موجودة.")

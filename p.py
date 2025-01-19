@@ -12,6 +12,7 @@ bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
 notification_group_id = None
+edited_message = None  # متغير لتخزين الرسالة المعدلة
 
 @ABH.on(events.NewMessage(pattern=r'^اضف كروب (\d+)$'))
 async def add_group(event):
@@ -22,6 +23,7 @@ async def add_group(event):
         await event.reply(f"تم تعيين الكروب بمعرف: {notification_group_id} ككروب التبليغ.")
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `اضف كروب 123456789`")
+
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
     global report_text, edited_message
@@ -51,10 +53,11 @@ async def callback_handler(event):
     try:
         if event.data == b"notify_admins":
             await notify_admins(event)
+            await event.edit("تم إبلاغ المشرفين في كروب التبليغ.")
         elif event.data == b"delete_only":
             if edited_message:
                 await edited_message.delete()
-                await event.reply("تم مسح الرسالة.")
+                await event.edit("تم مسح الرسالة.")
                 edited_message = None  # إعادة تعيين المتغير بعد حذف الرسالة
             else:
                 await event.reply("الرسالة المعدلة غير موجودة.")
@@ -71,21 +74,6 @@ async def notify_admins(event):
     try:
         # إرسال البلاغ إلى كروب التبليغ
         await event.client.send_message(notification_group_id, report_text, link_preview=False)
-        await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
-    except Exception as e:
-        await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
-
-async def notify_admins(event):
-    global report_text
-    global notification_group_id  # الوصول إلى معرف كروب التبليغ
-    if not notification_group_id:
-        await event.reply("لم يتم تعيين كروب التبليغ بعد. استخدم الأمر 'اضف كروب <معرف>'.")
-        return  # إيقاف التنفيذ هنا إذا لم يكن المعرف موجودًا
-
-    try:
-        # إرسال البلاغ إلى كروب التبليغ
-        await event.client.send_message(notification_group_id, report_text, link_preview=False)
-        await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
     except Exception as e:
         await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
 

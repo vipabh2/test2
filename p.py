@@ -23,10 +23,28 @@ async def add_group(event):
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `اضف كروب 123456789`")
 
-# معالجة الرسائل المعدلة في المجموعات
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
+    global report_text
     if event.is_group and event.message.media:
+        message = await event.get_message()
+        sender = await event.client.get_entity(message.sender_id)
+        message_link = f"https://t.me/c/{str(event.chat_id)[4:]}/{message.id}" 
+        # اسم المستخدم، المعرف، والـID
+        sender_name = sender.first_name if sender.first_name else "غير معروف"
+        sender_username = f"@{sender.username}" if sender.username else "لا يوجد"
+        sender_id = sender.id
+
+        # نص البلاغ
+        report_text = (
+            f"🚨 **تم تعديل رسالة في المجموعة**: {event.chat.title}\n"
+            f"👤 **المعدل**: {sender_name}\n"
+            f"🔗 **المعرف**: {sender_username}\n"
+            f"🆔 **الايدي**: `{sender_id}`\n"
+            f"📎 [رابط الرسالة المعدلة]({message_link})"
+        )
+
+        
         buttons = [
             [Button.inline("إبلاغ المشرفين", b"notify_admins"), Button.inline("مسح", b"delete_only")]
         ]
@@ -34,6 +52,7 @@ async def handle_edited_message(event):
 
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):
+    global report_text
     try:
         if event.data == b"notify_admins":
             await notify_admins(event)
@@ -52,36 +71,17 @@ async def callback_handler(event):
 
 # وظيفة لإبلاغ المشرفين في كروب التبليغ
 async def notify_admins(event):
+    global report_text
     global notification_group_id  # الوصول إلى معرف كروب التبليغ
     if not notification_group_id:
         await event.reply("لم يتم تعيين كروب التبليغ بعد. استخدم الأمر 'اضف كروب <معرف>'.")
-        return
 
-    try:
-        # تفاصيل الرسالة المعدلة
-        message = await event.get_message()
-        sender = await event.client.get_entity(message.sender_id)
-        message_link = f"https://t.me/c/{str(event.chat_id)[4:]}/{message.id}"  # صياغة رابط الرسالة
-        
-        # اسم المستخدم، المعرف، والـID
-        sender_name = sender.first_name if sender.first_name else "غير معروف"
-        sender_username = f"@{sender.username}" if sender.username else "لا يوجد"
-        sender_id = sender.id
-
-        # نص البلاغ
-        report_text = (
-            f"🚨 **تم تعديل رسالة في المجموعة**: {event.chat.title}\n"
-            f"👤 **المعدل**: {sender_name}\n"
-            f"🔗 **المعرف**: {sender_username}\n"
-            f"🆔 **الايدي**: `{sender_id}`\n"
-            f"📎 [رابط الرسالة المعدلة]({message_link})"
-        )
 
         # إرسال البلاغ إلى كروب التبليغ
         await event.client.send_message(notification_group_id, report_text, link_preview=False)
         await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
-    except Exception as e:
-        await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
+    # except Exception as e:
+    #     await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
 
 # تشغيل البوت
 ABH.run_until_disconnected()

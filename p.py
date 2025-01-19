@@ -1,7 +1,7 @@
 from telethon import TelegramClient, events, Button
 from telethon.tl.types import ChannelParticipantsAdmins
 from telethon.errors.rpcerrorlist import PeerIdInvalidError
-import os, asyncio
+import os
 
 # الحصول على متغيرات البيئة
 api_id = os.getenv('API_ID')
@@ -45,6 +45,9 @@ async def notify_admins(event):
     try:
         admins = await event.client.get_participants(event.chat_id, filter=ChannelParticipantsAdmins)
         for admin in admins:
+            if admin.bot:  # التحقق إذا كان المشرف بوتًا
+                continue  # تجاوز البوتات
+
             try:
                 await event.client.send_message(admin.id, f"تم تعديل رسالة في المجموعة {event.chat.title}.")
             except PeerIdInvalidError:

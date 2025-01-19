@@ -61,11 +61,24 @@ async def notify_admins(event):
         return
 
     try:
-        # إرسال تنبيه إلى كروب التبليغ
-        await event.client.send_message(notification_group_id, f"تم تعديل رسالة في المجموعة {event.chat.title}.")
-        await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
-    except Exception as e:
-        await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
+        # تفاصيل الرسالة المعدلة
+        message = await event.get_message()
+        sender = await event.client.get_entity(message.sender_id)
+        message_link = f"https://t.me/c/{str(event.chat_id)[4:]}/{message.id}"  # صياغة رابط الرسالة
+        
+        # اسم المستخدم، المعرف، والـID
+        sender_name = sender.first_name if sender.first_name else "غير معروف"
+        sender_username = f"@{sender.username}" if sender.username else "لا يوجد"
+        sender_id = sender.id
 
-# تشغيل البوت
-ABH.run_until_disconnected()
+        # نص البلاغ
+        report_text = (
+            f"🚨 **تم تعديل رسالة في المجموعة**: {event.chat.title}\n"
+            f"👤 **المرسل**: {sender_name}\n"
+            f"🔗 **المعرف**: {sender_username}\n"
+            f"🆔 **الايدي**: `{sender_id}`\n"
+            f"📎 [رابط الرسالة المعدلة]({message_link})"
+        )
+
+        # إرسال البلاغ إلى كروب التبليغ
+        await event.client.send_message(notification_group_id, report_text, link_

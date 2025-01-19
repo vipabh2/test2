@@ -25,7 +25,7 @@ async def add_group(event):
 
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
-    global report_text
+    global report_text, message
     if event.is_group and hasattr(event.original_update, 'message') and event.original_update.message.media:
         message = event.original_update.message  # Obtain the message directly from the event
         sender = await event.client.get_entity(message.sender_id)
@@ -51,14 +51,14 @@ async def handle_edited_message(event):
 
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):
-    global report_text
+    global report_text, message
     try:
         if event.data == b"notify_admins":
             await notify_admins(event)
         elif event.data == b"delete_only":
             if hasattr(event.original_update, 'message'):
                 edited_message = event.original_update.message  # الحصول على الرسالة المعدلة من الحدث
-                await edited_message.delete()  # مسح الرسالة المعدلة
+                await edited_message.delete()
                 await event.reply("تم مسح الرسالة.")
             else:
                 await event.reply("الرسالة المعدلة غير موجودة.")

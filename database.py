@@ -7,8 +7,11 @@ def connect_db():
 def save_notification_group(group_id, notification_group_id):
     conn = connect_db()
     cursor = conn.cursor()
-    cursor.execute('''CREATE TABLE IF NOT EXISTS notification_groups (group_id INTEGER, notification_group_id INTEGER)''')
-    cursor.execute('INSERT INTO notification_groups (group_id, notification_group_id) VALUES (?, ?)', (group_id, notification_group_id))
+    # تأكد من أن الجدول موجود قبل محاولة إدخال البيانات
+    cursor.execute('''CREATE TABLE IF NOT EXISTS notification_groups (
+                        group_id INTEGER PRIMARY KEY, 
+                        notification_group_id INTEGER)''')
+    cursor.execute('INSERT OR REPLACE INTO notification_groups (group_id, notification_group_id) VALUES (?, ?)', (group_id, notification_group_id))
     conn.commit()
     conn.close()
 

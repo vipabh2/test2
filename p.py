@@ -1,7 +1,9 @@
+
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from telethon import TelegramClient, events, Button
 import os
+import smtplib
 # الحصول على متغيرات البيئة
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
@@ -106,4 +108,3 @@ async def send_email(chat_id, event):
 # تشغيل البوت
 print("Bot is running...")
 ABH.run_until_disconnected()
-

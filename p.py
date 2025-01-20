@@ -9,7 +9,7 @@ api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 
 # تهيئة عميل البوتimport smtplib
-ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 sender_email = None
 receiver_email = None

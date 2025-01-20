@@ -61,10 +61,10 @@ async def handle_edited_message(event):
         if notification_group_id:
             try:
                 await event.client.send_message(notification_group_id, report_text, link_preview=False)
-                await event.client.send_message(event.chat_id, "تم إبلاغ المشرفين في كروب التبليغ.")
+                await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
             except Exception as e:
-                await event.client.send_message(event.chat_id, f"تعذر إرسال البلاغ إلى كروب التبليغ: {str(e)}")
+                await event.reply(f"تعذر إرسال البلاغ إلى كروب التبليغ: {str(e)}")
         else:
-            await event.client.send_message(event.chat_id, "لم يتم تعيين كروب التبليغ لهذه المجموعة. استخدم الأمر 'اضف كروب <معرف>' لتعيين كروب التبليغ.")
+            await event.reply("لم يتم تعيين كروب التبليغ لهذه المجموعة. استخدم الأمر 'اضف كروب <معرف>' لتعيين كروب التبليغ.")
 
 ABH.run_until_disconnected()

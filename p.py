@@ -51,25 +51,13 @@ async def handle_edited_message(event):
         # جلب معرف كروب التبليغ من قاعدة البيانات
         notification_group_id = get_notification_group(event.chat_id)
         if notification_group_id:
-            buttons = [
-                [Button.inline("إبلاغ المشرفين", b"notify_admins"), Button.inline("مسح", b"delete_only")]
-            ]
-            await event.reply("تم تعديل هذه الرسالة", buttons=buttons)
+            # إرسال البلاغ فورًا إلى كروب التبليغ
+            try:
+                await event.client.send_message(notification_group_id, report_text, link_preview=False)
+                await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
+            except Exception as e:
+                await event.reply(f"تعذر إرسال البلاغ إلى كروب التبليغ: {str(e)}")
         else:
-            await event.reply("لم يتم تعيين كروب تبليغ لهذه المجموعة. استخدم الأمر 'اضف كروب <معرف>' لتعيينه.")
+            await event.reply("لم يتم تعيين كروب التبليغ لهذه المجموعة. استخدم الأمر 'اضف كروب <معرف>' لتعيينه.")
 
-async def notify_admins(event):
-    global report_text
-    # جلب معرف كروب التبليغ من قاعدة البيانات
-    notification_group_id = get_notification_group(event.chat_id)
-    if not notification_group_id:
-        await event.reply("لم يتم تعيين كروب التبليغ بعد. استخدم الأمر 'اضف كروب <معرف>'.")
-        return 
-    try:
-        await event.client.send_message(notification_group_id, report_text, link_preview=False)
-        await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
-    except Exception as e:
-        await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
-
-# تشغيل البوت
 ABH.run_until_disconnected()

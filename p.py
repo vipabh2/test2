@@ -42,23 +42,23 @@ async def delete_group(event):
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `احذف كروب 123456789`")
 
-@ABH.on(events.NewMessage(pattern=r'^رفض (\d+)$'))
+@ABH.on(events.NewMessage(pattern=r'^سماح (\d+)$'))
 async def approve_user_command(event):
     match = event.pattern_match
     if match:
         user_id = int(match.group(1))
         group_id = event.chat_id
         approve_user(group_id, user_id)
-        await event.reply(f"المستخدم{user_id} تم رفض المستخدم لتعديل")
+        await event.reply(f"تم السماح للمستخدم بمعرف: {user_id} بالتعديل.")
 
-@ABH.on(events.NewMessage(pattern=r'^سماح (\d+)$'))
+@ABH.on(events.NewMessage(pattern=r'^رفض (\d+)$'))
 async def remove_approval_command(event):
     match = event.pattern_match
     if match:
         user_id = int(match.group(1))
         group_id = event.chat_id
         remove_approval(group_id, user_id)
-        await event.reply(f"المستخدم{user_id} تم السماح له بالتعديل")
+        await event.reply(f"تم إزالة السماح للمستخدم بمعرف: {user_id} بالتعديل.")
 
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
@@ -66,7 +66,7 @@ async def handle_edited_message(event):
         edited_message = event.original_update.message
         sender = await event.client.get_entity(edited_message.sender_id)
         if not is_user_approved(event.chat_id, sender.id):
-            # await event.reply("لم يتم السماح لك بالتعديل.")
+            await event.reply("لم يتم السماح لك بالتعديل.")
             return
         message_link = f"https://t.me/c/{str(event.chat_id)[4:]}/{edited_message.id}" 
         sender_name = sender.first_name if sender.first_name else "غير معروف"

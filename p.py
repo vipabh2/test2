@@ -39,6 +39,7 @@ async def delete_group(event):
             await event.reply("لا يوجد كروب تم تعيينه لهذه المجموعة بهذا المعرف.")
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `احذف كروب 123456789`")
+
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
     if event.is_group and hasattr(event.original_update, 'message') and event.original_update.message.media:

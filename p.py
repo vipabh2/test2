@@ -1,6 +1,6 @@
 from telethon import TelegramClient, events
 import os
-from database import save_notification_group, get_notification_group, delete_notification_group, approve_user, remove_approval, is_user_approved
+from database import save_notification_group, get_notification_group, delete_notification_group, approve_user, remove_approval, is_user_approved, initialize_db
 
 # الحصول على متغيرات البيئة
 api_id = os.getenv('API_ID')
@@ -9,6 +9,9 @@ bot_token = os.getenv('BOT_TOKEN')
 
 # تهيئة عميل البوت
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
+
+# Initialize the database
+initialize_db()
 
 @ABH.on(events.NewMessage(pattern=r'^اضف كروب (\d+)$'))
 async def add_group(event):
@@ -40,7 +43,7 @@ async def delete_group(event):
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `احذف كروب 123456789`")
 
-@ABH.on(events.NewMessage(pattern=r'^سماح تعديل (\d+)$'))
+@ABH.on(events.NewMessage(pattern=r'^سماح (\d+)$'))
 async def approve_user_command(event):
     match = event.pattern_match
     if match:
@@ -49,7 +52,7 @@ async def approve_user_command(event):
         approve_user(group_id, user_id)
         await event.reply(f"تم السماح للمستخدم بمعرف: {user_id} بالتعديل.")
 
-@ABH.on(events.NewMessage(pattern=r'^حذف سماح تعديل (\d+)$'))
+@ABH.on(events.NewMessage(pattern=r'^رفض (\d+)$'))
 async def remove_approval_command(event):
     match = event.pattern_match
     if match:

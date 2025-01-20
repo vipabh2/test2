@@ -3,17 +3,19 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from telethon import TelegramClient, events
 import os
+
 # الحصول على متغيرات البيئة
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 
-# تهيئة عميل البوتimport smtplib
+# تهيئة عميل البوت
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
+# متغيرات البريد الإلكتروني
 sender_email = None
 receiver_email = None
-password = None
+password = "fzuf heoh foqw tdge"
 subject = None
 email_text = None
 

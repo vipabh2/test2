@@ -66,19 +66,7 @@ async def handle_edited_message(event):
         edited_message = event.original_update.message
         sender = await event.client.get_entity(edited_message.sender_id)
         if is_user_approved(event.chat_id, sender.id):
-            return  # لا ترسل البلاغ إذا كان المستخدم مسموحًا له بالتعديل
-        notification_group_id = get_notification_group(event.chat_id)
-        if notification_group_id:
-            sender_name = sender.first_name if sender.first_name else "غير معروف"
-            sender_username = f"@{sender.username}" if sender.username else "لا يوجد"
-            sender_id = sender.id
-            report_text = (
-                f"🚨 **محاولة تعديل رسالة مرفوضة في المجموعة**: {event.chat.title}\n"
-                f"👤 **المعدل**: {sender_name}\n"
-                f"🔗 **المعرف**: {sender_username}\n"
-                f"🆔 **الايدي**: `{sender_id}`\n"
-                f"📎 [رابط المحاولة المرفوضة]({f'https://t.me/c/{str(event.chat_id)[4:]}/{edited_message.id}'})"
-            )
+            return 
             try:
                 await event.client.send_message(notification_group_id, report_text, link_preview=False)
             except Exception as e:

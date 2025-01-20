@@ -42,7 +42,7 @@ async def delete_group(event):
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `احذف كروب 123456789`")
 
-@ABH.on(events.NewMessage(pattern=r'^الرفض (\d+)$'))
+@ABH.on(events.NewMessage(pattern=r'^رفض (\d+)$'))
 async def approve_user_command(event):
     match = event.pattern_match
     if match:

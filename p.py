@@ -21,6 +21,18 @@ async def add_group(event):
         await event.reply(f"تم تعيين الكروب بمعرف: {notification_group_id} ككروب التبليغ.")
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `اضف كروب 123456789`")
+
+@ABH.on(events.NewMessage(pattern=r'^احذف كروب$')) 
+async def delete_group(event):
+    global notification_group_id
+    group_id = event.chat_id  # الحصول على معرف المجموعة الحالية
+    if notification_group_id:
+        delete_notification_group(group_id)  # حذف من قاعدة البيانات
+        notification_group_id = None  # إعادة تعيين المتغير
+        await event.reply(f"تم حذف الكروب بمعرف: {notification_group_id} من قاعدة البيانات.")
+    else:
+        await event.reply("لا يوجد كروب تم تعيينه لهذه المجموعة.")
+
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
     global report_text, edited_message

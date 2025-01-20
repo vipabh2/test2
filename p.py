@@ -10,10 +10,9 @@ bot_token = os.getenv('BOT_TOKEN')
 # تهيئة عميل البوت
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-# Initialize the database
 initialize_db()
 
-@ABH.on(events.NewMessage(pattern=r'^اضف كروب (\d+)$'))
+@ABH.on(events.NewMessage(pattern=r'^اضف (\d+)$'))
 async def add_group(event):
     match = event.pattern_match
     if match:
@@ -30,7 +29,7 @@ async def add_group(event):
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `اضف كروب 123456789`")
 
-@ABH.on(events.NewMessage(pattern=r'^احذف كروب (\d+)$')) 
+@ABH.on(events.NewMessage(pattern=r'^احذف (\d+)$')) 
 async def delete_group(event):
     match = event.pattern_match
     if match:
@@ -50,7 +49,7 @@ async def approve_user_command(event):
         user_id = int(match.group(1))
         group_id = event.chat_id
         approve_user(group_id, user_id)
-        await event.reply(f"تم السماح للمستخدم بمعرف: {user_id} بالتعديل.")
+        await event.reply(f"المستخدم{user_id} تم رفض المستخدم لتعديل")
 
 @ABH.on(events.NewMessage(pattern=r'^سماح (\d+)$'))
 async def remove_approval_command(event):
@@ -59,7 +58,7 @@ async def remove_approval_command(event):
         user_id = int(match.group(1))
         group_id = event.chat_id
         remove_approval(group_id, user_id)
-        await event.reply(f"تم إزالة السماح للمستخدم بمعرف: {user_id} بالتعديل.")
+        await event.reply(f"المستخدم{user_id} تم السماح له بالتعديل")
 
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):

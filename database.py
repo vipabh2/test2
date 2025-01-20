@@ -1,10 +1,10 @@
 import sqlite3
 
-# إنشاء اتصال بقاعدة البيانات
-conn = sqlite3.connect("groups.db")
+# إنشاء اتصال بقاعدة البيانات (سيتم إنشاء الملف إذا لم يكن موجودًا)
+conn = sqlite3.connect("notification_groups.db")
 cursor = conn.cursor()
 
-# إنشاء جدول لتخزين معرف كروب التبليغ لكل مجموعة
+# إنشاء جدول لتخزين معرف كروب التبليغ
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS groups (
     group_id INTEGER PRIMARY KEY,

@@ -31,16 +31,14 @@ async def add_group(event):
 async def delete_group(event):
     match = event.pattern_match
     if match:
-        notification_group_id = int(match.group(1))
         group_id = event.chat_id
-        result = delete_notification_group(group_id, notification_group_id)
+        result = delete_notification_group(group_id)
         if result:
-            await event.reply(f"تم حذف الكروب بمعرف: {notification_group_id} من قاعدة البيانات.")
+            await event.reply(f"تم حذف الكروب بمعرف: {group_id} من قاعدة البيانات.")
         else:
             await event.reply("لا يوجد كروب تم تعيينه لهذه المجموعة بهذا المعرف.")
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `احذف كروب 123456789`")
-
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
     if event.is_group and hasattr(event.original_update, 'message') and event.original_update.message.media:

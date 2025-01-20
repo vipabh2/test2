@@ -4,7 +4,7 @@ import sqlite3
 conn = sqlite3.connect("groups.db")
 cursor = conn.cursor()
 
-# إنشاء الجدول إذا لم يكن موجودًا
+# إنشاء جدول لتخزين معرف كروب التبليغ لكل مجموعة
 cursor.execute("""
 CREATE TABLE IF NOT EXISTS groups (
     group_id INTEGER PRIMARY KEY,
@@ -13,7 +13,7 @@ CREATE TABLE IF NOT EXISTS groups (
 """)
 conn.commit()
 
-# دالة لحفظ معرف كروب التبليغ في قاعدة البيانات
+# دالة لحفظ معرف كروب التبليغ
 def save_notification_group(group_id, notification_group_id):
     cursor.execute("""
     INSERT OR REPLACE INTO groups (group_id, notification_group_id)
@@ -21,7 +21,7 @@ def save_notification_group(group_id, notification_group_id):
     """, (group_id, notification_group_id))
     conn.commit()
 
-# دالة لاسترجاع معرف كروب التبليغ من قاعدة البيانات
+# دالة لاسترجاع معرف كروب التبليغ
 def get_notification_group(group_id):
     cursor.execute("SELECT notification_group_id FROM groups WHERE group_id = ?", (group_id,))
     result = cursor.fetchone()

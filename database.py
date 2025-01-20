@@ -1,37 +1,27 @@
 from sqlalchemy import Column, Integer, String, DateTime
 from db import BASE, SESSION, engine
 from datetime import datetime
-class Whisper(BASE):
-    __tablename__ = "whispers"
-    whisper_id = Column(String(255), primary_key=True)
-    sender_id = Column(Integer)
-    username = Column(String(255))
-    message = Column(String(255))
-    created_at = Column(Integer)
 
-    def __init__(self, whisper_id, sender_id, username, message):
-        self.whisper_id = whisper_id
-        self.sender_id = sender_id
-        self.username = username
-        self.message = message
+conn = sqlite3.connect("groups.db")
+cursor = conn.cursor()
 
-    @classmethod
-    def store_whisper(cls, whisper_id, sender_id, username, message):
-        whisper = cls(whisper_id=whisper_id, sender_id=sender_id, username=username, message=message)
-        SESSION.add(whisper)
-        SESSION.commit()
+cursor.execute("""
+CREATE TABLE IF NOT EXISTS groups (
+    group_id INTEGER PRIMARY KEY,
+    notification_group_id INTEGER
+)
+""")
+conn.commit()
 
-    @classmethod
-    def get_whisper(cls, whisper_id):
-        return SESSION.query(cls).filter(cls.whisper_id == whisper_id).first()
+def save_notification_group(group_id, notification_group_id):
+    cursor.execute("""
+    INSERT OR REPLACE INTO groups (group_id, notification_group_id)
+    VALUES (?, ?)
+    """, (group_id, notification_group_id))
+    conn.commit()
 
-    @classmethod
-    def delete_whisper(cls, whisper_id):
-        whisper = SESSION.query(cls).filter(cls.whisper_id == whisper_id).first()
-        if whisper:
-            SESSION.delete(whisper)
-            SESSION.commit()
+def get_notification_group(group_id):
+    cursor.execute("SELECT notification_group_id FROM groups WHERE group_id = ?", (group_id,))
+    result = cursor.fetchone()
+    return result[0] if result else None
 
-    @classmethod
-    def get_all_whispers(cls):
-        return SESSION.query(cls).all()

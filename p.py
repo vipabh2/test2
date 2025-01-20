@@ -36,7 +36,7 @@ async def handle_edited_message(event):
         sender_username = f"@{sender.username}" if sender.username else "لا يوجد"
         sender_id = sender.id
         report_text = (
-            f"🚨 **تم تعديل رسالة في المجموعة**: {event.chat.title}\n"
+            f"🚨 **تم تعديل رسالة في المجموعة** \n {event.chat.title}\n"
             f"👤 **المعدل**: {sender_name}\n"
             f"🔗 **المعرف**: {sender_username}\n"
             f"🆔 **الايدي**: `{sender_id}`\n"

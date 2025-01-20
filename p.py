@@ -1,6 +1,6 @@
 from telethon import TelegramClient, events
 import os
-from .database import save_notification_group, get_notification_group, delete_notification_group
+from database import save_notification_group, get_notification_group, delete_notification_group
 
 # الحصول على متغيرات البيئة
 api_id = os.getenv('API_ID')

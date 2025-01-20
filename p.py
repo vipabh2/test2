@@ -1,6 +1,6 @@
-from telethon import TelegramClient, events, Button
+from telethon import TelegramClient, events
 import os
-from database import save_notification_group, get_notification_group, delete_notification_group
+from .database import save_notification_group, get_notification_group, delete_notification_group
 
 # الحصول على متغيرات البيئة
 api_id = os.getenv('API_ID')
@@ -22,7 +22,7 @@ async def add_group(event):
             chat_link = f"https://t.me/{chat_link}"
         else:
             chat_link = "رابط غير متاح"
-        save_notification_group(group_id, notification_group_id, chat_link)
+        save_notification_group(group_id, notification_group_id)
         await event.reply(f"تم تعيين الكروب بمعرف: {notification_group_id} ككروب التبليغ. رابط المجموعة: {chat_link}")
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `اضف كروب 123456789`")

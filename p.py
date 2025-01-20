@@ -1,6 +1,6 @@
 from telethon import TelegramClient, events, Button
 import os
-from database import save_notification_group, get_notification_group
+from database import save_notification_group, get_notification_group, delete_notification_group
 
 # الحصول على متغيرات البيئة
 api_id = os.getenv('API_ID')
@@ -12,7 +12,6 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
 @ABH.on(events.NewMessage(pattern=r'^اضف كروب (\d+)$'))
 async def add_group(event):
-    global notification_group_id  # الوصول إلى المتغير العام
     match = event.pattern_match  # استخراج الرقم من الأمر
     if match:
         notification_group_id = int(match.group(1))
@@ -24,20 +23,16 @@ async def add_group(event):
 
 @ABH.on(events.NewMessage(pattern=r'^احذف كروب$')) 
 async def delete_group(event):
-    global notification_group_id
     group_id = event.chat_id  # الحصول على معرف المجموعة الحالية
-    if notification_group_id:
-        delete_notification_group(group_id)  # حذف من قاعدة البيانات
-        deleted_group_id = notification_group_id  # حفظ المعرف المحذوف قبل إعادة تعيينه
-        notification_group_id = None  # إعادة تعيين المتغير
-        await event.reply(f"تم حذف الكروب بمعرف: {deleted_group_id} من قاعدة البيانات.")
+    # محاولة حذف الكروب من قاعدة البيانات
+    result = delete_notification_group(group_id)
+    if result:
+        await event.reply(f"تم حذف الكروب من قاعدة البيانات.")
     else:
         await event.reply("لا يوجد كروب تم تعيينه لهذه المجموعة.")
 
-
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
-    global report_text, edited_message
     if event.is_group and hasattr(event.original_update, 'message') and event.original_update.message.media:
         edited_message = event.original_update.message
         sender = await event.client.get_entity(edited_message.sender_id)
@@ -55,21 +50,26 @@ async def handle_edited_message(event):
 
         # جلب معرف كروب التبليغ من قاعدة البيانات
         notification_group_id = get_notification_group(event.chat_id)
-        
         if notification_group_id:
-            try:
-                # تحقق من أن الـ ID هو معرف كروب وليس مستخدمًا
-                entity = await event.client.get_entity(notification_group_id)
-                
-                # التأكد من أن الكائن هو مجموعة (مؤسسة مجموعة وليس مستخدم)
-                if isinstance(entity, ChannelParticipantsAdmins):
-                    await event.client.send_message(notification_group_id, report_text, link_preview=False)
-                    await event.reply("تم إرسال البلاغ إلى كروب التبليغ.")
-                else:
-                    await event.reply("المعرف الذي تم تعيينه ليس كروبًا.")
-            except Exception as e:
-                await event.reply(f"تعذر إرسال البلاغ إلى كروب التبليغ: {str(e)}")
+            buttons = [
+                [Button.inline("إبلاغ المشرفين", b"notify_admins"), Button.inline("مسح", b"delete_only")]
+            ]
+            await event.reply("تم تعديل هذه الرسالة", buttons=buttons)
         else:
             await event.reply("لم يتم تعيين كروب تبليغ لهذه المجموعة. استخدم الأمر 'اضف كروب <معرف>' لتعيينه.")
 
+async def notify_admins(event):
+    global report_text
+    # جلب معرف كروب التبليغ من قاعدة البيانات
+    notification_group_id = get_notification_group(event.chat_id)
+    if not notification_group_id:
+        await event.reply("لم يتم تعيين كروب التبليغ بعد. استخدم الأمر 'اضف كروب <معرف>'.")
+        return 
+    try:
+        await event.client.send_message(notification_group_id, report_text, link_preview=False)
+        await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
+    except Exception as e:
+        await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
+
+# تشغيل البوت
 ABH.run_until_disconnected()

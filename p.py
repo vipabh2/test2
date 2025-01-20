@@ -21,7 +21,6 @@ async def add_group(event):
         await event.reply(f"تم تعيين الكروب بمعرف: {notification_group_id} ككروب التبليغ.")
     else:
         await event.reply("يرجى إدخال معرف كروب صحيح. مثال: `اضف كروب 123456789`")
-
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):
     global report_text, edited_message
@@ -42,11 +41,18 @@ async def handle_edited_message(event):
 
         # جلب معرف كروب التبليغ من قاعدة البيانات
         notification_group_id = get_notification_group(event.chat_id)
+        
         if notification_group_id:
             try:
-                # إرسال البلاغ فورًا إلى كروب التبليغ
-                await event.client.send_message(notification_group_id, report_text, link_preview=False)
-                await event.reply("تم إرسال البلاغ إلى كروب التبليغ.")
+                # تحقق من أن الـ ID هو معرف كروب وليس مستخدمًا
+                entity = await event.client.get_entity(notification_group_id)
+                
+                # التأكد من أن الكائن هو مجموعة (مؤسسة مجموعة وليس مستخدم)
+                if isinstance(entity, ChannelParticipantsAdmins):
+                    await event.client.send_message(notification_group_id, report_text, link_preview=False)
+                    await event.reply("تم إرسال البلاغ إلى كروب التبليغ.")
+                else:
+                    await event.reply("المعرف الذي تم تعيينه ليس كروبًا.")
             except Exception as e:
                 await event.reply(f"تعذر إرسال البلاغ إلى كروب التبليغ: {str(e)}")
         else:

@@ -1,9 +1,8 @@
-
+import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-from telethon import TelegramClient, events, Button
+from telethon import TelegramClient, events
 import os
-import smtplib
 # الحصول على متغيرات البيئة
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
@@ -12,99 +11,73 @@ bot_token = os.getenv('BOT_TOKEN')
 # تهيئة عميل البوتimport smtplib
 ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# المتغيرات لتخزين البيانات
-user_data = {}
+sender_email = None
+receiver_email = None
+password = None
+subject = None
+email_text = None
 
-@ABH.on(events.NewMessage(pattern='^/start$'))
+@bot.on(events.NewMessage(pattern='/start'))
 async def start(event):
-    chat_id = event.chat_id
-    user_data[chat_id] = {"sender_email": None, "password": None, "receiver_email": None, "text": None, "subject": None}
-    await event.reply(
-        "أهلاً بك! اختر ما تريد إضافته:",
-        buttons=[
-            [Button.inline("اضف ايميل", b"email")],
-            [Button.inline("اضف باسورد", b"pass")],
-            [Button.inline("اضف مستلم", b"to")],
-            [Button.inline("اضف كليشة", b"text")],
-            [Button.inline("اضف موضوع", b"subject")],
-            [Button.inline("إرسال البريد 100 مرة", b"send_email")]
-        ]
-    )
+    await event.reply("مرحبًا! لإرسال إيميل، قم بإدخال البيانات كما يلي:\n\n" +
+                      "/email <البريد المرسل>\n" +
+                      "/password <كلمة مرور البريد>\n" +
+                      "/to <البريد المستلم>\n" +
+                      "/subject <الموضوع>\n" +
+                      "/text <نص الرسالة>\n\n" +
+                      "بعد إدخال جميع البيانات، أرسل /send لبدء إرسال الإيميل.")
 
-@ABH.on(events.CallbackQuery)
-async def callback(event):
-    chat_id = event.chat_id
-    data = event.data.decode("utf-8")
+@bot.on(events.NewMessage(pattern='/email (.+)'))
+async def set_email(event):
+    global sender_email
+    sender_email = event.pattern_match.group(1)
+    await event.reply(f"تم حفظ البريد المرسل: {sender_email}")
 
-    if chat_id not in user_data:
-        user_data[chat_id] = {"sender_email": None, "password": None, "receiver_email": None, "text": None, "subject": None}
+@bot.on(events.NewMessage(pattern='/password (.+)'))
+async def set_password(event):
+    global password
+    password = event.pattern_match.group(1)
+    await event.reply("تم حفظ كلمة المرور بنجاح.")
 
-    if data == "email":
-        await event.respond("أدخل البريد المرسل:")
-        user_data[chat_id]["awaiting"] = "sender_email"
+@bot.on(events.NewMessage(pattern='/to (.+)'))
+async def set_receiver(event):
+    global receiver_email
+    receiver_email = event.pattern_match.group(1)
+    await event.reply(f"تم حفظ البريد المستلم: {receiver_email}")
 
-    elif data == "pass":
-        await event.respond("أدخل كلمة المرور:")
-        user_data[chat_id]["awaiting"] = "password"
+@bot.on(events.NewMessage(pattern='/subject (.+)'))
+async def set_subject(event):
+    global subject
+    subject = event.pattern_match.group(1)
+    await event.reply(f"تم حفظ الموضوع: {subject}")
 
-    elif data == "to":
-        await event.respond("أدخل البريد المستلم:")
-        user_data[chat_id]["awaiting"] = "receiver_email"
+@bot.on(events.NewMessage(pattern='/text (.+)'))
+async def set_text(event):
+    global email_text
+    email_text = event.pattern_match.group(1)
+    await event.reply("تم حفظ نص الرسالة.")
 
-    elif data == "text":
-        await event.respond("أدخل الكليشة:")
-        user_data[chat_id]["awaiting"] = "text"
-
-    elif data == "subject":
-        await event.respond("أدخل الموضوع:")
-        user_data[chat_id]["awaiting"] = "subject"
-
-    elif data == "send_email":
-        await send_email(chat_id, event)
-
-@ABH.on(events.NewMessage)
-async def handle_input(event):
-    chat_id = event.chat_id
-    if chat_id in user_data and "awaiting" in user_data[chat_id]:
-        key = user_data[chat_id]["awaiting"]
-        user_data[chat_id][key] = event.text
-        del user_data[chat_id]["awaiting"]
-        await event.respond(f"تم حفظ {key} بنجاح.")
-
-async def send_email(chat_id, event):
-    data = user_data.get(chat_id, {})
-    sender_email = data.get("sender_email")
-    password = data.get("password")
-    receiver_email = data.get("receiver_email")
-    text = data.get("text")
-    subject = data.get("subject")
-
-    # تحقق من جميع القيم
-    if not all([sender_email, password, receiver_email, text, subject]):
-        await event.respond("يجب ملء جميع البيانات قبل الإرسال.")
+@bot.on(events.NewMessage(pattern='/send'))
+async def send_email(event):
+    if not all([sender_email, password, receiver_email, subject, email_text]):
+        await event.reply("الرجاء إدخال جميع البيانات المطلوبة قبل الإرسال.")
         return
 
+    # إعداد الرسالة
     message = MIMEMultipart("alternative")
     message["Subject"] = subject
     message["From"] = sender_email
     message["To"] = receiver_email
+    message.attach(MIMEText(email_text, "plain"))
 
-    # إضافة النصوص
-    message.attach(MIMEText(text, "plain"))
+    try:
+        # إرسال الإيميل باستخدام SMTP
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, receiver_email, message.as_string())
+        await event.reply("تم إرسال الإيميل بنجاح!")
+    except Exception as e:
+        await event.reply(f"فشل إرسال الإيميل: {e}")
 
-    # إرسال البريد 100 مرة
-    for i in range(100):
-        try:
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login(sender_email, password)
-                server.sendmail(sender_email, receiver_email, message.as_string())
-            print(f"Email {i+1} sent successfully!")
-        except Exception as e:
-            print(f"Failed to send email {i+1}: {e}")
-            break
-
-    await event.respond("تم إرسال البريد 100 مرة بنجاح!")
-
-# تشغيل البوت
 print("Bot is running...")
-ABH.run_until_disconnected()
+bot.run_until_disconnected()

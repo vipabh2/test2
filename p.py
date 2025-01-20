@@ -43,39 +43,13 @@ async def handle_edited_message(event):
         # جلب معرف كروب التبليغ من قاعدة البيانات
         notification_group_id = get_notification_group(event.chat_id)
         if notification_group_id:
-            buttons = [
-                [Button.inline("إبلاغ المشرفين", b"notify_admins"), Button.inline("مسح", b"delete_only")]
-            ]
-            await event.reply("تم تعديل هذه الرسالة", buttons=buttons)
+            try:
+                # إرسال البلاغ فورًا إلى كروب التبليغ
+                await event.client.send_message(notification_group_id, report_text, link_preview=False)
+                await event.reply("تم إرسال البلاغ إلى كروب التبليغ.")
+            except Exception as e:
+                await event.reply(f"تعذر إرسال البلاغ إلى كروب التبليغ: {str(e)}")
         else:
             await event.reply("لم يتم تعيين كروب تبليغ لهذه المجموعة. استخدم الأمر 'اضف كروب <معرف>' لتعيينه.")
-
-@ABH.on(events.CallbackQuery)
-async def callback_handler(event):
-    global report_text, edited_message
-    try:
-        if event.data == b"notify_admins":
-            await notify_admins(event)  # استدعاء الدالة لإبلاغ المشرفين
-        elif event.data == b"delete_only":
-            if edited_message:
-                await edited_message.delete()  # مسح الرسالة المعدلة
-                await event.reply("تم مسح الرسالة.")
-                edited_message = None  # إعادة تعيين المتغير بعد حذف الرسالة
-            else:
-                await event.reply("الرسالة المعدلة غير موجودة.")
-    except Exception as e:
-        await event.reply(f"حدث خطأ: {str(e)}")
-
-async def notify_admins(event):
-    global report_text
-    global notification_group_id  # الوصول إلى معرف كروب التبليغ
-    if not notification_group_id:
-        await event.reply("لم يتم تعيين كروب التبليغ بعد. استخدم الأمر 'اضف كروب <معرف>'.")
-        return 
-    try:
-        await event.client.send_message(notification_group_id, report_text, link_preview=False)
-        await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
-    except Exception as e:
-        await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
 
 ABH.run_until_disconnected()

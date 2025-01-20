@@ -28,10 +28,12 @@ async def delete_group(event):
     group_id = event.chat_id  # الحصول على معرف المجموعة الحالية
     if notification_group_id:
         delete_notification_group(group_id)  # حذف من قاعدة البيانات
+        deleted_group_id = notification_group_id  # حفظ المعرف المحذوف قبل إعادة تعيينه
         notification_group_id = None  # إعادة تعيين المتغير
-        await event.reply(f"تم حذف الكروب بمعرف: {notification_group_id} من قاعدة البيانات.")
+        await event.reply(f"تم حذف الكروب بمعرف: {deleted_group_id} من قاعدة البيانات.")
     else:
         await event.reply("لا يوجد كروب تم تعيينه لهذه المجموعة.")
+
 
 @ABH.on(events.MessageEdited)
 async def handle_edited_message(event):

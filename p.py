@@ -49,7 +49,8 @@ async def handle_edited_message(event):
             await event.reply("تم تعديل هذه الرسالة", buttons=buttons)
         else:
             await event.reply("لم يتم تعيين كروب تبليغ لهذه المجموعة. استخدم الأمر 'اضف كروب <معرف>' لتعيينه.")
-            async def notify_admins(event):
+
+async def notify_admins(event):
     global report_text
     global notification_group_id  # الوصول إلى معرف كروب التبليغ
     if not notification_group_id:
@@ -62,7 +63,5 @@ async def handle_edited_message(event):
         await event.reply("تم إبلاغ المشرفين في كروب التبليغ.")
     except Exception as e:
         await event.reply(f"تعذر إبلاغ كروب التبليغ: {str(e)}")
-
-
 
 ABH.run_until_disconnected()

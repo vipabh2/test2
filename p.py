@@ -8,27 +8,19 @@ import os
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
-import smtplib
-from email.mime.text import MIMEText
-from email.mime.multipart import MIMEMultipart
-from telethon import TelegramClient, events
-
-# إعدادات تيليجرام
-api_id = "20464188"
-api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
-bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 # المتغيرات العامة
 sender_email = None
-password = None
 receiver_email = "abuse@telegram.org"
 subject = None
 email_text = None
 
 @bot.on(events.NewMessage(pattern='/start'))
 async def start(event):
+    global password
+    password = "fzuf heoh foqw tdge"
     await event.reply(
         "مرحبًا! لإرسال إيميل، قم بإدخال البيانات كما يلي:\n\n" +
         "/email <البريد المرسل>\n" +
@@ -43,12 +35,6 @@ async def set_email(event):
     global sender_email
     sender_email = event.pattern_match.group(1)
     await event.reply(f"تم حفظ البريد المرسل: {sender_email}")
-
-@bot.on(events.NewMessage(pattern='/password (.+)'))
-async def set_password(event):
-    global password
-    password = event.pattern_match.group(1)
-    await event.reply("تم حفظ كلمة المرور بنجاح.")
 
 @bot.on(events.NewMessage(pattern='/subject (.+)'))
 async def set_subject(event):

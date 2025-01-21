@@ -24,10 +24,17 @@ conn.commit()
 # معالجة أمر "سماح" لإضافة المستخدم إلى قائمة المسموح لهم
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
-    user_id = event.sender_id
-    cursor.execute('INSERT OR REPLACE INTO approvals (user_id, approved) VALUES (?, ?)', (user_id, True))
-    conn.commit()
-    await event.reply("تم السماح بالتعديلات")
+    if event.is_reply:  # التحقق مما إذا كانت الرسالة ردًا
+        reply_message = await event.get_reply_message()
+        user_id = reply_message.sender_id  # استخراج معرف المستخدم من الرسالة التي تم الرد عليها
+        
+        # تخزين معرف المستخدم في قاعدة البيانات مع السماح بالتعديلات
+        cursor.execute('INSERT OR REPLACE INTO approvals (user_id, approved) VALUES (?, ?)', (user_id, True))
+        conn.commit()
+        await event.reply(f"تم السماح بالتعديلات للمستخدم صاحب المعرف: {user_id}")
+    else:
+        # إذا لم تكن الرسالة ردًا
+        await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
 
 # معالجة الرسائل المعدلة
 @ABH.on(events.MessageEdited)
@@ -38,10 +45,9 @@ async def handle_edited_message(event):
     result = cursor.fetchone()
     
     if result and result[0]:  # المستخدم مسموح له بالتعديل
-        if event.message.media:  
-            await event.reply("ها ههههه سالمين")
+        return  # لا يقوم بأي إجراء إضافي، يسمح بالتعديل فقط
     else:  # المستخدم غير مسموح له بالتعديل
-        await event.reply("⚠️ تنبيه: ليس لديك الإذن بتعديل الرسائل.")
+        await event.reply("ها ههههه سالمين")  # إرسال الرسالة "ها ههههه سالمين"
 
 # تشغيل العميل
 ABH.run_until_disconnected()

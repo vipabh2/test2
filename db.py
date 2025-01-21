@@ -1,14 +1,11 @@
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import create_engine
-import sqlite3
 import os
 
-# تحديد رابط قاعدة البيانات من متغير البيئة
 DATABASE_URL = os.getenv('DATABASE_URL')
 if not DATABASE_URL:
     raise ValueError("متغير البيئة 'DATABASE_URL' غير موجود. تأكد من تعيينه بشكل صحيح.")
 
-# اختيار طريقة الاتصال بناءً على نوع قاعدة البيانات
 if DATABASE_URL.startswith('postgresql://'):
     # الاتصال بقاعدة بيانات PostgreSQL باستخدام SQLAlchemy
     engine = create_engine(DATABASE_URL, echo=False)
@@ -16,53 +13,38 @@ if DATABASE_URL.startswith('postgresql://'):
     SessionLocal = sessionmaker(bind=engine)
     SESSION = SessionLocal()
 
-elif DATABASE_URL.startswith('sqlite:///'):
-    # الاتصال بقاعدة بيانات SQLite باستخدام sqlite3
-    db_path = DATABASE_URL.replace('sqlite:///', '')  # إزالة 'sqlite:///' للحصول على المسار الفعلي
-    # التأكد من وجود المجلد لقاعدة بيانات SQLite
-    os.makedirs(os.path.dirname(db_path), exist_ok=True)
+    # نموذج SQLAlchemy لجدول المسموح لهم
+    class Approval(BASE):
+        __tablename__ = 'approvals'
+        user_id = Column(Integer, primary_key=True)
 
-    # إعداد الاتصال مع قاعدة بيانات SQLite
-    def get_connection():
-        conn = sqlite3.connect(db_path)
-        return conn
-
-    # إنشاء جدول المسموح لهم بالتعديلات في SQLite
+    # إنشاء جدول المسموح لهم بالتعديلات
     def create_table():
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute('''
-        CREATE TABLE IF NOT EXISTS approvals (
-            user_id INTEGER PRIMARY KEY
-        )
-        ''')
-        conn.commit()
-        conn.close()
+        BASE.metadata.create_all(bind=engine)
 
-    # إضافة مستخدم إلى قائمة المسموح لهم باستخدام SQLite
+    # إضافة مستخدم إلى قائمة المسموح لهم
     def add_approved_user(user_id):
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute('INSERT OR IGNORE INTO approvals (user_id) VALUES (?)', (user_id,))
-        conn.commit()
-        conn.close()
+        db_session = SessionLocal()
+        new_user = Approval(user_id=user_id)
+        db_session.add(new_user)
+        db_session.commit()
+        db_session.close()
 
-    # إزالة مستخدم من قائمة المسموح لهم باستخدام SQLite
+    # إزالة مستخدم من قائمة المسموح لهم
     def remove_approved_user(user_id):
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute('DELETE FROM approvals WHERE user_id = ?', (user_id,))
-        conn.commit()
-        conn.close()
+        db_session = SessionLocal()
+        user = db_session.query(Approval).filter(Approval.user_id == user_id).first()
+        if user:
+            db_session.delete(user)
+            db_session.commit()
+        db_session.close()
 
-    # استرجاع قائمة المستخدمين المسموح لهم باستخدام SQLite
+    # استرجاع قائمة المستخدمين المسموح لهم
     def get_approved_users():
-        conn = get_connection()
-        cursor = conn.cursor()
-        cursor.execute('SELECT user_id FROM approvals')
-        approved_users = cursor.fetchall()
-        conn.close()
-        return approved_users
+        db_session = SessionLocal()
+        users = db_session.query(Approval).all()
+        db_session.close()
+        return [user.user_id for user in users]
 
 else:
-    raise ValueError("رابط قاعدة البيانات غير صالح أو غير مدعوم. تأكد من أنه PostgreSQL أو SQLite.")
+    raise ValueError("رابط قاعدة البيانات غير صالح أو غير مدعوم. تأكد من أنه PostgreSQL.")

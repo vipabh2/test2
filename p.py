@@ -25,6 +25,22 @@ async def approve_user(event):
     else:
         await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
 
+# أمر "إلغاء سماح" لإزالة المستخدم من قائمة المسموح لهم بالتعديلات
+@ABH.on(events.NewMessage(pattern='إلغاء سماح'))
+async def disapprove_user(event):
+    if event.is_reply:  # إذا كانت الرسالة ردًا
+        reply_message = await event.get_reply_message()
+        user_id = reply_message.sender_id  # استخراج معرف المستخدم من الرسالة التي تم الرد عليها
+        
+        # إزالة المستخدم من قائمة المسموح لهم
+        if user_id in approved_users:
+            approved_users.remove(user_id)
+            await event.reply(f"❌ تم إلغاء السماح للمستخدم {user_id} بالتعديلات.")
+        else:
+            await event.reply("❗ هذا المستخدم ليس مسموحًا له بالتعديلات.")
+    else:
+        await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إلغاء السماح له بالتعديلات.")
+
 # معالجة الرسائل المعدلة
 @ABH.on(events.MessageEdited)
 async def echo(event):

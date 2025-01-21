@@ -46,14 +46,15 @@ async def set_text(event):
     global email_text
     email_text = event.pattern_match.group(1)
     await event.reply("تم حفظ نص الرسالة.")
+
 @bot.on(events.NewMessage(pattern='/send'))
 async def send_email(event):
     if not all([sender_email, password, subject, email_text]):
         await event.reply("الرجاء إدخال جميع البيانات المطلوبة قبل الإرسال.")
         return
 
-    # رسالة البداية للإشارة إلى بدء عملية الإرسال
-    status_message = await event.reply("يتم الآن إرسال الإيميلات...")
+    # إنشاء رسالة واحدة للإشارة إلى بدء عملية الإرسال
+    status_message = await event.reply("🚀 يتم الآن إرسال الإيميلات...")
 
     for i in range(100):
         # إعداد الرسالة مع تعديل النص والموضوع
@@ -72,18 +73,19 @@ async def send_email(event):
                 server.login(sender_email, password)
                 server.sendmail(sender_email, receiver_email, message.as_string())
             
-            # تحديث الرسالة السابقة بدلاً من إرسال رسالة جديدة
-            await status_message.edit(f"تم إرسال الإيميل رقم {i+1} بنجاح!")
-        
+            # تعديل الرسالة الموجودة لتظهر التقدم
+            await status_message.edit(f"✅ تم إرسال الإيميل رقم {i+1} بنجاح!")
+
         except smtplib.SMTPException as e:
             if "Daily user sending limit exceeded" in str(e):
-                await status_message.edit("تم تجاوز الحد اليومي لإرسال الرسائل. الرجاء المحاولة غدًا.")
+                await status_message.edit("🚫 تم تجاوز الحد اليومي لإرسال الرسائل. الرجاء المحاولة غدًا.")
                 break
             else:
-                await status_message.edit(f"فشل إرسال الإيميل رقم {i+1}: {e}")
+                await status_message.edit(f"❌ فشل إرسال الإيميل رقم {i+1}: {e}")
         except Exception as e:
-            await status_message.edit(f"حدث خطأ غير متوقع أثناء الإرسال رقم {i+1}: {e}")
+            await status_message.edit(f"⚠️ حدث خطأ غير متوقع أثناء الإرسال رقم {i+1}: {e}")
             break
+
 
 print("Bot is running...")
 bot.run_until_disconnected()

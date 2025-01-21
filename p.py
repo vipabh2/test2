@@ -22,7 +22,7 @@ approved_users = set()
 # أمر "سماح" لإضافة المستخدم إلى قائمة المسموح لهم بالتعديلات
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
-    if event.chat.type == 'supergroup' or event.chat.type == 'group':  # التأكد من أن الرسالة في مجموعة أو قناة
+    if event.is_group:  # التأكد من أن الرسالة في مجموعة
         if event.is_reply:  # إذا كانت الرسالة ردًا
             reply_message = await event.get_reply_message()
             user_id = reply_message.sender_id  # استخراج معرف المستخدم من الرسالة التي تم الرد عليها
@@ -38,7 +38,7 @@ async def approve_user(event):
 # أمر "إلغاء سماح" لإزالة المستخدم من قائمة المسموح لهم بالتعديلات
 @ABH.on(events.NewMessage(pattern='إلغاء سماح'))
 async def disapprove_user(event):
-    if event.chat.type == 'supergroup' or event.chat.type == 'group':  # التأكد من أن الرسالة في مجموعة أو قناة
+    if event.is_group:  # التأكد من أن الرسالة في مجموعة
         if event.is_reply:  # إذا كانت الرسالة ردًا
             reply_message = await event.get_reply_message()
             user_id = reply_message.sender_id  # استخراج معرف المستخدم من الرسالة التي تم الرد عليها
@@ -57,7 +57,7 @@ async def disapprove_user(event):
 # أمر لعرض قائمة المسموح لهم
 @ABH.on(events.NewMessage(pattern='قائمة المسموح لهم'))
 async def list_approved_users(event):
-    if event.chat.type == 'supergroup' or event.chat.type == 'group':  # التأكد من أن الرسالة في مجموعة أو قناة
+    if event.is_group:  # التأكد من أن الرسالة في مجموعة
         if approved_users:
             approved_list = "\n".join([str(user_id) for user_id in approved_users])
             await event.reply(f"📝 قائمة المستخدمين المسموح لهم بالتعديلات:\n{approved_list}")
@@ -69,7 +69,7 @@ async def list_approved_users(event):
 # معالجة الرسائل المعدلة
 @ABH.on(events.MessageEdited)
 async def echo(event):
-    if event.chat.type == 'supergroup' or event.chat.type == 'group':  # التأكد من أن الرسالة في مجموعة أو قناة
+    if event.is_group:  # التأكد من أن الرسالة في مجموعة
         user_id = event.sender_id
         if user_id in approved_users:  # التحقق مما إذا كان المستخدم مسموحًا له بالتعديل
             return  # السماح بالتعديل بدون أي رد

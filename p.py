@@ -2,6 +2,7 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from telethon import TelegramClient, events
+import time
 import os
 
 # الحصول على متغيرات البيئة
@@ -47,6 +48,7 @@ async def set_text(event):
     email_text = event.pattern_match.group(1)
     await event.reply("تم حفظ نص الرسالة.")
 
+
 @bot.on(events.NewMessage(pattern='/send'))
 async def send_email(event):
     if not all([sender_email, password, subject, email_text]):
@@ -75,6 +77,9 @@ async def send_email(event):
             
             # تعديل الرسالة السابقة بدلاً من إرسال رسالة جديدة
             await status_message.edit(f"✅ تم إرسال الإيميل رقم {i+1} بنجاح!")
+            
+            # إضافة فترة انتظار قصيرة بين الإيميلات
+            time.sleep(2)  # انتظار لمدة 2 ثانية بين الإيميلات
         
         except smtplib.SMTPException as e:
             if "Daily user sending limit exceeded" in str(e):
@@ -85,6 +90,7 @@ async def send_email(event):
         except Exception as e:
             await status_message.edit(f"⚠️ حدث خطأ غير متوقع أثناء الإرسال رقم {i+1}: {e}")
             break
+
 
 print("Bot is running...")
 bot.run_until_disconnected()

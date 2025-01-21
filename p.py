@@ -48,6 +48,15 @@ async def disapprove_user(event):
     else:
         await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إلغاء السماح له بالتعديلات.")
 
+# أمر لعرض قائمة المسموح لهم
+@ABH.on(events.NewMessage(pattern='قائمة المسموح لهم'))
+async def list_approved_users(event):
+    if approved_users:
+        approved_list = "\n".join([str(user_id) for user_id in approved_users])
+        await event.reply(f"📝 قائمة المستخدمين المسموح لهم بالتعديلات:\n{approved_list}")
+    else:
+        await event.reply("❗ لا يوجد أي مستخدمين مسموح لهم بالتعديلات حالياً.")
+
 # معالجة الرسائل المعدلة
 @ABH.on(events.MessageEdited)
 async def echo(event):

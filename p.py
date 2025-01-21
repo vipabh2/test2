@@ -7,7 +7,7 @@ bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 @ABH.on(events.MessageEdited)
 async def echo(event):
-    if event.message == media:
+    if event.message.media:
         await event.reply("ها ههههه سالمين")
     else:
         return    

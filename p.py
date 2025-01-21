@@ -31,7 +31,7 @@ async def approve_user(event):
         # تخزين معرف المستخدم في قاعدة البيانات مع السماح بالتعديلات
         cursor.execute('INSERT OR REPLACE INTO approvals (user_id, approved) VALUES (?, ?)', (user_id, True))
         conn.commit()
-        await event.reply(f"تم السماح بالتعديلات للمستخدم صاحب المعرف: {user_id}")
+        await event.reply(f"✅ تم السماح بالتعديلات للمستخدم صاحب المعرف: {user_id}")
     else:
         # إذا لم تكن الرسالة ردًا
         await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
@@ -45,9 +45,12 @@ async def handle_edited_message(event):
     result = cursor.fetchone()
     
     if result and result[0]:  # المستخدم مسموح له بالتعديل
-        return  # لا يقوم بأي إجراء إضافي، يسمح بالتعديل فقط
+        return  # السماح بالتعديل فقط
     else:  # المستخدم غير مسموح له بالتعديل
-        await event.reply("ها ههههه سالمين")  # إرسال الرسالة "ها ههههه سالمين"
+        await event.reply("⚠️ ها ههههه سالمين. ليس لديك الإذن بتعديل الرسائل.")  # إرسال الرسالة "ها ههههه سالمين"
 
-# تشغيل العميل
-ABH.run_until_disconnected()
+# تشغيل العميل مع إغلاق قاعدة البيانات عند الانتهاء
+try:
+    ABH.run_until_disconnected()
+finally:
+    conn.close()  # ضمان إغلاق الاتصال بقاعدة البيانات

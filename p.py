@@ -1,7 +1,6 @@
 from telethon import TelegramClient, events
 import os
-from db import add_approved_user, remove_approved_user, remove_approved_user  # استيراد الدوال من db.py
-
+import db
 # إعداد بيانات الاتصال
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')

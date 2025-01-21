@@ -1,8 +1,9 @@
 from telethon import TelegramClient, events
 from db import add_approved_user, remove_approved_user, get_approved_users, create_table
 
-# إعدادات العميل
-ABH = TelegramClient('session_name', api_id='API_ID', api_hash='API_HASH')
+api_id = os.getenv('API_ID')
+api_hash = os.getenv('API_HASH')
+bot_token = os.getenv('BOT_TOKEN')ABH = TelegramClient('session_name', api_id='API_ID', api_hash='API_HASH')
 
 # إنشاء الجدول عند بدء التشغيل
 create_table()

@@ -1,5 +1,5 @@
 from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, Column, Integer  # استيراد Column و Integer
 import os
 
 DATABASE_URL = os.getenv('DATABASE_URL')

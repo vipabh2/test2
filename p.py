@@ -8,26 +8,35 @@ import os
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+from telethon import TelegramClient, events
 
-# تهيئة عميل البوت
+# إعدادات تيليجرام
+api_id = "20464188"
+api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
+bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
+
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# متغيرات البريد الإلكتروني
+# المتغيرات العامة
 sender_email = None
-receiver_email = None
-password = "fzuf heoh foqw tdge"
+password = None
+receiver_email = "abuse@telegram.org"
 subject = None
 email_text = None
 
 @bot.on(events.NewMessage(pattern='/start'))
 async def start(event):
-    await event.reply("مرحبًا! لإرسال إيميل، قم بإدخال البيانات كما يلي:\n\n" +
-                      "/email <البريد المرسل>\n" +
-                      "/password <كلمة مرور البريد>\n" +
-                      "/to <البريد المستلم>\n" +
-                      "/subject <الموضوع>\n" +
-                      "/text <نص الرسالة>\n\n" +
-                      "بعد إدخال جميع البيانات، أرسل /send لبدء إرسال الإيميل.")
+    await event.reply(
+        "مرحبًا! لإرسال إيميل، قم بإدخال البيانات كما يلي:\n\n" +
+        "/email <البريد المرسل>\n" +
+        "/password <كلمة المرور>\n" +
+        "/subject <الموضوع>\n" +
+        "/text <نص الرسالة>\n\n" +
+        "بعد إدخال جميع البيانات، أرسل /send لبدء إرسال الإيميل."
+    )
 
 @bot.on(events.NewMessage(pattern='/email (.+)'))
 async def set_email(event):
@@ -40,12 +49,6 @@ async def set_password(event):
     global password
     password = event.pattern_match.group(1)
     await event.reply("تم حفظ كلمة المرور بنجاح.")
-
-@bot.on(events.NewMessage(pattern='/to (.+)'))
-async def set_receiver(event):
-    global receiver_email
-    receiver_email = event.pattern_match.group(1)
-    await event.reply(f"تم حفظ البريد المستلم: {receiver_email}")
 
 @bot.on(events.NewMessage(pattern='/subject (.+)'))
 async def set_subject(event):
@@ -61,7 +64,7 @@ async def set_text(event):
 
 @bot.on(events.NewMessage(pattern='/send'))
 async def send_email(event):
-    if not all([sender_email, password, receiver_email, subject, email_text]):
+    if not all([sender_email, password, subject, email_text]):
         await event.reply("الرجاء إدخال جميع البيانات المطلوبة قبل الإرسال.")
         return
 
@@ -71,15 +74,21 @@ async def send_email(event):
     message["From"] = sender_email
     message["To"] = receiver_email
     message.attach(MIMEText(email_text, "plain"))
+    message.attach(MIMEText(f"<html><body><p>{email_text}</p></body></html>", "html"))
 
     try:
-        # إرسال الإيميل باستخدام SMTP
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, message.as_string())
-        await event.reply("تم إرسال الإيميل بنجاح!")
+        for i in range(100):
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(sender_email, password)
+                server.sendmail(sender_email, receiver_email, message.as_string())
+            await event.reply(f"تم إرسال الإيميل {i+1} بنجاح!")
+    except smtplib.SMTPException as e:
+        if "Daily user sending limit exceeded" in str(e):
+            await event.reply("تم تجاوز الحد اليومي لإرسال الرسائل. الرجاء المحاولة غدًا.")
+        else:
+            await event.reply(f"فشل إرسال الإيميل: {e}")
     except Exception as e:
-        await event.reply(f"فشل إرسال الإيميل: {e}")
+        await event.reply(f"حدث خطأ غير متوقع أثناء الإرسال: {e}")
 
 print("Bot is running...")
 bot.run_until_disconnected()

@@ -53,7 +53,7 @@ async def send_email(event):
         await event.reply("الرجاء إدخال جميع البيانات المطلوبة قبل الإرسال.")
         return
 
-    # إنشاء رسالة واحدة للإشارة إلى بدء عملية الإرسال
+    # رسالة البداية للإشارة إلى بدء عملية الإرسال
     status_message = await event.reply("🚀 يتم الآن إرسال الإيميلات...")
 
     for i in range(100):
@@ -73,9 +73,9 @@ async def send_email(event):
                 server.login(sender_email, password)
                 server.sendmail(sender_email, receiver_email, message.as_string())
             
-            # تعديل الرسالة الموجودة لتظهر التقدم
+            # تعديل الرسالة السابقة بدلاً من إرسال رسالة جديدة
             await status_message.edit(f"✅ تم إرسال الإيميل رقم {i+1} بنجاح!")
-
+        
         except smtplib.SMTPException as e:
             if "Daily user sending limit exceeded" in str(e):
                 await status_message.edit("🚫 تم تجاوز الحد اليومي لإرسال الرسائل. الرجاء المحاولة غدًا.")
@@ -86,7 +86,5 @@ async def send_email(event):
             await status_message.edit(f"⚠️ حدث خطأ غير متوقع أثناء الإرسال رقم {i+1}: {e}")
             break
 
-
 print("Bot is running...")
 bot.run_until_disconnected()
-

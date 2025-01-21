@@ -2,9 +2,16 @@ from telethon import TelegramClient, events
 import os
 
 # إعداد بيانات الاتصال
-api_id = int(os.getenv('API_ID'))  # تحويل القيم إلى أعداد صحيحة
+api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
+
+# التحقق من وجود API_ID و API_HASH و BOT_TOKEN
+if not api_id or not api_hash or not bot_token:
+    raise ValueError("مفقود واحد أو أكثر من المتغيرات البيئية: API_ID, API_HASH, BOT_TOKEN")
+
+# تحويل API_ID إلى عدد صحيح
+api_id = int(api_id)
 
 # إنشاء جلسة TelegramClient
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)

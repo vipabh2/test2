@@ -4,8 +4,7 @@ from db import add_approved_user, remove_approved_user, get_approved_users, crea
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')ABH = TelegramClient('session_name', api_id='API_ID', api_hash='API_HASH')
-
-# إنشاء الجدول عند بدء التشغيل
+ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 create_table()
 
 @ABH.on(events.NewMessage(pattern='سماح'))

@@ -9,6 +9,9 @@ api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 
+# كلمة المرور كمتغير ثابت
+password = "fzuf heoh foqw tdge"
+
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 # المتغيرات العامة
@@ -19,12 +22,9 @@ email_text = None
 
 @bot.on(events.NewMessage(pattern='/start'))
 async def start(event):
-    global password
-    password = "fzuf heoh foqw tdge"
     await event.reply(
         "مرحبًا! لإرسال إيميل، قم بإدخال البيانات كما يلي:\n\n" +
         "/email <البريد المرسل>\n" +
-        "/password <كلمة المرور>\n" +
         "/subject <الموضوع>\n" +
         "/text <نص الرسالة>\n\n" +
         "بعد إدخال جميع البيانات، أرسل /send لبدء إرسال الإيميل."
@@ -68,9 +68,11 @@ async def send_email(event):
                 server.login(sender_email, password)
                 server.sendmail(sender_email, receiver_email, message.as_string())
             await event.reply(f"تم إرسال الإيميل {i+1} بنجاح!")
+            break  # إرسال مرة واحدة فقط لإبقاء الأمور بسيطة
     except smtplib.SMTPException as e:
         if "Daily user sending limit exceeded" in str(e):
             await event.reply("تم تجاوز الحد اليومي لإرسال الرسائل. الرجاء المحاولة غدًا.")
+            break
         else:
             await event.reply(f"فشل إرسال الإيميل: {e}")
     except Exception as e:

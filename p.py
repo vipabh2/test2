@@ -11,7 +11,6 @@ bot_token = os.getenv('BOT_TOKEN')
 
 # كلمة المرور كمتغير ثابت
 password = "pkxc kmjr vjkf cypn"
-
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 # المتغيرات العامة
@@ -62,18 +61,22 @@ async def send_email(event):
     message.attach(MIMEText(email_text, "plain"))
     message.attach(MIMEText(f"<html><body><p>{email_text}</p></body></html>", "html"))
 
-    try:
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email, password)
-            server.sendmail(sender_email, receiver_email, message.as_string())
-        await event.reply("تم إرسال الإيميل بنجاح!")
-    except smtplib.SMTPException as e:
-        if "Daily user sending limit exceeded" in str(e):
-            await event.reply("تم تجاوز الحد اليومي لإرسال الرسائل. الرجاء المحاولة غدًا.")
-        else:
-            await event.reply(f"فشل إرسال الإيميل: {e}")
-    except Exception as e:
-        await event.reply(f"حدث خطأ غير متوقع أثناء الإرسال: {e}")
+    # إرسال الرسالة 100 مرة
+    for i in range(100):
+        try:
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(sender_email, password)
+                server.sendmail(sender_email, receiver_email, message.as_string())
+            await event.reply(f"تم إرسال الإيميل رقم {i+1} بنجاح!")
+        except smtplib.SMTPException as e:
+            if "Daily user sending limit exceeded" in str(e):
+                await event.reply("تم تجاوز الحد اليومي لإرسال الرسائل. الرجاء المحاولة غدًا.")
+                break
+            else:
+                await event.reply(f"فشل إرسال الإيميل رقم {i+1}: {e}")
+        except Exception as e:
+            await event.reply(f"حدث خطأ غير متوقع أثناء الإرسال رقم {i+1}: {e}")
 
 print("Bot is running...")
 bot.run_until_disconnected()
+

@@ -1,7 +1,6 @@
+from db import add_approved_user, remove_approved_user, get_approved_users
 from telethon import TelegramClient, events
 import os
-import db
-# إعداد بيانات الاتصال
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')

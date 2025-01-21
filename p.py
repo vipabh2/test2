@@ -10,7 +10,7 @@ api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 
 # كلمة المرور كمتغير ثابت
-password = "pkxc kmjr vjkf cypn"
+password = "hyty lcll rpxh esja"
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 # المتغيرات العامة

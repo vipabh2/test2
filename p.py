@@ -2,17 +2,15 @@ from telethon import TelegramClient, events
 import os
 import sqlite3
 
-api_id = os.getenv('API_ID')
+# إعداد بيانات الاتصال
+api_id = int(os.getenv('API_ID'))  # تحويل إلى عدد صحيح
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
+
+# إنشاء جلسة TelegramClient
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
-# @ABH.on(events.MessageEdited)
-# async def echo(event):
-#     if event.message == media:
-#         await event.reply("ها ههههه سالمين")
-#     else:
-#         return    
-# Create a database connection and a table to store user approvals
+
+# إنشاء قاعدة البيانات وجدول approvals
 conn = sqlite3.connect('approvals.db')
 cursor = conn.cursor()
 cursor.execute('''
@@ -23,6 +21,7 @@ CREATE TABLE IF NOT EXISTS approvals (
 ''')
 conn.commit()
 
+# معالجة أمر "سماح" لإضافة المستخدم إلى قائمة المسموح لهم
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
     user_id = event.sender_id
@@ -30,14 +29,19 @@ async def approve_user(event):
     conn.commit()
     await event.reply("تم السماح بالتعديلات")
 
+# معالجة الرسائل المعدلة
 @ABH.on(events.MessageEdited)
-async def echo(event):
+async def handle_edited_message(event):
     user_id = event.sender_id
+    # التحقق مما إذا كان المستخدم مسموحًا له بالتعديل
     cursor.execute('SELECT approved FROM approvals WHERE user_id = ?', (user_id,))
     result = cursor.fetchone()
-    if result and result[0]:
+    
+    if result and result[0]:  # المستخدم مسموح له بالتعديل
         if event.message.media:  
             await event.reply("ها ههههه سالمين")
-        else:
-            return
+    else:  # المستخدم غير مسموح له بالتعديل
+        await event.reply("⚠️ تنبيه: ليس لديك الإذن بتعديل الرسائل.")
+
+# تشغيل العميل
 ABH.run_until_disconnected()

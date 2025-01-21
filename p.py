@@ -1,5 +1,6 @@
 from telethon import TelegramClient, events
 import os
+from db import add_approved_user, remove_approved_user, get_approved_users  # استيراد الدوال من db.py
 
 # إعداد بيانات الاتصال
 api_id = os.getenv('API_ID')
@@ -16,9 +17,6 @@ api_id = int(api_id)
 # إنشاء جلسة TelegramClient
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-# قائمة للمستخدمين المسموح لهم بالتعديلات
-approved_users = set()
-
 # أمر "سماح" لإضافة المستخدم إلى قائمة المسموح لهم بالتعديلات
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
@@ -27,8 +25,8 @@ async def approve_user(event):
             reply_message = await event.get_reply_message()
             user_id = reply_message.sender_id  # استخراج معرف المستخدم من الرسالة التي تم الرد عليها
             
-            # إضافة المستخدم إلى قائمة المسموح لهم
-            approved_users.add(user_id)
+            # إضافة المستخدم إلى قائمة المسموح لهم باستخدام الدالة من db.py
+            add_approved_user(user_id)
             await event.reply(f"✅ تم السماح للمستخدم {user_id} بالتعديلات.")
         else:
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
@@ -43,12 +41,9 @@ async def disapprove_user(event):
             reply_message = await event.get_reply_message()
             user_id = reply_message.sender_id  # استخراج معرف المستخدم من الرسالة التي تم الرد عليها
             
-            # إزالة المستخدم من قائمة المسموح لهم
-            if user_id in approved_users:
-                approved_users.remove(user_id)
-                await event.reply(f"❌ تم إلغاء السماح للمستخدم {user_id} بالتعديلات.")
-            else:
-                await event.reply("❗ هذا المستخدم ليس مسموحًا له بالتعديلات.")
+            # إزالة المستخدم من قائمة المسموح لهم باستخدام الدالة من db.py
+            remove_approved_user(user_id)
+            await event.reply(f"❌ تم إلغاء السماح للمستخدم {user_id} بالتعديلات.")
         else:
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إلغاء السماح له بالتعديلات.")
     else:
@@ -58,8 +53,9 @@ async def disapprove_user(event):
 @ABH.on(events.NewMessage(pattern='قائمة المسموح لهم'))
 async def list_approved_users(event):
     if event.is_group:  # التأكد من أن الرسالة في مجموعة
+        approved_users = get_approved_users()  # استرجاع قائمة المسموح لهم باستخدام الدالة من db.py
         if approved_users:
-            approved_list = "\n".join([str(user_id) for user_id in approved_users])
+            approved_list = "\n".join([str(user_id[0]) for user_id in approved_users])
             await event.reply(f"📝 قائمة المستخدمين المسموح لهم بالتعديلات:\n{approved_list}")
         else:
             await event.reply("❗ لا يوجد أي مستخدمين مسموح لهم بالتعديلات حالياً.")
@@ -71,7 +67,9 @@ async def list_approved_users(event):
 async def echo(event):
     if event.is_group:  # التأكد من أن الرسالة في مجموعة
         user_id = event.sender_id
-        if user_id in approved_users:  # التحقق مما إذا كان المستخدم مسموحًا له بالتعديل
+        approved_users = get_approved_users()  # استرجاع قائمة المسموح لهم باستخدام الدالة من db.py
+        approved_user_ids = [user_id[0] for user_id in approved_users]
+        if user_id in approved_user_ids:  # التحقق مما إذا كان المستخدم مسموحًا له بالتعديل
             return  # السماح بالتعديل بدون أي رد
         elif event.message.media:  # إذا كان المستخدم غير مسموح وكان هناك وسائط
             await event.reply("ها ههههه سالمين")

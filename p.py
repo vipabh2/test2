@@ -71,15 +71,16 @@ async def list_approved_users(event):
         return
 @ABH.on(events.MessageEdited)
 async def echo(event):
-    if event.is_group and event.sender_id not in admins:
+    if event.is_group:  # تأكد من أن الحدث في مجموعة
         user_id = event.sender_id
         group_id = event.chat_id
         approved_users = get_approved_users(group_id)
         approved_user_ids = [user[0] for user in approved_users]
         
+        # إذا كان المستخدم من المسؤولين أو المسموح لهم
         if user_id in approved_user_ids or user_id in admins:
-            return  # إذا كان المستخدم من المسموح لهم، لا ترد
-        
+            return  # إذا كان المستخدم من المسموح لهم أو من المسؤولين، لا ترد على التعديل
+
         # إذا كانت الرسالة تحتوي على ملف أو رابط
         if event.media or ('http://' in event.message.message or 'https://' in event.message.message):
             await event.reply("هنالك شخص عدل رسالة لكن غير معروف المقصد 🤔")  # رد عندما تحتوي الرسالة على ملف أو رابط
@@ -87,7 +88,7 @@ async def echo(event):
             return  # إذا لم تحتوي على رابط أو ملف مرفق، لا تفعل شيئًا
 
     else:
-        return  # إذا كان المستخدم من المسؤولين أو ليس في المجموعة، لا تفعل شيئًا
+        return  # إذا كان الحدث ليس في مجموعة، لا تفعل شيئًا
 
 
 ABH.run_until_disconnected()

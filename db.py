@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, BigInteger, String
 from sqlalchemy.orm import sessionmaker, declarative_base
 from sqlalchemy import create_engine
 import os
@@ -13,7 +13,8 @@ SessionLocal = sessionmaker(bind=engine)
 
 class Approval(BASE):
     __tablename__ = 'approvals'
-    user_id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)  # تغيير إلى BigInteger
+
 
 def create_table():
     BASE.metadata.create_all(bind=engine)

@@ -76,12 +76,18 @@ async def echo(event):
         group_id = event.chat_id
         approved_users = get_approved_users(group_id)
         approved_user_ids = [user[0] for user in approved_users]
+        
         if user_id in approved_user_ids or user_id in admins:
-            return
-        if event.media or (event.message and any(x in event.message.message for x in ["http://", "https://"])):
-            return
-        await event.reply("❗ هنالك شخص عدل رسالة لكنها ليست ملفًا أو رابطًا.")
+            return  # إذا كان المستخدم من المسموح لهم، لا ترد
+        
+        # إذا كانت الرسالة تحتوي على ملف أو رابط
+        if event.media or ('http://' in event.message.message or 'https://' in event.message.message):
+            await event.reply("تم تعديل هذه الرسالة")  # رد عندما تحتوي الرسالة على ملف أو رابط
+        else:
+            return  # إذا لم تحتوي على رابط أو ملف مرفق، لا تفعل شيئًا
+
     else:
-        return
+        return  # إذا كان المستخدم من المسؤولين أو ليس في المجموعة، لا تفعل شيئًا
+
 
 ABH.run_until_disconnected()

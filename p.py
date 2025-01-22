@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-from db import add_approved_user, remove_approved_user, get_approved_users, create_table, add_group
+from db import add_approved_user, remove_approved_user, get_approved_users, create_table
 import os
 
 api_id = os.getenv('API_ID')

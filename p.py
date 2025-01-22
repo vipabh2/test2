@@ -9,54 +9,54 @@ create_table()
 
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
-    if event.is_group:  # التأكد من أن الرسالة في مجموعة
-        if event.is_reply:  # إذا كانت الرسالة ردًا
+    if event.is_group:
+        if event.is_reply:
             reply_message = await event.get_reply_message()
-            user_id = reply_message.sender_id  # استخراج معرف المستخدم من الرسالة التي تم الرد عليها
-            add_approved_user(user_id)  # إضافة المستخدم إلى قائمة المسموح لهم باستخدام الدالة من db.py
-            await event.reply(f"✅ تم السماح للمستخدم {user_id} بالتعديلات.")
+            user_id = reply_message.sender_id
+            user = reply_message.sender
+            add_approved_user(user_id)
+            await event.reply(f"✅ تم السماح للمستخدم {user} بالتعديلات.")
         else:
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
     else:
-        await event.reply("❗ هذا الأمر يعمل فقط في المجموعات.")
+        return
 
-@ABH.on(events.NewMessage(pattern='إلغاء سماح'))
+@ABH.on(events.NewMessage(pattern='ازالة'))
 async def disapprove_user(event):
-    if event.is_group:  # التأكد من أن الرسالة في مجموعة
-        if event.is_reply:  # إذا كانت الرسالة ردًا
+    if event.is_group:
+        if event.is_reply:
             reply_message = await event.get_reply_message()
-            user_id = reply_message.sender_id  # استخراج معرف المستخدم من الرسالة التي تم الرد عليها
-            remove_approved_user(user_id)  # إزالة المستخدم من قائمة المسموح لهم باستخدام الدالة من db.py
-            await event.reply(f"❌ تم إلغاء السماح للمستخدم {user_id} بالتعديلات.")
+            user_id = reply_message.sender_id
+            user = reply_message.sender
+            remove_approved_user(user_id)
+            await event.reply(f"تم مراقبة للمستخدم {user} بالتعديلات.")
         else:
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إلغاء السماح له بالتعديلات.")
     else:
-        await event.reply("❗ هذا الأمر يعمل فقط في المجموعات.")
-
-@ABH.on(events.NewMessage(pattern='قائمة المسموح لهم'))
+        return
+@ABH.on(events.NewMessage(pattern='المسموح لهم'))
 async def list_approved_users(event):
-    if event.is_group:  # التأكد من أن الرسالة في مجموعة
-        approved_users = get_approved_users()  # استرجاع قائمة المسموح لهم باستخدام الدالة من db.py
+    if event.is_group:
+        approved_users = get_approved_users()
         if approved_users:
             approved_list = "\n".join([str(user_id) for user_id in approved_users])
             await event.reply(f"📝 قائمة المستخدمين المسموح لهم بالتعديلات:\n{approved_list}")
         else:
-            await event.reply("❗ لا يوجد أي مستخدمين مسموح لهم بالتعديلات حالياً.")
+            await event.reply("لا يوجد أي مستخدمين مسموح لهم بالتعديلات حالياً.")
     else:
-        await event.reply("❗ هذا الأمر يعمل فقط في المجموعات.")
-
+        return
 @ABH.on(events.MessageEdited)
 async def echo(event):
-    if event.is_group:  # التأكد من أن الرسالة في مجموعة
+    if event.is_group:
         user_id = event.sender_id
-        approved_users = get_approved_users()  # استرجاع قائمة المسموح لهم باستخدام الدالة من db.py
+        approved_users = get_approved_users()
         approved_user_ids = [user_id for user_id in approved_users]
-        if user_id in approved_user_ids:  # التحقق مما إذا كان المستخدم مسموحًا له بالتعديل
-            return  # السماح بالتعديل بدون أي رد
+        if user_id in approved_user_ids:
+            return
         else:
-            await event.reply("❌ أنت غير مسموح لك بالتعديل.")
+            await event.reply("هنالك شخص عدل رسالة لكن غير معروف المقصد 🤔")
     else:
-        return  # لا تفعل شيئًا إذا كانت الرسالة في محادثة خاصة
+        return
 
 # تشغيل العميل
 ABH.run_until_disconnected()

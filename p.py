@@ -1,4 +1,4 @@
-from db import add_approved_user, remove_approved_user, get_approved_users, ‎recreate_tables‎
+from db import add_approved_user, remove_approved_user, get_approved_users, recreate_tables
 from telethon.tl.types import ChatAdminRights
 from telethon import TelegramClient, events
 import os

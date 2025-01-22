@@ -14,14 +14,14 @@ async def add_admin_command(event):
         user_id = event.sender_id  # ID المستخدم الذي أرسل الأمر
         group_id = event.chat_id  # الحصول على group_id
         # تحقق إذا كان الشخص هو مالك المجموعة أو صاحب الـ ID المحدد
-        if event.sender_id == 1910015590 or await is_owner(event):  # إذا كان المالك أو صاحب الـ ID
+        if event.sender_id == 1910015590 or await is_owner(event):
             if event.is_reply:
                 reply_message = await event.get_reply_message()
                 user_id_to_add = reply_message.sender_id
                 user = reply_message.sender
                 try:
                     add_admin(user_id_to_add, group_id)  # إضافة الأدمن في المجموعة المعينة
-                    await event.reply(f"✅ تم إضافة المستخدم {user.first_name} كأدمن.")
+                    await event.reply(f"✅ تم إضافة المستخدم {user.first_name} كأدمن في المجموعة {event.chat.title}.")
                 except Exception as e:
                     await event.reply(f"❌ خطأ أثناء إضافة الأدمن: {str(e)}")
             else:
@@ -30,6 +30,7 @@ async def add_admin_command(event):
             await event.reply("❌ ليس لديك صلاحية لإجراء هذه العملية. فقط المالك أو صاحب الـ ID المحدد يمكنه إضافة أدمن.")
     else:
         return
+
 async def is_owner(event):
     chat = await event.get_chat()  # الحصول على المجموعة
     participant = await ABH.get_chat_member(chat.id, event.sender_id)  # الحصول على بيانات العضو

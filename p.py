@@ -12,14 +12,16 @@ create_table()
 @ABH.on(events.NewMessage(pattern='ارفع'))
 async def add_admin_command(event):
     if event.is_group:
-        user_id = event.sender_id
-        if event.sender_id == 1910015590 or await is_owner(event):
+        user_id = event.sender_id  # ID المستخدم الذي أرسل الأمر
+        group_id = event.chat_id  # الحصول على group_id
+        # تحقق إذا كان الشخص هو مالك المجموعة أو صاحب الـ ID المحدد
+        if event.sender_id == 1910015590 or await is_owner(event):  # إذا كان المالك أو صاحب الـ ID
             if event.is_reply:
                 reply_message = await event.get_reply_message()
                 user_id_to_add = reply_message.sender_id
                 user = reply_message.sender
                 try:
-                    add_admin(user_id_to_add)
+                    add_admin(user_id_to_add, group_id)  # إضافة الأدمن في المجموعة المعينة
                     await event.reply(f"✅ تم إضافة المستخدم {user.first_name} كأدمن.")
                 except Exception as e:
                     await event.reply(f"❌ خطأ أثناء إضافة الأدمن: {str(e)}")
@@ -29,6 +31,7 @@ async def add_admin_command(event):
             await event.reply("❌ ليس لديك صلاحية لإجراء هذه العملية. فقط المالك أو صاحب الـ ID المحدد يمكنه إضافة أدمن.")
     else:
         return
+
 
 
 async def is_owner(event):
@@ -43,6 +46,7 @@ async def is_owner(event):
 async def remove_admin_command(event):
     if event.is_group:
         user_id = event.sender_id  # ID المستخدم الذي أرسل الأمر
+        group_id = event.chat_id  # الحصول على group_id
         # تحقق إذا كان الشخص هو مالك المجموعة أو صاحب الـ ID المحدد
         if event.sender_id == 1910015590 or await is_owner(event):  # إذا كان المالك أو صاحب الـ ID
             if event.is_reply:
@@ -50,7 +54,7 @@ async def remove_admin_command(event):
                 user_id_to_remove = reply_message.sender_id
                 user = reply_message.sender
                 try:
-                    remove_admin(user_id_to_remove)
+                    remove_admin(user_id_to_remove, group_id)  # إزالة الأدمن من المجموعة المعينة
                     await event.reply(f"✅ تم إزالة المستخدم {user.first_name} من الأدمن.")
                 except Exception as e:
                     await event.reply(f"❌ خطأ أثناء إزالة الأدمن: {str(e)}")
@@ -60,6 +64,7 @@ async def remove_admin_command(event):
             await event.reply("❌ ليس لديك صلاحية لإجراء هذه العملية. فقط المالك أو صاحب الـ ID المحدد يمكنه إزالة أدمن.")
     else:
         return
+
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
     if event.is_group:

@@ -8,17 +8,6 @@ bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 init_db()
 
-admins = [
-    191001559,
-    7176263278,
-    6783332896,
-    1494932118,
-    201728276,
-    1688194818,
-    5399306464,
-    6498922948,
-    1446637898
-          ]
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
     if event.is_group and event.sender_id in admins:
@@ -69,6 +58,17 @@ async def list_approved_users(event):
             await event.reply("لا يوجد أي مستخدمين مسموح لهم بالتعديلات حالياً.")
     else:
         return
+admins = [
+    191001559,
+    7176263278,
+    6783332896,
+    1494932118,
+    201728276,
+    1688194818,
+    5399306464,
+    6498922948,
+    1446637898
+          ]
 @ABH.on(events.MessageEdited)
 async def echo(event):
     if event.is_group:  # تأكد من أن الحدث في مجموعة

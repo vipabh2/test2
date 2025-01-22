@@ -64,13 +64,15 @@ async def remove_admin_command(event):
     else:
         return
 
+
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
     if event.is_group:
+        group_id = event.chat_id  # الحصول على group_id من الحدث
         if event.is_reply:
             user_id = event.sender_id  # ID المستخدم الذي أرسل الأمر
             # تحقق إذا كان الشخص أدمن
-            if is_admin(user_id):
+            if await is_admin(user_id, group_id):
                 reply_message = await event.get_reply_message()
                 user_id_to_approve = reply_message.sender_id
                 user = reply_message.sender
@@ -85,6 +87,14 @@ async def approve_user(event):
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
     else:
         return
+
+# تعديل دالة is_owner لاستخدام get_participant بدلاً من get_chat_member
+async def is_owner(event):
+    chat = await event.get_chat()  # الحصول على المجموعة
+    participant = await ABH.get_participant(chat.id, event.sender_id)  # الحصول على بيانات العضو
+    # تحقق إذا كان العضو هو مالك المجموعة
+    return participant.is_creator
+
 
 # رفض السماح للمستخدم (فقط الأدمن يمكنه ذلك)
 @ABH.on(events.NewMessage(pattern='رفض'))

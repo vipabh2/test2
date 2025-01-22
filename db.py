@@ -16,14 +16,18 @@ class Approval(BASE):
     user_id = Column(BigInteger, primary_key=True)  # تغيير من Integer إلى BigInteger
 
 def create_table():
-    BASE.metadata.create_all(bind=engine)
+    BASE.metadata.drop_all(bind=engine)  # حذف الجدول الحالي
+    BASE.metadata.create_all(bind=engine)  # إعادة إنشاء الجدول
 
 def add_approved_user(user_id):
+    if not isinstance(user_id, int):
+        raise ValueError(f"المعرّف {user_id} ليس رقمًا صحيحًا.")
     db_session = SessionLocal()
     new_user = Approval(user_id=user_id)
     db_session.add(new_user)
     db_session.commit()
     db_session.close()
+
 
 def remove_approved_user(user_id):
     db_session = SessionLocal()

@@ -56,6 +56,13 @@ def is_admin(user_id):
     db_session.close()
     return admin is not None
 
+def remove_admin(user_id):
+    db_session = SessionLocal()
+    admin = db_session.query(Admin).filter(Admin.user_id == user_id).first()
+    if admin:
+        db_session.delete(admin)
+        db_session.commit()
+    db_session.close()
 # إضافة مستخدم إلى قائمة الموافقات
 def add_approved_user(user_id):
     if not isinstance(user_id, int):

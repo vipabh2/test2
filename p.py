@@ -104,16 +104,19 @@ async def list_approved_users(event):
 async def echo(event):
     if event.is_group:
         user_id = event.sender_id
-        approved_users = get_approved_users()
-        approved_user_ids = [user_id for user_id in approved_users]
+        group_id = event.chat_id
+
+        # الحصول على المستخدمين المصرح لهم في هذه المجموعة
+        approved_users = get_approved_users(group_id)
+        approved_user_ids = [user[0] for user in approved_users]
+
+        # إذا كان المستخدم مصرحًا له بالتعديلات
         if user_id in approved_user_ids:
-            return        
-        if event.media or (event.message and any(x in event.message.message for x in ["http://", "https://"])):
             return
-        else:
-            await event.reply("هنالك شخص عدل رسالة لكن غير معروف المقصد 🤔")
+        if event.media or (event.message and any(x in event.message.message for x in ["http://", "https://"])):
+            return  # لا تقم بأي إجراء إذا كانت تحتوي على ميديا أو رابط
+        await event.reply("❗ هنالك شخص عدل رسالة لكنها ليست ملفًا أو رابطًا.")
     else:
         return
-
 
 ABH.run_until_disconnected()

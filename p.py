@@ -23,19 +23,25 @@ async def approve_user(event):
         return
 @ABH.on(events.NewMessage(pattern='رفض'))
 async def disapprove_user(event):
+    # التحقق من أن الحدث هو في مجموعة وأن المستخدم هو من المسؤولين
     if event.is_group and event.sender_id in admins:
         if event.is_reply:
+            # إذا كان هناك رد على رسالة معينة
             reply_message = await event.get_reply_message()
-            user_id = reply_message.sender_id
-            group_id = event.chat_id
-            user = reply_message.sender.first_name            
+            user_id = reply_message.sender_id  # الحصول على معرّف المستخدم
+            group_id = event.chat_id  # الحصول على معرّف المجموعة
+            user = reply_message.sender.first_name  # اسم المستخدم
+            
+            # إزالة المستخدم من المعتمدين
             remove_approved_user(user_id, group_id)
+            
+            # إرسال رد بتأكيد إلغاء السماح
             await event.reply(f"❌ تم إلغاء السماح للمستخدم {user} بالتعديلات في هذه المجموعة فقط.")
         else:
+            # إذا لم يكن هناك رد على رسالة معينة
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إلغاء السماح له بالتعديلات.")
     else:
         return
-
 @ABH.on(events.NewMessage(pattern='المسموح لهم'))
 async def list_approved_users(event):
     senid = event.sender_id

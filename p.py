@@ -21,13 +21,14 @@ admins = [
 @ABH.on(events.MessageEdited)
 async def echo(event):
     if event.is_group:  # تأكد من أن الحدث في مجموعة
-        # التحقق إذا كانت الرسالة تحتوي على ملف أو رابط
-        if event.media or ('http://' in event.message.message or 'https://' in event.message.message):
-            # إذا كانت تحتوي على ملف أو رابط
-            await event.reply("تم تعديل الرسالة")
+        # تحقق مما إذا كانت الرسالة تحتوي على وسائط (ملفات مرفقة)
+        if event.media:
+            await event.reply("تم تعديل الرسالة التي تحتوي على وسائط.")
+        # تحقق مما إذا كانت الرسالة تحتوي على رابط
+        elif 'http://' in event.message.message or 'https://' in event.message.message:
+            await event.reply("تم تعديل الرسالة التي تحتوي على رابط.")
         else:
-            # إذا كانت الرسالة لا تحتوي على ملف أو رابط
-            await event.reply("تم تعديل الرسالة")
+            return  # إذا لم تكن الرسالة تحتوي على وسائط أو رابط، لا تفعل شيئًا
     else:
         return
 

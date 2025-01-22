@@ -11,9 +11,8 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 @ABH.on(events.NewMessage(pattern='ارفع'))
 async def add_admin_command(event):
     if event.is_group:
-        user_id = event.sender_id  # ID المستخدم الذي أرسل الأمر
-        group_id = event.chat_id  # الحصول على group_id
-        # تحقق إذا كان الشخص هو مالك المجموعة أو صاحب الـ ID المحدد
+        user_id = event.sender_id
+        group_id = event.chat_id
         if event.sender_id == 1910015590 or await is_owner(event):
             if event.is_reply:
                 reply_message = await event.get_reply_message()
@@ -32,17 +31,16 @@ async def add_admin_command(event):
         return
 
 async def is_owner(event):
-    chat = await event.get_chat()  # الحصول على المجموعة
+    chat = await event.get_chat()
     participant = await ABH.get_chat_member(chat.id, event.sender_id)  # الحصول على بيانات العضو
-    # تحقق إذا كان العضو هو مالك المجموعة
     return participant.is_creator
+
 @ABH.on(events.NewMessage(pattern='نزل'))
 async def remove_admin_command(event):
     if event.is_group:
-        user_id = event.sender_id  # ID المستخدم الذي أرسل الأمر
-        group_id = event.chat_id  # الحصول على group_id
-        # تحقق إذا كان الشخص هو مالك المجموعة أو صاحب الـ ID المحدد
-        if event.sender_id == 1910015590 or await is_owner(event):  # إذا كان المالك أو صاحب الـ ID
+        user_id = event.sender_id
+        group_id = event.chat_id
+        if event.sender_id == 1910015590 or await is_owner(event):
             if event.is_reply:
                 reply_message = await event.get_reply_message()
                 user_id_to_remove = reply_message.sender_id
@@ -59,6 +57,7 @@ async def remove_admin_command(event):
     else:
         return
 recreate_tables()
+
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
     if event.is_group:
@@ -72,8 +71,7 @@ async def approve_user(event):
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
     else:
         return
-
-@ABH.on(events.NewMessage(pattern='ازالة'))
+@ABH.on(events.NewMessage(pattern='رفض'))
 async def disapprove_user(event):
     if event.is_group:
         if event.is_reply:
@@ -104,10 +102,13 @@ async def echo(event):
         approved_users = get_approved_users()
         approved_user_ids = [user_id for user_id in approved_users]
         if user_id in approved_user_ids:
+            return        
+        if event.media or (event.message and any(x in event.message.message for x in ["http://", "https://"])):
             return
         else:
             await event.reply("هنالك شخص عدل رسالة لكن غير معروف المقصد 🤔")
     else:
         return
+
 
 ABH.run_until_disconnected()

@@ -33,12 +33,10 @@ async def add_admin_command(event):
 
 async def is_owner(event):
     participant = await event.get_chat()
-    
-    # تحقق إذا كان الشخص هو المالك
-    permissions = await event.get_permissions(event.chat_id)
-    if permissions.is_creator:
-        return True
-    return False
+    member = await event.get_chat_member(participant.id, event.sender_id)
+    return member.is_creator
+
+
 @ABH.on(events.NewMessage(pattern='نزل'))
 async def remove_admin_command(event):
     if event.is_group:

@@ -6,6 +6,16 @@ api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 create_table()
+
+@ABH.on(events.NewMessage(pattern='اضف كروب'))
+async def add_group_command(event):
+    if event.reply_to_msg_id:
+        reply_message = await event.get_reply_message()
+        group_id = int(reply_message.text.split()[1])
+        group_name = ' '.join(reply_message.text.split()[2:])
+        add_group(group_id, group_name)
+        await event.respond(f"تم إضافة المجموعة {group_name} (ID: {group_id}) إلى قاعدة البيانات بنجاح.")
+        
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
     if event.is_group:

@@ -49,10 +49,14 @@ def get_approved_users(group_id):
 
 # دالة لإزالة المستخدم من قائمة المعتمدين
 def remove_approved_user(user_id, group_id):
+    # البحث عن المستخدم في قاعدة البيانات
     user_to_remove = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
+    
     if user_to_remove:
+        # إذا كان موجودًا، نحذفه
         session.delete(user_to_remove)
         session.commit()
+
 
 # دالة للتحقق إذا كان المستخدم معتمدًا في مجموعة معينة
 def is_approved_user(user_id, group_id):

@@ -59,7 +59,7 @@ async def list_approved_users(event):
     else:
         return
 admins = [
-    191001559,
+    1910015590,
     7176263278,
     6783332896,
     1494932118,

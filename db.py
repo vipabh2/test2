@@ -1,75 +1,61 @@
-from sqlalchemy import create_engine, Column, BigInteger, String
-from sqlalchemy.orm import sessionmaker, declarative_base
+from sqlalchemy import create_engine, Column, Integer, ForeignKey
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker, relationship
 import os
 
 DATABASE_URL = os.getenv('DATABASE_URL')  # تأكد من تعيين المتغير البيئي بشكل صحيح
-
 if not DATABASE_URL:
     raise ValueError("متغير البيئة 'DATABASE_URL' غير موجود. تأكد من تعيينه بشكل صحيح.")
 
-# إعداد قاعدة البيانات PostgreSQL
-engine = create_engine(DATABASE_URL, echo=False)
-BASE = declarative_base()
-SessionLocal = sessionmaker(bind=engine)
 
-# تعريف جدول الأدمن
-class Admin(BASE):
-    __tablename__ = 'admins'
-    user_id = Column(BigInteger, primary_key=True)
-    group_id = Column(BigInteger, primary_key=True)
+# إعداد قاعدة البيانات
+Base = declarative_base()
 
-# تعريف جدول الموافقات
-class Approval(BASE):
-    __tablename__ = 'approvals'
-    user_id = Column(BigInteger, primary_key=True)
+# تعريف جدول "المستخدمين المعتمدين"
+class ApprovedUser(Base):
+    __tablename__ = 'approved_users'
+    
+    user_id = Column(Integer, primary_key=True)
+    group_id = Column(Integer, primary_key=True)
+    
+    def __repr__(self):
+        return f"<ApprovedUser(user_id={self.user_id}, group_id={self.group_id})>"
 
-# تعريف جدول المجموعات
-class Group(BASE):
-    __tablename__ = 'groups'
-    group_id = Column(BigInteger, primary_key=True)
-    group_name = Column(String, index=True)
+engine = create_engine(DATABASE_URL, echo=True)
 
-# إنشاء الجداول من جديد
-def recreate_tables():
-    BASE.metadata.drop_all(bind=engine)  # حذف الجداول الحالية
-    BASE.metadata.create_all(bind=engine)  # إنشاء الجداول من جديد
+# إنشاء الجداول في قاعدة البيانات
+Base.metadata.create_all(bind=engine)
 
-recreate_tables()
+# إعداد الجلسة
+Session = sessionmaker(bind=engine)
+session = Session()
 
-# إضافة أدمن إلى مجموعة معينة
-def add_admin(user_id, group_id):
-    db_session = SessionLocal()
-    new_admin = Admin(user_id=user_id, group_id=group_id)
-    db_session.add(new_admin)
-    db_session.commit()
-    db_session.close()
+# دالة لإضافة مستخدم مع السماح له
+def add_approved_user(user_id, group_id):
+    # التحقق إذا كان المستخدم معتمدًا بالفعل
+    existing_user = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
+    
+    if not existing_user:
+        new_user = ApprovedUser(user_id=user_id, group_id=group_id)
+        session.add(new_user)
+        session.commit()
 
-# إزالة أدمن من مجموعة معينة
-def remove_admin(user_id, group_id=None):
-    db_session = SessionLocal()
-    if group_id:
-        # إزالة الأدمن من مجموعة معينة
-        admin = db_session.query(Admin).filter(Admin.user_id == user_id, Admin.group_id == group_id).first()
-    else:
-        # إزالة الأدمن من جميع المجموعات
-        admin = db_session.query(Admin).filter(Admin.user_id == user_id).first()
-        
-    if admin:
-        db_session.delete(admin)
-        db_session.commit()
-    db_session.close()
+# دالة لإزالة المستخدم من قائمة المعتمدين
+def remove_approved_user(user_id, group_id):
+    user_to_remove = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
+    
+    if user_to_remove:
+        session.delete(user_to_remove)
+        session.commit()
 
-# التحقق من كون المستخدم أدمن في مجموعة معينة
-def is_admin(user_id, group_id):
-    db_session = SessionLocal()
-    admin = db_session.query(Admin).filter(Admin.user_id == user_id, Admin.group_id == group_id).first()
-    db_session.close()
-    return admin is not None
+# دالة للتحقق إذا كان المستخدم معتمدًا في مجموعة معينة
+def is_approved_user(user_id, group_id):
+    user = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
+    return user is not None
 
-# إضافة مجموعة إلى قاعدة البيانات
-def add_group(group_id, group_name):
-    db_session = SessionLocal()
-    new_group = Group(group_id=group_id, group_name=group_name)
-    db_session.add(new_group)
-    db_session.commit()
-    db_session.close()
+# تهيئة قاعدة البيانات عند بدء تشغيل البرنامج
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+# تهيئة قاعدة البيانات عند بدء التشغيل
+init_db()

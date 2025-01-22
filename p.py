@@ -1,9 +1,7 @@
-# from db import add_approved_user, remove_approved_user, get_approved_users, create_table, is_admin, add_admin, remove_admin
+from db import add_approved_user, remove_approved_user, get_approved_users, create_table, is_admin, add_admin, remove_admin
 from telethon.tl.types import ChatAdminRights
 from telethon import TelegramClient, events
 import os
-import db
-
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')

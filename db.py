@@ -16,7 +16,7 @@ class Approval(BASE):
     user_id = Column(BigInteger, primary_key=True)  # تغيير من Integer إلى BigInteger
 
 def create_table():
-    BASE.metadata.drop_all(bind=engine)  # حذف الجدول الحالي
+    # BASE.metadata.drop_all(bind=engine)
     BASE.metadata.create_all(bind=engine)  # إعادة إنشاء الجدول
 
 def add_approved_user(user_id):

@@ -2,7 +2,7 @@ import sqlite3
 import os
 
 # قاعدة بيانات SQLite
-DATABASE_URL = os.getenv('DATABASE_URL')
+DATABASE_URL = os.getenv('DATABASE_URL', 'database.db')  # تأكد من تعيين DATABASE_URL
 
 # إنشاء اتصال بقاعدة البيانات
 def get_db_connection():
@@ -27,7 +27,9 @@ def recreate_tables():
     # جدول الموافقات
     cursor.execute('''
     CREATE TABLE IF NOT EXISTS approvals (
-        user_id INTEGER PRIMARY KEY
+        user_id INTEGER,
+        group_id INTEGER,
+        PRIMARY KEY (user_id, group_id)
     )
     ''')
 
@@ -79,9 +81,9 @@ def add_approved_user(user_id, group_id):
     conn = get_db_connection()
     cursor = conn.cursor()
     # تحقق إذا لم يكن المستخدم مضافًا بالفعل للمجموعة
-    cursor.execute('SELECT 1 FROM approvals WHERE user_id = ?', (user_id,))
+    cursor.execute('SELECT 1 FROM approvals WHERE user_id = ? AND group_id = ?', (user_id, group_id))
     if not cursor.fetchone():
-        cursor.execute('INSERT INTO approvals (user_id) VALUES (?)', (user_id,))
+        cursor.execute('INSERT INTO approvals (user_id, group_id) VALUES (?, ?)', (user_id, group_id))
         conn.commit()
     conn.close()
 
@@ -89,15 +91,15 @@ def add_approved_user(user_id, group_id):
 def remove_approved_user(user_id, group_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('DELETE FROM approvals WHERE user_id = ?', (user_id,))
+    cursor.execute('DELETE FROM approvals WHERE user_id = ? AND group_id = ?', (user_id, group_id))
     conn.commit()
     conn.close()
 
-# الحصول على جميع المستخدمين المصرح لهم
+# الحصول على جميع المستخدمين المصرح لهم في مجموعة معينة
 def get_approved_users(group_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('SELECT user_id FROM approvals')
+    cursor.execute('SELECT user_id FROM approvals WHERE group_id = ?', (group_id,))
     users = cursor.fetchall()
     conn.close()
     return users

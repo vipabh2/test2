@@ -64,7 +64,7 @@ async def approve_user(event):
         if event.is_reply:
             reply_message = await event.get_reply_message()
             user_id = reply_message.sender_id
-            user = reply_message.sender_frist_name
+            user = reply_message.sender.first_name  # تصحيح خطأ `sender_frist_name`
             add_approved_user(user_id)
             await event.reply(f"✅ تم السماح للمستخدم {user} بالتعديلات.")
         else:
@@ -77,13 +77,14 @@ async def disapprove_user(event):
         if event.is_reply:
             reply_message = await event.get_reply_message()
             user_id = reply_message.sender_id
-            user = reply_message.sender_frist_name
+            user = reply_message.sender.first_name  # تصحيح خطأ `sender_frist_name`
             remove_approved_user(user_id)
-            await event.reply(f"تم مراقبة للمستخدم {user} بالتعديلات.")
+            await event.reply(f"❌ تم إلغاء السماح للمستخدم {user} بالتعديلات.")
         else:
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إلغاء السماح له بالتعديلات.")
     else:
         return
+
 @ABH.on(events.NewMessage(pattern='المسموح لهم'))
 async def list_approved_users(event):
     if event.is_group:

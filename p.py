@@ -1,17 +1,11 @@
 from telethon import TelegramClient, events
 from db import add_approved_user, remove_approved_user, get_approved_users, create_table
 import os
-
-# إعداد بيانات الاتصال
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
-
-# إنشاء جلسة TelegramClient
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 create_table()
-
-# أمر "سماح" لإضافة المستخدم إلى قائمة المسموح لهم بالتعديلات
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
     if event.is_group:
@@ -25,9 +19,7 @@ async def approve_user(event):
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
     else:
         return
-
-# أمر "إزالة" لإزالة المستخدم من قائمة المسموح لهم بالتعديلات
-@ABH.on(events.NewMessage(pattern='إزالة'))
+@ABH.on(events.NewMessage(pattern='رفض'))
 async def disapprove_user(event):
     if event.is_group:
         if event.is_reply:
@@ -40,8 +32,6 @@ async def disapprove_user(event):
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إلغاء السماح له بالتعديلات.")
     else:
         return
-
-# أمر لعرض قائمة المسموح لهم
 @ABH.on(events.NewMessage(pattern='المسموح لهم'))
 async def list_approved_users(event):
     if event.is_group:
@@ -53,8 +43,6 @@ async def list_approved_users(event):
             await event.reply("لا يوجد أي مستخدمين مسموح لهم بالتعديلات حالياً.")
     else:
         return
-
-# معالجة الرسائل المعدلة
 @ABH.on(events.MessageEdited)
 async def echo(event):
     if event.is_group:
@@ -67,6 +55,4 @@ async def echo(event):
             await event.reply("هنالك شخص عدل رسالة لكن غير معروف المقصد 🤔")
     else:
         return
-
-# تشغيل العميل
 ABH.run_until_disconnected()

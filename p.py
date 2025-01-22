@@ -12,9 +12,8 @@ create_table()
 @ABH.on(events.NewMessage(pattern='ارفع'))
 async def add_admin_command(event):
     if event.is_group:
-        user_id = event.sender_id  # ID المستخدم الذي أرسل الأمر
-        # تحقق إذا كان الشخص هو مالك المجموعة أو صاحب الـ ID المحدد
-        if event.sender_id == 1910015590 or await is_owner(event):  # إذا كان المالك أو صاحب الـ ID
+        user_id = event.sender_id
+        if event.sender_id == 1910015590 or await is_owner(event):
             if event.is_reply:
                 reply_message = await event.get_reply_message()
                 user_id_to_add = reply_message.sender_id
@@ -30,7 +29,6 @@ async def add_admin_command(event):
             await event.reply("❌ ليس لديك صلاحية لإجراء هذه العملية. فقط المالك أو صاحب الـ ID المحدد يمكنه إضافة أدمن.")
     else:
         return
-
 
 
 async def is_owner(event):

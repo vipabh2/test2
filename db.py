@@ -16,6 +16,8 @@ SessionLocal = sessionmaker(bind=engine)
 class Admin(BASE):
     __tablename__ = 'admins'
     user_id = Column(BigInteger, primary_key=True)
+    group_id = Column(BigInteger, primary_key=True)  # إضافة group_id
+
 
 # تعريف جدول الموافقات
 class Approval(BASE):
@@ -32,27 +34,27 @@ class Group(BASE):
 def create_table():
     BASE.metadata.create_all(bind=engine)
 
-# إضافة أدمن إلى قاعدة البيانات
-def add_admin(user_id):
+# إضافة أدمن إلى مجموعة معينة
+def add_admin(user_id, group_id):
     db_session = SessionLocal()
-    new_admin = Admin(user_id=user_id)
+    new_admin = Admin(user_id=user_id, group_id=group_id)
     db_session.add(new_admin)
     db_session.commit()
     db_session.close()
 
-# إزالة أدمن من قاعدة البيانات
-def remove_admin(user_id):
+# إزالة أدمن من مجموعة معينة
+def remove_admin(user_id, group_id):
     db_session = SessionLocal()
-    admin = db_session.query(Admin).filter(Admin.user_id == user_id).first()
+    admin = db_session.query(Admin).filter(Admin.user_id == user_id, Admin.group_id == group_id).first()
     if admin:
         db_session.delete(admin)
         db_session.commit()
     db_session.close()
 
-# التحقق من كون المستخدم أدمن
-def is_admin(user_id):
+# التحقق من كون المستخدم أدمن في مجموعة معينة
+def is_admin(user_id, group_id):
     db_session = SessionLocal()
-    admin = db_session.query(Admin).filter(Admin.user_id == user_id).first()
+    admin = db_session.query(Admin).filter(Admin.user_id == user_id, Admin.group_id == group_id).first()
     db_session.close()
     return admin is not None
 

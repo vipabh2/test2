@@ -1,4 +1,4 @@
-from db import add_approved_user, remove_approved_user, get_approved_users, create_table
+from db import add_approved_user, remove_approved_user, get_approved_users, ‎recreate_tables‎
 from telethon.tl.types import ChatAdminRights
 from telethon import TelegramClient, events
 import os
@@ -58,7 +58,7 @@ async def remove_admin_command(event):
     else:
         return
 
-create_table()
+‎recreate_tables‎()
 
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):

@@ -29,6 +29,12 @@ Base.metadata.create_all(bind=engine)
 # إعداد الجلسة
 Session = sessionmaker(bind=engine)
 session = Session()
+def add_approved_user(user_id, group_id):
+    # تحقق مما إذا كان المستخدم موجودًا بالفعل في قاعدة البيانات
+    if not is_approved_user(user_id, group_id):
+        approved_user = ApprovedUser(user_id=user_id, group_id=group_id)
+        session.add(approved_user)
+        session.commit()
 
 def get_approved_users(group_id):
     users = session.query(ApprovedUser).filter_by(group_id=group_id).all()

@@ -57,9 +57,7 @@ async def remove_admin_command(event):
             await event.reply("❌ ليس لديك صلاحية لإجراء هذه العملية. فقط المالك أو صاحب الـ ID المحدد يمكنه إزالة أدمن.")
     else:
         return
-
-‎recreate_tables‎()
-
+recreate_tables()
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
     if event.is_group:

@@ -29,6 +29,7 @@ class Group(BASE):
     __tablename__ = 'groups'
     group_id = Column(BigInteger, primary_key=True)
     group_name = Column(String, index=True)
+
 # إنشاء الجداول من جديد
 def recreate_tables():
     BASE.metadata.drop_all(bind=engine)  # حذف الجداول الحالية
@@ -46,9 +47,15 @@ def add_admin(user_id, group_id):
     db_session.close()
 
 # إزالة أدمن من مجموعة معينة
-def remove_admin(user_id, group_id):
+def remove_admin(user_id, group_id=None):
     db_session = SessionLocal()
-    admin = db_session.query(Admin).filter(Admin.user_id == user_id, Admin.group_id == group_id).first()
+    if group_id:
+        # إزالة الأدمن من مجموعة معينة
+        admin = db_session.query(Admin).filter(Admin.user_id == user_id, Admin.group_id == group_id).first()
+    else:
+        # إزالة الأدمن من جميع المجموعات
+        admin = db_session.query(Admin).filter(Admin.user_id == user_id).first()
+        
     if admin:
         db_session.delete(admin)
         db_session.commit()
@@ -61,13 +68,6 @@ def is_admin(user_id, group_id):
     db_session.close()
     return admin is not None
 
-def remove_admin(user_id):
-    db_session = SessionLocal()
-    admin = db_session.query(Admin).filter(Admin.user_id == user_id).first()
-    if admin:
-        db_session.delete(admin)
-        db_session.commit()
-    db_session.close()
 # إضافة مستخدم إلى قائمة الموافقات
 def add_approved_user(user_id):
     if not isinstance(user_id, int):

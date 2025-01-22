@@ -1,5 +1,6 @@
 from telethon import TelegramClient, events
 from db import add_approved_user, remove_approved_user, get_approved_users, create_table, add_group
+from telethon.tl.types import MessageMediaPhoto, MessageMediaVideo, MessageMediaDocument
 import os
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
@@ -61,8 +62,11 @@ async def echo(event):
         approved_user_ids = [user_id for user_id in approved_users]
         if user_id in approved_user_ids:
             return
+        if isinstance(event.message.media, (MessageMediaPhoto, MessageMediaVideo, MessageMediaDocument)) or "http" in event.message.text:
+            await event.reply("تم إرسال ميديا أو رابط من شخص غير معتمد.")
         else:
             await event.reply("هنالك شخص عدل رسالة لكن غير معروف المقصد 🤔")
     else:
         return
+
 ABH.run_until_disconnected()

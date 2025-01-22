@@ -31,6 +31,7 @@ async def add_admin_command(event):
     else:
         return
 
+
 async def is_owner(event):
     participant = await event.get_chat()
     member = await event.get_chat_member(participant.id, event.sender_id)

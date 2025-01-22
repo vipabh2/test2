@@ -22,7 +22,7 @@ async def approve_user(event):
     else:
         return
 
-@ABH.on(events.NewMessage(pattern='ازالة'))
+@ABH.on(events.NewMessage(pattern='رفض'))
 async def disapprove_user(event):
     if event.is_group:
         if event.is_reply:

@@ -7,60 +7,51 @@ api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-@ABH.on(events.NewMessage(pattern='سماح'))
+@ABH.on(events.NewMessage(pattern='^سماح$'))
 async def approve_user(event):
     if event.is_group and event.sender_id in admins:
         if event.is_reply:
             reply_message = await event.get_reply_message()
             user_id = reply_message.sender_id
             group_id = event.chat_id
-            user = reply_message.sender.first_name            
+            user = reply_message.sender.first_name
             add_approved_user(user_id, group_id)
-            await event.reply(f"✅ تم السماح للمستخدم {user} بالتعديلات في هذه المجموعة فقط.")
+            await event.reply(f"تم السماح للمستخدم {user}بالتعديل الحر .")
         else:
-            await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
+            await event.reply("عزيزي المشرف الفاهي... \n يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
     else:
         return
-@ABH.on(events.NewMessage(pattern='رفض'))
+@ABH.on(events.NewMessage(pattern='^رفض$'))
 async def disapprove_user(event):
-    # التحقق من أن الحدث هو في مجموعة وأن المستخدم هو من المسؤولين
     if event.is_group and event.sender_id in admins:
         if event.is_reply:
-            # إذا كان هناك رد على رسالة معينة
             reply_message = await event.get_reply_message()
-            user_id = reply_message.sender_id  # الحصول على معرّف المستخدم
-            group_id = event.chat_id  # الحصول على معرّف المجموعة
-            user = reply_message.sender.first_name  # اسم المستخدم
-            
-            # إزالة المستخدم من المعتمدين
+            user_id = reply_message.sender_id
+            group_id = event.chat_id
+            user = reply_message.sender.first_name
             remove_approved_user(user_id, group_id)
-            
-            # إرسال رد بتأكيد إلغاء السماح
-            await event.reply(f"❌ تم إلغاء السماح للمستخدم {user} بالتعديلات في هذه المجموعة فقط.")
+            await event.reply(f"المستخدم {user} تم رفض تعديلاتة القادمة \n والله خطية.")
         else:
-            # إذا لم يكن هناك رد على رسالة معينة
-            await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إلغاء السماح له بالتعديلات.")
+            await event.reply("عزيزي المشرف الاغبر... \n يرجى الرد على رسالة المستخدم الذي تريد رفضه بالتعديلات.")
     else:
         return
-@ABH.on(events.NewMessage(pattern='المسموح لهم'))
+@ABH.on(events.NewMessage(pattern='^المسموح لهم$'))
 async def list_approved_users(event):
     senid = event.sender_id
     if event.is_group and senid in admins:
         approved_users = get_approved_users(event.chat_id)
-        
         if approved_users:
             approved_list = ""
             for user_id, group_id in approved_users:
                 try:
-                    user = await event.client.get_entity(user_id)  # جلب الكائن للمستخدم
+                    user = await event.client.get_entity(user_id)
                     user_name = user.username if user.username else user.first_name
-                    approved_list += f"{user_name} - {user_id} @\n"
+                    approved_list += f"{user_name} - {user_id} \n"
                 except Exception as e:
                     approved_list += f"خطأ في جلب اسم المستخدم: {user_id}\n"
-            
-            await event.reply(f"📝 قائمة المستخدمين المسموح لهم بالتعديلات:\n{approved_list}")
+            await event.reply(f"📝 قائمة المستخدمين ال VIP بالتعديلات:\n{approved_list}")
         else:
-            await event.reply("لا يوجد أي مستخدمين مسموح لهم بالتعديلات حالياً.")
+            await event.reply("ماكو مستخدمين VIP او HIGH CLASS حالياً \n ضيفلك كم واحد حبيبي.") 
     else:
         return
 admins = [
@@ -73,27 +64,20 @@ admins = [
     5399306464,
     6498922948,
     1446637898
-          ]
+]
 @ABH.on(events.MessageEdited)
 async def echo(event):
-    if event.is_group:  # تأكد من أن الحدث في مجموعة
+    if event.is_group:
         user_id = event.sender_id
         group_id = event.chat_id
         approved_users = get_approved_users(group_id)
         approved_user_ids = [user[0] for user in approved_users]
-        
-        # تحقق إذا كان المستخدم أدمن أو من المسموح لهم
         if user_id in admins or user_id in approved_user_ids:
-            return  # إذا كان المستخدم من المسؤولين أو المسموح لهم، لا ترد على التعديل
-
-        # إذا كانت الرسالة تحتوي على ملف أو رابط
+            return
         if event.media or ('http://' in event.message.message or 'https://' in event.message.message):
-            await event.reply("هنالك شخص عدل رسالة لكن غير معروف المقصد 🤔")  # رد عندما تحتوي الرسالة على ملف أو رابط
+            await event.reply("هنالك شخص عدل رسالة لكن غير معروف المقصد 🤔")
         else:
-            return  # إذا لم تحتوي على رابط أو ملف مرفق، لا تفعل شيئًا
-
+            return
     else:
-        return  # إذا كان الحدث ليس في مجموعة، لا تفعل شيئًا
-
-
+        return
 ABH.run_until_disconnected()

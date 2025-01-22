@@ -8,13 +8,13 @@ bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 create_table()
 
-# إضافة أدمن (فقط الأدمن يمكنه ذلك)
+# إضافة أدمن (إما المالك أو صاحب الـ ID المعين يمكنه ذلك)
 @ABH.on(events.NewMessage(pattern='ارفع'))
 async def add_admin_command(event):
     if event.is_group:
         user_id = event.sender_id  # ID المستخدم الذي أرسل الأمر
-        # تحقق إذا كان الشخص أدمن
-        if is_admin(user_id):
+        # تحقق إذا كان الشخص هو مالك المجموعة أو صاحب الـ ID المحدد
+        if event.sender_id == 1910015590 or await is_owner(event):  # إذا كان المالك أو صاحب الـ ID
             if event.is_reply:
                 reply_message = await event.get_reply_message()
                 user_id_to_add = reply_message.sender_id
@@ -27,9 +27,18 @@ async def add_admin_command(event):
             else:
                 await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إضافته كأدمن.")
         else:
-            await event.reply("❌ ليس لديك صلاحية لإجراء هذه العملية. فقط الأدمن يمكنه إضافة أدمن.")
+            await event.reply("❌ ليس لديك صلاحية لإجراء هذه العملية. فقط المالك أو صاحب الـ ID المحدد يمكنه إضافة أدمن.")
     else:
         return
+
+# دالة للتحقق إذا كان الشخص مالك المجموعة
+async def is_owner(event):
+    # احصل على صلاحيات الشخص في المجموعة
+    participant = await event.get_chat()
+    if participant.admin_rights.is_creator:
+        return True
+    return False
+
 
 # السماح للمستخدم (فقط الأدمن يمكنه ذلك)
 @ABH.on(events.NewMessage(pattern='سماح'))

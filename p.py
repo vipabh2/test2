@@ -77,9 +77,9 @@ async def echo(event):
         approved_users = get_approved_users(group_id)
         approved_user_ids = [user[0] for user in approved_users]
         
-        # إذا كان المستخدم من المسؤولين أو المسموح لهم
-        if user_id in approved_user_ids or user_id in admins:
-            return  # إذا كان المستخدم من المسموح لهم أو من المسؤولين، لا ترد على التعديل
+        # تحقق إذا كان المستخدم أدمن أو من المسموح لهم
+        if user_id in admins or user_id in approved_user_ids:
+            return  # إذا كان المستخدم من المسؤولين أو المسموح لهم، لا ترد على التعديل
 
         # إذا كانت الرسالة تحتوي على ملف أو رابط
         if event.media or ('http://' in event.message.message or 'https://' in event.message.message):

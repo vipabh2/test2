@@ -1,91 +1,111 @@
-from sqlalchemy import Column, BigInteger, String
-from sqlalchemy.orm import sessionmaker, declarative_base
-from sqlalchemy import create_engine
+import sqlite3
 import os
 
+# قاعدة بيانات SQLite
 DATABASE_URL = os.getenv('DATABASE_URL')
-if not DATABASE_URL:
-    raise ValueError("متغير البيئة 'DATABASE_URL' غير موجود. تأكد من تعيينه بشكل صحيح.")
 
-# إعداد قاعدة البيانات
-engine = create_engine(DATABASE_URL, echo=False)
-BASE = declarative_base()
-SessionLocal = sessionmaker(bind=engine)
+# إنشاء اتصال بقاعدة البيانات
+def get_db_connection():
+    conn = sqlite3.connect(DATABASE_PATH)
+    conn.row_factory = sqlite3.Row  # لتسهيل الوصول إلى البيانات عبر الأعمدة
+    return conn
 
-# تعريف جدول الأدمن
-class Admin(BASE):
-    __tablename__ = 'admins'
-    user_id = Column(BigInteger, primary_key=True)
-    group_id = Column(BigInteger, primary_key=True)  # إضافة group_id
-
-
-# تعريف جدول الموافقات
-class Approval(BASE):
-    __tablename__ = 'approvals'
-    user_id = Column(BigInteger, primary_key=True)
-
-# تعريف جدول المجموعات
-class Group(BASE):
-    __tablename__ = 'groups'
-    group_id = Column(BigInteger, primary_key=True)
-    group_name = Column(String, index=True)
-
-# إنشاء الجداول من جديد
+# إنشاء الجداول إذا لم تكن موجودة
 def recreate_tables():
-    BASE.metadata.drop_all(bind=engine)  # حذف الجداول الحالية
-    BASE.metadata.create_all(bind=engine)  # إنشاء الجداول من جديد
+    conn = get_db_connection()
+    cursor = conn.cursor()
+
+    # جدول الأدمن
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS admins (
+        user_id INTEGER,
+        group_id INTEGER,
+        PRIMARY KEY (user_id, group_id)
+    )
+    ''')
+
+    # جدول الموافقات
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS approvals (
+        user_id INTEGER PRIMARY KEY
+    )
+    ''')
+
+    # جدول المجموعات
+    cursor.execute('''
+    CREATE TABLE IF NOT EXISTS groups (
+        group_id INTEGER PRIMARY KEY,
+        group_name TEXT
+    )
+    ''')
+
+    conn.commit()
+    conn.close()
 
 recreate_tables()
 
-
 # إضافة أدمن إلى مجموعة معينة
 def add_admin(user_id, group_id):
-    db_session = SessionLocal()
-    new_admin = Admin(user_id=user_id, group_id=group_id)
-    db_session.add(new_admin)
-    db_session.commit()
-    db_session.close()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO admins (user_id, group_id) VALUES (?, ?)', (user_id, group_id))
+    conn.commit()
+    conn.close()
 
 # إزالة أدمن من مجموعة معينة
 def remove_admin(user_id, group_id=None):
-    db_session = SessionLocal()
+    conn = get_db_connection()
+    cursor = conn.cursor()
     if group_id:
         # إزالة الأدمن من مجموعة معينة
-        admin = db_session.query(Admin).filter(Admin.user_id == user_id, Admin.group_id == group_id).first()
+        cursor.execute('DELETE FROM admins WHERE user_id = ? AND group_id = ?', (user_id, group_id))
     else:
         # إزالة الأدمن من جميع المجموعات
-        admin = db_session.query(Admin).filter(Admin.user_id == user_id).first()
-        
-    if admin:
-        db_session.delete(admin)
-        db_session.commit()
-    db_session.close()
+        cursor.execute('DELETE FROM admins WHERE user_id = ?', (user_id,))
+    conn.commit()
+    conn.close()
 
 # التحقق من كون المستخدم أدمن في مجموعة معينة
 def is_admin(user_id, group_id):
-    db_session = SessionLocal()
-    admin = db_session.query(Admin).filter(Admin.user_id == user_id, Admin.group_id == group_id).first()
-    db_session.close()
-    return admin is not None
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT 1 FROM admins WHERE user_id = ? AND group_id = ?', (user_id, group_id))
+    result = cursor.fetchone()
+    conn.close()
+    return result is not None
 
+# إضافة مستخدم مُوافق عليه إلى مجموعة معينة
 def add_approved_user(user_id, group_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
     # تحقق إذا لم يكن المستخدم مضافًا بالفعل للمجموعة
-    if not connection.execute("SELECT 1 FROM approved_users WHERE user_id = ? AND group_id = ?", (user_id, group_id)).fetchone():
-        connection.execute("INSERT INTO approved_users (user_id, group_id) VALUES (?, ?)", (user_id, group_id))
-        connection.commit()
+    cursor.execute('SELECT 1 FROM approvals WHERE user_id = ?', (user_id,))
+    if not cursor.fetchone():
+        cursor.execute('INSERT INTO approvals (user_id) VALUES (?)', (user_id,))
+        conn.commit()
+    conn.close()
 
+# إزالة مستخدم مُوافق عليه من مجموعة معينة
 def remove_approved_user(user_id, group_id):
-    connection.execute("DELETE FROM approved_users WHERE user_id = ? AND group_id = ?", (user_id, group_id))
-    connection.commit()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM approvals WHERE user_id = ?', (user_id,))
+    conn.commit()
+    conn.close()
 
+# الحصول على جميع المستخدمين المصرح لهم
 def get_approved_users(group_id):
-    # إرجاع قائمة المستخدمين المصرح لهم في مجموعة معينة
-    return connection.execute("SELECT user_id FROM approved_users WHERE group_id = ?", (group_id,)).fetchall()
-    
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('SELECT user_id FROM approvals')
+    users = cursor.fetchall()
+    conn.close()
+    return users
+
 # إضافة مجموعة إلى قاعدة البيانات
 def add_group(group_id, group_name):
-    db_session = SessionLocal()
-    new_group = Group(group_id=group_id, group_name=group_name)
-    db_session.add(new_group)
-    db_session.commit()
-    db_session.close()
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('INSERT INTO groups (group_id, group_name) VALUES (?, ?)', (group_id, group_name))
+    conn.commit()
+    conn.close()

@@ -30,15 +30,12 @@ Base.metadata.create_all(bind=engine)
 Session = sessionmaker(bind=engine)
 session = Session()
 
-# دالة لإضافة مستخدم مع السماح له
-def add_approved_user(user_id, group_id):
-    # التحقق إذا كان المستخدم معتمدًا بالفعل
-    existing_user = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
-    
-    if not existing_user:
-        new_user = ApprovedUser(user_id=user_id, group_id=group_id)
-        session.add(new_user)
-        session.commit()
+def get_approved_users(group_id):
+    users = session.query(ApprovedUser).filter_by(group_id=group_id).all()
+    user_list = []
+    for user in users:
+        user_list.append((user.user_id, user.group_id))  # إضافة (user_id, group_id) للقائمة
+    return user_list
 
 # دالة لإزالة المستخدم من قائمة المعتمدين
 def remove_approved_user(user_id, group_id):

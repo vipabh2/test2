@@ -71,7 +71,7 @@ async def approve_user(event):
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
     else:
         return
-@ABH.on(events.NewMessage(pattern='رفض'))
+@ABH.on(events.NewMessage(pattern='ازالة'))
 async def disapprove_user(event):
     if event.is_group:
         if event.is_reply:

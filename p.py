@@ -1,5 +1,6 @@
-from telethon import TelegramClient, events
 from db import add_approved_user, remove_approved_user, get_approved_users, create_table, is_admin, add_admin
+from telethon.tl.types import ChatAdminRights
+from telethon import TelegramClient, events
 import os
 
 api_id = os.getenv('API_ID')
@@ -8,7 +9,9 @@ bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 create_table()
 
-# إضافة أدمن (إما المالك أو صاحب الـ ID المعين يمكنه ذلك)
+from telethon.tl.types import ChatAdminRights
+
+# إضافة أدمن (إما المالك أو صاحب الـ ID المحدد يمكنه ذلك)
 @ABH.on(events.NewMessage(pattern='ارفع'))
 async def add_admin_command(event):
     if event.is_group:
@@ -33,14 +36,14 @@ async def add_admin_command(event):
 
 # دالة للتحقق إذا كان الشخص مالك المجموعة
 async def is_owner(event):
-    # احصل على صلاحيات الشخص في المجموعة
     participant = await event.get_chat()
-    if participant.admin_rights.is_creator:
+    
+    # تحقق إذا كان الشخص هو المالك
+    permissions = await event.get_permissions(event.chat_id)
+    if permissions.is_creator:
         return True
     return False
 
-
-# السماح للمستخدم (فقط الأدمن يمكنه ذلك)
 @ABH.on(events.NewMessage(pattern='سماح'))
 async def approve_user(event):
     if event.is_group:

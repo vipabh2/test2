@@ -21,7 +21,7 @@ class ApprovedUser(Base):
     def __repr__(self):
         return f"<ApprovedUser(user_id={self.user_id}, group_id={self.group_id})>"
 
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 
 # إنشاء الجداول في قاعدة البيانات
 Base.metadata.create_all(bind=engine)

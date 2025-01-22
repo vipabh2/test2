@@ -1,4 +1,4 @@
-from db import ApprovedUser, get_approved_users, remove_approved_user, is_approved_user, init_db
+from db import ApprovedUser, get_approved_users, remove_approved_user, is_approved_user, init_db, add_approved_user
 from telethon import TelegramClient, events
 import os
 

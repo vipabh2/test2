@@ -1,4 +1,4 @@
-from sqlalchemy import create_engine, Column, BigInteger  # تغيير Integer إلى BigInteger
+from sqlalchemy import create_engine, Column, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 import os
@@ -20,13 +20,14 @@ class ApprovedUser(Base):
     def __repr__(self):
         return f"<ApprovedUser(user_id={self.user_id}, group_id={self.group_id})>"
 
+# إعداد الاتصال بقاعدة البيانات
 engine = create_engine(DATABASE_URL, echo=False)
 
-# تهيئة قاعدة البيانات
-def init_db():
-    Base.metadata.create_all(bind=engine)
+# حذف الجداول الحالية
+Base.metadata.drop_all(bind=engine)  # لحذف الجداول
 
-init_db()
+# تهيئة قاعدة البيانات بعد الحذف
+Base.metadata.create_all(bind=engine)  # لإعادة إنشاء الجداول
 
 # إعداد الجلسة
 Session = sessionmaker(bind=engine)

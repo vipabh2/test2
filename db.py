@@ -68,32 +68,20 @@ def is_admin(user_id, group_id):
     db_session.close()
     return admin is not None
 
-# إضافة مستخدم إلى قائمة الموافقات
-def add_approved_user(user_id):
-    if not isinstance(user_id, int):
-        raise ValueError(f"المعرّف {user_id} ليس رقمًا صحيحًا.")
-    db_session = SessionLocal()
-    new_user = Approval(user_id=user_id)
-    db_session.add(new_user)
-    db_session.commit()
-    db_session.close()
+def add_approved_user(user_id, group_id):
+    # تحقق إذا لم يكن المستخدم مضافًا بالفعل للمجموعة
+    if not connection.execute("SELECT 1 FROM approved_users WHERE user_id = ? AND group_id = ?", (user_id, group_id)).fetchone():
+        connection.execute("INSERT INTO approved_users (user_id, group_id) VALUES (?, ?)", (user_id, group_id))
+        connection.commit()
 
-# إزالة مستخدم من قائمة الموافقات
-def remove_approved_user(user_id):
-    db_session = SessionLocal()
-    user = db_session.query(Approval).filter(Approval.user_id == user_id).first()
-    if user:
-        db_session.delete(user)
-        db_session.commit()
-    db_session.close()
+def remove_approved_user(user_id, group_id):
+    connection.execute("DELETE FROM approved_users WHERE user_id = ? AND group_id = ?", (user_id, group_id))
+    connection.commit()
 
-# الحصول على قائمة المستخدمين المسموح لهم
-def get_approved_users():
-    db_session = SessionLocal()
-    users = db_session.query(Approval).all()
-    db_session.close()
-    return [user.user_id for user in users]
-
+def get_approved_users(group_id):
+    # إرجاع قائمة المستخدمين المصرح لهم في مجموعة معينة
+    return connection.execute("SELECT user_id FROM approved_users WHERE group_id = ?", (group_id,)).fetchall()
+    
 # إضافة مجموعة إلى قاعدة البيانات
 def add_group(group_id, group_name):
     db_session = SessionLocal()

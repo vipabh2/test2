@@ -29,10 +29,13 @@ class Group(BASE):
     __tablename__ = 'groups'
     group_id = Column(BigInteger, primary_key=True)
     group_name = Column(String, index=True)
+# إنشاء الجداول من جديد
+def recreate_tables():
+    BASE.metadata.drop_all(bind=engine)  # حذف الجداول الحالية
+    BASE.metadata.create_all(bind=engine)  # إنشاء الجداول من جديد
 
-# إنشاء الجداول في قاعدة البيانات
-def create_table():
-    BASE.metadata.create_all(bind=engine)
+recreate_tables()
+
 
 # إضافة أدمن إلى مجموعة معينة
 def add_admin(user_id, group_id):

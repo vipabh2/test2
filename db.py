@@ -1,6 +1,6 @@
-from sqlalchemy import create_engine, Column, Integer, ForeignKey
+from sqlalchemy import create_engine, Column, BigInteger
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, relationship
+from sqlalchemy.orm import sessionmaker
 import os
 
 # تأكد من تعيين المتغير البيئي بشكل صحيح
@@ -15,8 +15,8 @@ Base = declarative_base()
 class ApprovedUser(Base):
     __tablename__ = 'approved_users'
     
-    user_id = Column(Integer, primary_key=True)
-    group_id = Column(Integer, primary_key=True)
+    user_id = Column(BigInteger, primary_key=True)  # تعديل هنا من Integer إلى BigInteger
+    group_id = Column(BigInteger, primary_key=True)  # تعديل هنا من Integer إلى BigInteger
     
     def __repr__(self):
         return f"<ApprovedUser(user_id={self.user_id}, group_id={self.group_id})>"

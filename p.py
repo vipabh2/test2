@@ -15,7 +15,7 @@ async def approve_user(event):
             reply_message = await event.get_reply_message()
             user_id = reply_message.sender_id
             user = reply_message.sender
-            add_approved_user(user_id)
+            add_approved_user(user)
             await event.reply(f"✅ تم السماح للمستخدم {user} بالتعديلات.")
         else:
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد السماح له بالتعديلات.")
@@ -29,7 +29,7 @@ async def disapprove_user(event):
             reply_message = await event.get_reply_message()
             user_id = reply_message.sender_id
             user = reply_message.sender
-            remove_approved_user(user_id)
+            remove_approved_user(user)
             await event.reply(f"تم مراقبة للمستخدم {user} بالتعديلات.")
         else:
             await event.reply("❗ يرجى الرد على رسالة المستخدم الذي تريد إلغاء السماح له بالتعديلات.")

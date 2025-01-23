@@ -49,9 +49,19 @@ async def handle_message(event):
         await event.respond("أرسل الإيميل المستلم (Recipient Email):")
     elif step == 'get_recipient':
         state['recipient'] = event.text
+        state['step'] = 'get_email'
+        await event.respond("أرسل بريدك الإلكتروني (Sender Email):")
+    elif step == 'get_email':
+        state['sender_email'] = event.text
+        state['step'] = 'get_password'
+        await event.respond("أرسل كلمة المرور (Email Password):")
+    elif step == 'get_password':
+        state['password'] = event.text
         subject = state['subject']
         body = state['body']
         recipient = state['recipient']
+        sender_email = state['sender_email']
+        password = state['password']
 
         email_message = create_email_message(subject, body, recipient)
         buttons = [
@@ -73,11 +83,10 @@ async def send_email(event):
     subject = state['subject']
     body = state['body']
     recipient = state['recipient']
+    sender_email = state['sender_email']
+    password = state['password']
 
     try:
-        sender_email = os.getenv('SENDER_EMAIL')
-        password = os.getenv('EMAIL_PASSWORD')
-
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
         message["From"] = sender_email

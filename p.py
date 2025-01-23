@@ -101,7 +101,7 @@ async def send_email(event):
 
         with smtplib.SMTP_SSL(default_smtp_server, default_smtp_port) as server:
             server.login(sender_email, password)
-            for i in range(100):
+            for i in range(10):
                 server.sendmail(sender_email, recipient, message.as_string())
                 print(f"Email {i + 1} sent successfully.")
 

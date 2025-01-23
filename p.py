@@ -1,5 +1,5 @@
 from db import ApprovedUser
-from db import get_approved_users
+from db import is_approved_user
 from db import remove_approved_user
 from db import add_approved_user
 from telethon import TelegramClient, events

@@ -114,10 +114,4 @@ async def send_email(event):
     except Exception as e:
         await event.respond(f"حدث خطأ غير متوقع: {e}")
 
-    # Handle invalid query ID issue gracefully
-    try:
-        await event.answer()  # Ensure callback query is answered
-    except Exception as query_error:
-        print(f"Failed to answer callback query: {query_error}")
-
 client.run_until_disconnected()

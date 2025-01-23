@@ -40,7 +40,7 @@ async def disapprove_user(event):
 async def list_approved_users(event):
     senid = event.sender_id
     if event.is_group and senid in admins:
-        approved_users = is_approved_user(event.chat_id) 
+        approved_users = get_approved_users(event.chat_id)  # استخدم get_approved_users للحصول على المستخدمين المعتمدين
         if approved_users:
             approved_list = ""
             for user_id, group_id in approved_users:

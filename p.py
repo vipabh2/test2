@@ -40,7 +40,7 @@ async def disapprove_user(event):
 async def list_approved_users(event):
     senid = event.sender_id
     if event.is_group and senid in admins:
-        approved_users = get_approved_users(event.chat_id)
+        approved_users = is_approved_user(event.chat_id)
         if approved_users:
             approved_list = ""
             for user_id, group_id in approved_users:
@@ -71,7 +71,7 @@ async def echo(event):
     if event.is_group:
         user_id = event.sender_id
         group_id = event.chat_id
-        approved_users = get_approved_users(group_id)
+        approved_users = is_approved_user(group_id)
         approved_user_ids = [user[0] for user in approved_users]
         if user_id in admins or user_id in approved_user_ids:
             return

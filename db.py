@@ -13,35 +13,35 @@ class ApprovedUser(Base):
     __tablename__ = 'approved_users'
     user_id = Column(BigInteger, primary_key=True)
     group_id = Column(BigInteger, primary_key=True)
+
     def __repr__(self):
         return f"<ApprovedUser(user_id={self.user_id}, group_id={self.group_id})>"
 
 engine = create_engine(DATABASE_URL, echo=False)
-Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
 Session = sessionmaker(bind=engine)
-session = Session()
 
 def add_approved_user(user_id, group_id):
-    if not is_approved_user(user_id, group_id):
-        approved_user = ApprovedUser(user_id=user_id, group_id=group_id)
-        session.add(approved_user)
-        session.commit()
+    with Session() as session:
+        if not session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first():
+            approved_user = ApprovedUser(user_id=user_id, group_id=group_id)
+            session.add(approved_user)
+            session.commit()
 
 def get_approved_users(group_id):
-    users = session.query(ApprovedUser).filter_by(group_id=group_id).all()
-    user_list = []
-    for user in users:
-        user_list.append((user.user_id, user.group_id))
-    return user_list
+    with Session() as session:
+        users = session.query(ApprovedUser).filter_by(group_id=group_id).all()
+        return [(user.user_id, user.group_id) for user in users]
 
 def remove_approved_user(user_id, group_id):
-    user_to_remove = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
-    if user_to_remove:
-        session.delete(user_to_remove)
-        session.commit()
+    with Session() as session:
+        user_to_remove = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
+        if user_to_remove:
+            session.delete(user_to_remove)
+            session.commit()
 
 def is_approved_user(user_id, group_id):
-    user = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
-    return user is not None
+    with Session() as session:
+        user = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
+        return user is not None

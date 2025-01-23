@@ -4,12 +4,15 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+# Default SMTP server and port
 default_smtp_server = "smtp.gmail.com"
 default_smtp_port = 465
 
+# API credentials
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
+
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 # State management dictionary
@@ -110,5 +113,11 @@ async def send_email(event):
             await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
     except Exception as e:
         await event.respond(f"حدث خطأ غير متوقع: {e}")
+
+    # Handle invalid query ID issue gracefully
+    try:
+        await event.answer()  # Ensure callback query is answered
+    except Exception as query_error:
+        print(f"Failed to answer callback query: {query_error}")
 
 client.run_until_disconnected()

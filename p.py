@@ -4,6 +4,9 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
+default_smtp_server = "smtp.gmail.com"
+default_smtp_port = 465
+
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
@@ -93,13 +96,19 @@ async def send_email(event):
         message["To"] = recipient
         message.attach(MIMEText(body, "plain"))
 
-        for i in range(100):
-            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                server.login(sender_email, password)
+        with smtplib.SMTP_SSL(default_smtp_server, default_smtp_port) as server:
+            server.login(sender_email, password)
+            for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
+                print(f"Email {i + 1} sent successfully.")
 
         await event.respond("تم إرسال الرسالة 100 مرة بنجاح!")
     except smtplib.SMTPException as e:
-        await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
+        if "Connection unexpectedly closed" in str(e):
+            await event.respond("فشل الإرسال بسبب انقطاع الاتصال بالسيرفر. تأكد من بيانات الاتصال وأعد المحاولة.")
+        else:
+            await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
+    except Exception as e:
+        await event.respond(f"حدث خطأ غير متوقع: {e}")
 
 client.run_until_disconnected()

@@ -93,9 +93,9 @@ async def send_email(event):
         message["To"] = recipient
         message.attach(MIMEText(body, "plain"))
 
-        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-            server.login(sender_email, password)
-            for _ in range(100):
+        for i in range(100):
+            with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+                server.login(sender_email, password)
                 server.sendmail(sender_email, recipient, message.as_string())
 
         await event.respond("تم إرسال الرسالة 100 مرة بنجاح!")

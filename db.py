@@ -1,47 +1,57 @@
-from sqlalchemy import create_engine, Column, BigInteger
+from sqlalchemy import create_engine, Column, Integer, ForeignKey
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-import os
+from sqlalchemy.orm import sessionmaker, relationship
 
-DATABASE_URL = os.getenv('DATABASE_URL')
-if not DATABASE_URL:
-    raise ValueError("متغير البيئة 'DATABASE_URL' غير موجود. تأكد من تعيينه بشكل صحيح.")
-
+# إعداد قاعدة البيانات
 Base = declarative_base()
 
+# تعريف جدول "المستخدمين المعتمدين"
 class ApprovedUser(Base):
     __tablename__ = 'approved_users'
-    user_id = Column(BigInteger, primary_key=True)
-    group_id = Column(BigInteger, primary_key=True)
-
+    
+    user_id = Column(Integer, primary_key=True)
+    group_id = Column(Integer, primary_key=True)
+    
     def __repr__(self):
         return f"<ApprovedUser(user_id={self.user_id}, group_id={self.group_id})>"
 
-engine = create_engine(DATABASE_URL, echo=False)
+# إعداد الاتصال بقاعدة البيانات
+DATABASE_URL = "sqlite:///approved_users.db"  # يمكنك تغيير نوع قاعدة البيانات حسب الحاجة
+engine = create_engine(DATABASE_URL, echo=True)
+
+# إنشاء الجداول في قاعدة البيانات
 Base.metadata.create_all(bind=engine)
 
+# إعداد الجلسة
 Session = sessionmaker(bind=engine)
+session = Session()
 
+# دالة لإضافة مستخدم مع السماح له
 def add_approved_user(user_id, group_id):
-    with Session() as session:
-        if not session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first():
-            approved_user = ApprovedUser(user_id=user_id, group_id=group_id)
-            session.add(approved_user)
-            session.commit()
+    # التحقق إذا كان المستخدم معتمدًا بالفعل
+    existing_user = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
+    
+    if not existing_user:
+        new_user = ApprovedUser(user_id=user_id, group_id=group_id)
+        session.add(new_user)
+        session.commit()
 
-def get_approved_users(group_id):
-    with Session() as session:
-        users = session.query(ApprovedUser).filter_by(group_id=group_id).all()
-        return [(user.user_id, user.group_id) for user in users]
-
+# دالة لإزالة المستخدم من قائمة المعتمدين
 def remove_approved_user(user_id, group_id):
-    with Session() as session:
-        user_to_remove = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
-        if user_to_remove:
-            session.delete(user_to_remove)
-            session.commit()
+    user_to_remove = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
+    
+    if user_to_remove:
+        session.delete(user_to_remove)
+        session.commit()
 
+# دالة للتحقق إذا كان المستخدم معتمدًا في مجموعة معينة
 def is_approved_user(user_id, group_id):
-    with Session() as session:
-        user = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
-        return user is not None
+    user = session.query(ApprovedUser).filter_by(user_id=user_id, group_id=group_id).first()
+    return user is not None
+
+# تهيئة قاعدة البيانات عند بدء تشغيل البرنامج
+def init_db():
+    Base.metadata.create_all(bind=engine)
+
+# تهيئة قاعدة البيانات عند بدء التشغيل
+init_db()

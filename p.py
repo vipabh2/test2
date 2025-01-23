@@ -1,4 +1,7 @@
-from db import ApprovedUser, get_approved_users, remove_approved_user, add_approved_user
+from db import ApprovedUser
+from db import get_approved_users
+from db import remove_approved_user
+from db import add_approved_user
 from telethon import TelegramClient, events
 import os
 api_id = os.getenv('API_ID')      

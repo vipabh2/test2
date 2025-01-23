@@ -1,9 +1,17 @@
 from telethon import TelegramClient, events, Button
 import os
+import smtplib
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+
+# State management dictionary
+user_states = {}
+
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
 
@@ -19,60 +27,69 @@ async def start(event):
 
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
+    user_states[event.sender_id] = {'step': 'get_subject'}
     await event.respond("أرسل الموضوع (Subject) للرسالة:")
 
-    @client.on(events.NewMessage(from_user=event.sender_id))
-    async def get_subject(event_subject):
-        subject = event_subject.text
-        await event_subject.respond("أرسل نص الكليشة (Body) للرسالة:")
+@client.on(events.NewMessage)
+async def handle_message(event):
+    user_id = event.sender_id
+    if user_id not in user_states:
+        return
 
-        @client.on(events.NewMessage(from_user=event.sender_id))
-        async def get_body(event_body):
-            body = event_body.text
-            await event_body.respond("أرسل الإيميل المستلم (Recipient Email):")
+    state = user_states[user_id]
+    step = state['step']
 
-            @client.on(events.NewMessage(from_user=event.sender_id))
-            async def get_recipient(event_recipient):
-                recipient = event_recipient.text
+    if step == 'get_subject':
+        state['subject'] = event.text
+        state['step'] = 'get_body'
+        await event.respond("أرسل نص الكليشة (Body) للرسالة:")
+    elif step == 'get_body':
+        state['body'] = event.text
+        state['step'] = 'get_recipient'
+        await event.respond("أرسل الإيميل المستلم (Recipient Email):")
+    elif step == 'get_recipient':
+        state['recipient'] = event.text
+        subject = state['subject']
+        body = state['body']
+        recipient = state['recipient']
 
-                email_message = create_email_message(subject, body, recipient)
-                
-                buttons = [
-                    [Button.inline("إرسال الرسالة", b"send_email")]
-                ]
+        email_message = create_email_message(subject, body, recipient)
+        buttons = [
+            [Button.inline("إرسال الرسالة", b"send_email")]
+        ]
+        await event.respond(
+            f"تم إنشاء الرسالة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها:",
+            buttons=buttons
+        )
+        state['step'] = 'confirm_send'
 
-                await event_recipient.respond(
-                    f"تم إنشاء الرسالة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها:",
-                    buttons=buttons
-                )
+@client.on(events.CallbackQuery(data=b"send_email"))
+async def send_email(event):
+    user_id = event.sender_id
+    if user_id not in user_states or user_states[user_id]['step'] != 'confirm_send':
+        return
 
-                @client.on(events.CallbackQuery(data=b"send_email"))
-                async def send_email(event_send):
-                    try:
-                        # إعدادات SMTP هنا
-                        sender_email = "YOUR_EMAIL"
-                        password = "YOUR_PASSWORD"
+    state = user_states[user_id]
+    subject = state['subject']
+    body = state['body']
+    recipient = state['recipient']
 
-                        import smtplib
-                        from email.mime.text import MIMEText
-                        from email.mime.multipart import MIMEMultipart
+    try:
+        sender_email = os.getenv('SENDER_EMAIL')
+        password = os.getenv('EMAIL_PASSWORD')
 
-                        # إنشاء الرسالة
-                        message = MIMEMultipart("alternative")
-                        message["Subject"] = subject
-                        message["From"] = sender_email
-                        message["To"] = recipient
+        message = MIMEMultipart("alternative")
+        message["Subject"] = subject
+        message["From"] = sender_email
+        message["To"] = recipient
+        message.attach(MIMEText(body, "plain"))
 
-                        # إضافة النصوص
-                        message.attach(MIMEText(body, "plain"))
+        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
+            server.login(sender_email, password)
+            server.sendmail(sender_email, recipient, message.as_string())
 
-                        # إرسال البريد
-                        with smtplib.SMTP_SSL("smtp.gmail.com", 465) as server:
-                            server.login(sender_email, password)
-                            server.sendmail(sender_email, recipient, message.as_string())
-
-                        await event_send.respond("تم إرسال الرسالة بنجاح!")
-                    except Exception as e:
-                        await event_send.respond(f"حدث خطأ أثناء الإرسال: {e}")
+        await event.respond("تم إرسال الرسالة بنجاح!")
+    except smtplib.SMTPException as e:
+        await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
 
 client.run_until_disconnected()

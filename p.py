@@ -104,20 +104,28 @@ async def send_email(event):
         with smtplib.SMTP_SSL(default_smtp_server, default_smtp_port) as server:
             server.login(sender_email, password)
             await event.respond("جاري الإرسال...")
-            for i in range(100):
-                server.sendmail(sender_email, recipient, message.as_string())
-                successful_sends += 1
-                if successful_sends % 10 == 0:
-                    await event.edit(f"تم إرسال {successful_sends} رسالة بنجاح!")
 
-        await event.respond(f"تم إرسال الرسالة {successful_sends} مرة بنجاح")
+            for i in range(100):
+                try:
+                    server.sendmail(sender_email, recipient, message.as_string())
+                    successful_sends += 1
+                    if successful_sends % 10 == 0:
+                        await event.edit(f"تم إرسال {successful_sends} رسالة بنجاح!")
+                except smtplib.SMTPException as e:
+                    if "Daily user sending limit exceeded" in str(e):
+                        await event.respond("تم الوصول إلى الحد الأقصى للإرسال اليومي.")
+                        break
+                    else:
+                        raise e
+
+        if successful_sends > 0:
+            await event.respond(f"تم إرسال الرسالة {successful_sends} مرة بنجاح.")
+        else:
+            await event.respond("لم يتم إرسال أي رسالة.")
 
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")
-        if "Connection unexpectedly closed" in str(e):
-            await event.respond("فشل الإرسال بسبب انقطاع الاتصال بالسيرفر. تأكد من بيانات الاتصال وأعد المحاولة.")
-        else:
-            await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
+        await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
     except Exception as e:
         print(f"Exception: {e}")
         await event.respond(f"حدث خطأ غير متوقع: {e}")
@@ -126,5 +134,6 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
+
 
 client.run_until_disconnected()

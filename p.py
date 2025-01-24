@@ -4,18 +4,15 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 
-# Default SMTP server and port
 default_smtp_server = "smtp.gmail.com"
 default_smtp_port = 465
 
-# API credentials
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# State management dictionary
 user_states = {}
 
 def create_email_message(subject, body, recipient):
@@ -27,14 +24,14 @@ async def start(event):
         [Button.inline("إنشاء رسالة", b"create_message")],
     ]
     await event.respond(
-        "أهلاً بك في بوت إنشاء الرسائل! اختر أحد الخيارات أدناه:",
+        "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
         buttons=buttons
     )
 
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}
-    await event.respond("أرسل الموضوع (Subject) للرسالة:")
+    await event.respond("أرسل الموضوع (الكليشة القصيرة)")
 
 @client.on(events.NewMessage)
 async def handle_message(event):
@@ -48,19 +45,19 @@ async def handle_message(event):
     if step == 'get_subject':
         state['subject'] = event.text
         state['step'] = 'get_body'
-        await event.respond("أرسل نص الكليشة (Body) للرسالة:")
+        await event.respond("أرسل نص الكليشة (الكليشة الكبيرة)")
     elif step == 'get_body':
         state['body'] = event.text
         state['step'] = 'get_recipient'
-        await event.respond("أرسل الإيميل المستلم (Recipient Email):")
+        await event.respond("أرسل الإيميل المستلم (`abuse@telegram.org`):")
     elif step == 'get_recipient':
         state['recipient'] = event.text
         state['step'] = 'get_email'
-        await event.respond("أرسل بريدك الإلكتروني (Sender Email):")
+        await event.respond("أرسل بريدك الإلكتروني (الايميل الذي تريد منه الارسال)")
     elif step == 'get_email':
         state['sender_email'] = event.text
         state['step'] = 'get_password'
-        await event.respond("أرسل كلمة المرور (Email Password):")
+        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو):")
     elif step == 'get_password':
         state['password'] = event.text
         subject = state['subject']
@@ -74,7 +71,7 @@ async def handle_message(event):
             [Button.inline("إرسال الرسالة", b"send_email")]
         ]
         await event.respond(
-            f"تم إنشاء الرسالة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها:",
+            f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها",
             buttons=buttons
         )
         state['step'] = 'confirm_send'
@@ -101,23 +98,25 @@ async def send_email(event):
 
         with smtplib.SMTP_SSL(default_smtp_server, default_smtp_port) as server:
             server.login(sender_email, password)
-            for i in range(10):
+            
+            for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
-                print(f"Email {i + 1} sent successfully.")
 
-        await event.respond("تم إرسال الرسالة 100 مرة بنجاح!")
+        await event.respond("تم إرسال الرسالة 100 مرة بنجاح! \\N تم الإرسال")
+
     except smtplib.SMTPException as e:
+        print(f"SMTPException: {e}")
         if "Connection unexpectedly closed" in str(e):
             await event.respond("فشل الإرسال بسبب انقطاع الاتصال بالسيرفر. تأكد من بيانات الاتصال وأعد المحاولة.")
         else:
             await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
     except Exception as e:
+        print(f"Exception: {e}")
         await event.respond(f"حدث خطأ غير متوقع: {e}")
 
-    # Handle invalid query ID issue gracefully
     try:
-        await event.answer()  # Ensure callback query is answered
+        await event.answer()
     except Exception as query_error:
-        print(f"Failed to answer callback query: {query_error}")
+        print(f"Query Error: {query_error}")
 
 client.run_until_disconnected()

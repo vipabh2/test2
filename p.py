@@ -57,7 +57,7 @@ async def handle_message(event):
     elif step == 'get_email':
         state['sender_email'] = event.text
         state['step'] = 'get_password'
-        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)", buttons=[[Button.inline("إرسال الرسالة", b"send_email")]])
+        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
         state['sender_email'] = event.text
         state['step'] = 'get_password'
         await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
@@ -104,28 +104,20 @@ async def send_email(event):
         with smtplib.SMTP_SSL(default_smtp_server, default_smtp_port) as server:
             server.login(sender_email, password)
             await event.respond("جاري الإرسال...")
-
             for i in range(100):
-                try:
-                    server.sendmail(sender_email, recipient, message.as_string())
-                    successful_sends += 1
-                    if successful_sends % 10 == 0:
-                        await event.edit(f"تم إرسال {successful_sends} رسالة بنجاح!")
-                except smtplib.SMTPException as e:
-                    if "Daily user sending limit exceeded" in str(e):
-                        await event.respond("تم الوصول إلى الحد الأقصى للإرسال اليومي.")
-                        break
-                    else:
-                        raise e
+                server.sendmail(sender_email, recipient, message.as_string())
+                successful_sends += 1
+                if successful_sends % 10 == 0:
+                    await event.edit(f"تم إرسال {successful_sends} رسالة بنجاح!")
 
-        if successful_sends > 0:
-            await event.respond(f"تم إرسال الرسالة {successful_sends} مرة بنجاح.")
-        else:
-            await event.respond("لم يتم إرسال أي رسالة.")
+        await event.respond(f"تم إرسال الرسالة {successful_sends} مرة بنجاح")
 
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")
-        await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
+        if "Connection unexpectedly closed" in str(e):
+            await event.respond("فشل الإرسال بسبب انقطاع الاتصال بالسيرفر. تأكد من بيانات الاتصال وأعد المحاولة.")
+        else:
+            await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
     except Exception as e:
         print(f"Exception: {e}")
         await event.respond(f"حدث خطأ غير متوقع: {e}")
@@ -134,6 +126,5 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
-
 
 client.run_until_disconnected()

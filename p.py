@@ -104,8 +104,10 @@ async def send_email(event):
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
                 successful_sends += 1
+                if successful_sends % 10 == 0:
+                    await event.edit(f"تم إرسال {successful_sends} رسالة بنجاح!")
 
-        await event.respond(f"تم إرسال الرسالة {successful_sends} مرة بنجاح! \\N تم الإرسال")
+        await event.respond(f"تم إرسال الرسالة {successful_sends} مرة بنجاح! \n تم الإرسال")
 
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")

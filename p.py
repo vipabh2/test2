@@ -49,7 +49,7 @@ async def handle_message(event):
     elif step == 'get_body':
         state['body'] = event.text
         state['step'] = 'get_recipient'
-        await event.respond("أرسل الإيميل المستلم (`abuse@telegram.org`):")
+        await event.respond("أرسل الإيميل المستلم (`abuse@telegram.org`)")
     elif step == 'get_recipient':
         state['recipient'] = event.text
         state['step'] = 'get_email'
@@ -57,7 +57,7 @@ async def handle_message(event):
     elif step == 'get_email':
         state['sender_email'] = event.text
         state['step'] = 'get_password'
-        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو):")
+        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
     elif step == 'get_password':
         state['password'] = event.text
         subject = state['subject']
@@ -89,6 +89,8 @@ async def send_email(event):
     sender_email = state['sender_email']
     password = state['password']
 
+    successful_sends = 0
+
     try:
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
@@ -101,8 +103,9 @@ async def send_email(event):
             
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
+                successful_sends += 1
 
-        await event.respond("تم إرسال الرسالة 100 مرة بنجاح! \\N تم الإرسال")
+        await event.respond(f"تم إرسال الرسالة {successful_sends} مرة بنجاح! \\N تم الإرسال")
 
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")

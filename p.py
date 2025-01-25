@@ -13,12 +13,15 @@ bot_token = os.getenv('BOT_TOKEN')
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 user_states = {}
+isInfo = None
 
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
+    global isInfo
+    isInfo = None
     buttons = [
         [Button.inline("إنشاء رسالة", b"create_message")],
     ]
@@ -26,7 +29,6 @@ async def start(event):
         "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
         buttons=buttons
     )
-
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}
@@ -34,6 +36,7 @@ async def create_message(event):
 
 @client.on(events.NewMessage)
 async def handle_message(event):
+    global isInfo
     user_id = event.sender_id
     if user_id not in user_states:
         return
@@ -67,7 +70,11 @@ async def handle_message(event):
         recipient = state['recipient']
         sender_email = state['sender_email']
         password = state['password']
-
+        if not subject or not body or not recipient or not sender_email or not password:
+            await event.respond("حدث خطأ أثناء جمع البيانات. يرجى المحاولة مرة أخرى.")
+            isInfo = False
+        else:
+            isInfo = True
         email_message = create_email_message(subject, body, recipient)
         buttons = [
             [Button.inline("إرسال الرسالة", b"send_email")]
@@ -83,7 +90,6 @@ async def send_email(event):
     user_id = event.sender_id
     if user_id not in user_states or user_states[user_id]['step'] != 'confirm_send':
         return
-
     state = user_states[user_id]
     subject = state['subject']
     body = state['body']
@@ -101,7 +107,6 @@ async def send_email(event):
             server.login(sender_email, password)
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
-                # await event.respond(f"جاري الإرسال... {i+1}/100")
                 await event.edit(f"تم الإرسال {i+1} بنجاح")
                 await asyncio.sleep(1)
     except smtplib.SMTPException as e:
@@ -118,5 +123,12 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
-
+@client.on(events.NewMessage(pattern='/send'))
+async def send(event):
+    global isInfo
+    if isInfo == False:
+        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
+    elif isInfo == True:
+        await event.respond("تم الارسال بنجاح")
+        send_email(event)
 client.run_until_disconnected()

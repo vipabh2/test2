@@ -29,6 +29,8 @@ async def start(event):
 @client.on(events.CallbackQuery(data=b"save_message"))
 async def save_message(event):
     id = event.sender_id
+    if id not in user_states:
+        user_states[id] = {'step': 'get_subject'}
     state = user_states[id]
     step = state['step']
     if step == 'get_subject':

@@ -1,8 +1,9 @@
 from telethon import TelegramClient, events, Button
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-from database import Message
-import smtplib, os
+from database import Message, store_unique_message
+import smtplib
+import os
 
 default_smtp_server = "smtp.gmail.com"
 default_smtp_port = 465
@@ -12,6 +13,7 @@ api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN') 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 user_states = {}
+
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
 
@@ -25,7 +27,7 @@ async def start(event):
         "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
         buttons=buttons
     )
-#تحفظ في قاعدة البيانات    
+
 @client.on(events.CallbackQuery(data=b"save_message"))
 async def save_message(event):
     id = event.sender_id
@@ -49,9 +51,6 @@ async def save_message(event):
         state['sender_email'] = event.text
         state['step'] = 'get_password'
         await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
-        state['sender_email'] = event.text
-        state['step'] = 'get_password'
-        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
     elif step == 'get_password':
         state['password'] = event.text
         subject = state['subject']
@@ -68,14 +67,8 @@ async def save_message(event):
             buttons=buttons
         )
         state['step'] = 'confirm_send'
-        Message = Message(
-            subject=subject,
-            body=body,
-            recipient=recipient,
-            sender_email=sender_email,
-            password=password
-        )
-        Message.save()
+        store_unique_message(id, subject, body, recipient, sender_email, password)
+
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}
@@ -104,9 +97,6 @@ async def handle_message(event):
         state['sender_email'] = event.text
         state['step'] = 'get_password'
         await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
-        state['sender_email'] = event.text
-        state['step'] = 'get_password'
-        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
     elif step == 'get_password':
         state['password'] = event.text
         subject = state['subject']
@@ -123,7 +113,7 @@ async def handle_message(event):
             buttons=buttons
         )
         state['step'] = 'confirm_send'
-        
+
 @client.on(events.CallbackQuery(data=b"send_email"))
 async def send_email(event):
     user_id = event.sender_id
@@ -164,4 +154,5 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
+
 client.run_until_disconnected()

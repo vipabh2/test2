@@ -104,14 +104,10 @@ async def send_email(event):
             server.login(sender_email, password)
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
-                await event.respond("جاري الإرسال...")
+                await event.respond(f"جاري الإرسال... {i+1}/100")
+                await asyncio.sleep(1)
+                await event.edit(f"تم الإرسال {i+1} بنجاح")
                 successful_sends += 1
-                if successful_sends % 10 == 0:
-                    await event.edit(f"تم إرسال {successful_sends} رسالة بنجاح!")
-                    asyncio.sleep(1)
-                    await event.edit("تم الارسال 1 بنجاح")
-        await event.respond(f"تم إرسال الرسالة {successful_sends} مرة بنجاح")
-
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")
         if "Connection unexpectedly closed" in str(e):

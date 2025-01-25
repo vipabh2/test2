@@ -1,8 +1,7 @@
 from telethon import TelegramClient, events, Button
-import os
-import smtplib
-from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import os, asyncio, smtplib
 
 default_smtp_server = "smtp.gmail.com"
 default_smtp_port = 465
@@ -103,13 +102,14 @@ async def send_email(event):
 
         with smtplib.SMTP_SSL(default_smtp_server, default_smtp_port) as server:
             server.login(sender_email, password)
-            await event.respond("جاري الإرسال...")
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
+                await event.respond("جاري الإرسال...")
                 successful_sends += 1
                 if successful_sends % 10 == 0:
                     await event.edit(f"تم إرسال {successful_sends} رسالة بنجاح!")
-
+                    asyncio.sleep(1)
+                    await event.edit("تم الارسال 1 بنجاح")
         await event.respond(f"تم إرسال الرسالة {successful_sends} مرة بنجاح")
 
     except smtplib.SMTPException as e:

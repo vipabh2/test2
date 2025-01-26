@@ -6,9 +6,9 @@ import os, asyncio, smtplib
 default_smtp_server = "smtp.gmail.com"
 default_smtp_port = 465
 
-api_id = os.getenv('API_ID')      
-api_hash = os.getenv('API_HASH')  
-bot_token = os.getenv('BOT_TOKEN') 
+api_id = os.getenv('API_ID')
+api_hash = os.getenv('API_HASH')
+bot_token = os.getenv('BOT_TOKEN')
 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
@@ -29,6 +29,7 @@ async def start(event):
         "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
         buttons=buttons
     )
+
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}
@@ -57,9 +58,6 @@ async def handle_message(event):
         state['step'] = 'get_email'
         await event.respond("أرسل بريدك الإلكتروني (الايميل الذي تريد منه الارسال)")
     elif step == 'get_email':
-        state['sender_email'] = event.text
-        state['step'] = 'get_password'
-        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
         state['sender_email'] = event.text
         state['step'] = 'get_password'
         await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
@@ -123,7 +121,7 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
-        
+
 @client.on(events.NewMessage(pattern='/send'))
 async def send(event):
     global isInfo
@@ -131,5 +129,6 @@ async def send(event):
         await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
     elif isInfo == True:
         await event.respond("تم الارسال بنجاح")
-        send_email(event)
+        await send_email(event)  # إضافة await هنا
+
 client.run_until_disconnected()

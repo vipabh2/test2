@@ -4,7 +4,7 @@ from sqlalchemy.orm import sessionmaker
 
 # تعريف قاعدة البيانات
 DATABASE_URL = "postgresql://postgres:your_password@localhost:5432/num"
-engine = create_engine(DATABASE_URL, echo=True)
+engine = create_engine(DATABASE_URL, echo=False)
 
 # تعريف Base للنماذج
 Base = declarative_base()

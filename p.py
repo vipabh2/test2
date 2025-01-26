@@ -112,14 +112,16 @@ async def send_email(event):
                 await asyncio.sleep(1)
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")
-        if "Connection unexpectedly closed" in str(e):
+        if "Username and Password not accepted" in str(e):
+            await event.respond("فشل الإرسال بسبب بيانات الاعتماد غير صحيحة. تأكد من البريد الإلكتروني وكلمة المرور وأعد المحاولة.")
+        elif "Connection unexpectedly closed" in str(e):
             await event.respond("فشل الإرسال بسبب انقطاع الاتصال بالسيرفر. تأكد من بيانات الاتصال وأعد المحاولة.")
         else:
             await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
     except Exception as e:
         print(f"Exception: {e}")
         await event.respond(f"حدث خطأ غير متوقع: {e}")
-
+        await event.respond("تمت العملية بنجاح")
     try:
         await event.answer()
     except Exception as query_error:

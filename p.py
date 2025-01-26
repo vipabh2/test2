@@ -18,30 +18,20 @@ async def fliby(event):
     sender = await event.get_sender()
     p1 = event.sender_id
     n1 = sender.first_name
-    
-    await event.reply(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.")
+    await event.reply(f"عزيزي {n1} جاري تسجيلك في لعبة فليبي.",
+                      buttons=[[Button.inline("صورة", b"pic")]],
+                      buttons=[[Button.inline("كتابة", b"text")]]
+                      )
     await asyncio.sleep(3)
-    
-    await event.respond(
-        f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.",
-        buttons=[[Button.inline("أنا", b"pl2")]]
-    )
-
-@ABH.on(events.CallbackQuery(data=b"pl2"))
-async def pl2(event):
-    global head, tail, p1, p2
-    sender = await event.get_sender()
+    await event.respond(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.")
+@ABH.on(events.CallbackQuery(data=b"pic"))
+async def pic(event):
+    global p1, p2
     p2 = event.sender_id
-    n2 = sender.first_name
-    
-    head = random.choice([p1, p2])
-    tail = p1 if head == p2 else p2
-    n_h = (await ABH.get_entity(p1)).first_name
-    n_t = (await ABH.get_entity(p2)).first_name
-    await event.respond(f"عزيزي {n2} تم تسجيلك في لعبة فليبي.")
-    await asyncio.sleep(3)
-    await event.respond(f"اللاعب الأول هو {n_h} واللاعب الثاني هو {n_t}.")
-    await asyncio.sleep(3)
-    winner = random.choice([head, tail])
-    await event.respond(f"الفائز هو {winner} 🎉")
+    if p1 == p2:
+        await event.respond("لا يمكنك اللعب مع نفسك.", alret=True)
+        return
+    if not p1 or p2:
+        await event.respond("لا يوجد لاعب غيرك", alret=True)
+        return
 ABH.run_until_disconnected()

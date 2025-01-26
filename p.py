@@ -138,7 +138,6 @@ async def send(event):
     if state.get('isInfo') == False:
         await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
     elif state.get('isInfo') == True:
-        await event.respond("تم الارسال بنجاح")
         await send_email(event)
     else:
         await event.respond("حدث خطأ غير متوقع. \n حاول مره اخرئ مع /start")

@@ -7,6 +7,7 @@ bot_token = os.getenv('BOT_TOKEN')
 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
+
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
     builder = event.builder
@@ -33,15 +34,15 @@ async def inline_query_handler(event):
                 )
             except Exception as e:
                 result = builder.article(
-                    title='لرؤية المزيد حول الهمس',
-                    description="همس",
-                    text=f'حدث خطأ أثناء إنشاء الرسالة: {str(e)}'
+                    title='حدث خطأ',
+                    description="حدث خطأ أثناء إنشاء الهمسة",
+                    text=f'خطأ: {str(e)}. يرجى المحاولة مرة أخرى لاحقًا.'
                 )
         else:
             result = builder.article(
                 title='خطأ في التنسيق',
                 description="يرجى استخدام التنسيق الصحيح: @username <message>",
-                text='التنسيق غير صحيح، يرجى إرسال الهمسة بالتنسيق الصحيح: @username <message>'
+                text='التنسيق غير صحيح. يرجى إرسال الهمسة بالتنسيق التالي: @username <message>'
             )
         await event.answer([result])
 
@@ -65,13 +66,12 @@ async def callback_query_handler(event):
             await event.answer(f'حدث خطأ: {str(e)}', alert=True)
 
 def store_whisper(whisper_id, sender_id, username, message):
-    # Store the whisper details in a database or a file
+    # Storing whisper details can be handled here with actual database or logging
     print(f"Storing whisper: {whisper_id}, {sender_id}, {username}, {message}")
 
 def get_whisper(whisper_id):
-    # Retrieve the whisper details from a database or a file
+    # Retrieve whisper details (for example, from a database or log)
     print(f"Retrieving whisper: {whisper_id}")
     return None
-
 
 client.run_until_disconnected()

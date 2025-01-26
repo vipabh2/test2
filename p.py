@@ -2,6 +2,7 @@ from telethon import TelegramClient, events, Button
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 import os, asyncio, smtplib
+from telethon.errors import MessageIdInvalidError
 
 default_smtp_server = "smtp.gmail.com"
 default_smtp_port = 465
@@ -20,7 +21,7 @@ def create_email_message(subject, body, recipient):
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
     user_id = event.sender_id
-    user_states[user_id] = {'step': None}
+    user_states[user_id] = {'step': None, 'isInfo': None}
     buttons = [
         [Button.inline("إنشاء رسالة", b"create_message")],
     ]
@@ -104,7 +105,10 @@ async def send_email(event):
             server.login(sender_email, password)
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
-                await event.edit(f"تم الإرسال {i+1} بنجاح")
+                try:
+                    await event.edit(f"تم الإرسال {i+1} بنجاح")
+                except MessageIdInvalidError:
+                    await event.respond(f"تم الإرسال {i+1} بنجاح")
                 await asyncio.sleep(1)
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")

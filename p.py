@@ -1,7 +1,5 @@
-# bot.py
-
 from telethon import TelegramClient, events, Button
-from db import store_whisper, get_whisper  # استيراد دوال قاعدة البيانات
+from models import store_whisper, get_whisper  # استيراد الدوال من ملف models.py
 
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
@@ -13,6 +11,7 @@ async def inline_query_handler(event):
     builder = event.builder
     query = event.text
     sender = event.sender_id
+
     if query.strip(): 
         parts = query.split(' ')
         if len(parts) >= 2: 
@@ -24,9 +23,9 @@ async def inline_query_handler(event):
             
             try:
                 reciver = await client.get_entity(username)  # الحصول على ID المستلم
-                reciver_id = reciver.id
+                reciver_id = reciver.id  # الحصول على ID المستلم
                 whisper_id = f"{sender}:{reciver_id}"  # إنشاء معرف خاص بالهمسة
-                store_whisper(whisper_id, sender, reciver_id, username, message)  # تخزين الهمسة في قاعدة البيانات
+                store_whisper(whisper_id, sender, reciver_id, username, message)
 
                 result = builder.article(
                     title='اضغط لارسال الهمسة',
@@ -53,7 +52,7 @@ async def callback_query_handler(event):
     if data.startswith('send:'):
         _, username, message, sender_id, whisper_id = data.split(':', 4)
         try:
-            whisper = get_whisper(whisper_id)  # استرجاع الهمسة من قاعدة البيانات
+            whisper = get_whisper(whisper_id)
 
             if whisper:
                 # التحقق من أن الشخص الذي يطلب الهمسة هو إما المرسل أو المستلم

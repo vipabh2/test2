@@ -37,6 +37,10 @@ async def emails(event):
         [Button.inline("الايميل الثالث", b"email3")],
         [Button.inline("المطور", b"dev")]
     ]
+    await event.respond(
+        "اختر الايميل الذي تريد استخدامه",
+        buttons=buttons
+    )
 @client.on(events.CallbackQuery(data=b"email1"))
 async def emails(event):
     global subject, body, recipient, sender_email, password

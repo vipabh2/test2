@@ -43,7 +43,14 @@ async def emails(event):
     )
 @client.on(events.CallbackQuery(data=b"email1"))
 async def emails(event):
-    global subject, body, recipient, sender_email, password
+    user_id = event.sender_id
+    state = user_states.get(user_id, {})
+    subject = state.get('subject')
+    body = state.get('body')
+    recipient = state.get('recipient')
+    sender_email = state.get('sender_email')
+    password = state.get('password')
+    
     if subject and body and recipient and sender_email and password:
         email_message = create_email_message(subject, body, recipient)
         buttons = [
@@ -53,10 +60,8 @@ async def emails(event):
             f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها",
             buttons=buttons
         )
-        state = user_states[user_id]
-        step = state['step']
         state['step'] = 'confirm_send'
-        user_id = event.sender_id
+    else:
         user_states[user_id] = {'step': 'get_subject'}
         await event.respond("ارسل الكلايش لحفظها مؤقتاً \n ربما تحذف بعد فترة")
         await time.sleep(3)
@@ -93,11 +98,6 @@ async def handle_message(event):
         recipient = state['recipient']
         sender_email = state['sender_email']
         password = state['password']
-        if not subject or not body or not recipient or not sender_email or not password:
-            await event.respond("حدث خطأ أثناء جمع البيانات. يرجى المحاولة مرة أخرى.")
-            state['isInfo'] = False
-        else:
-            state['isInfo'] = True
         email_message = create_email_message(subject, body, recipient)
         buttons = [
             [Button.inline("إرسال الرسالة", b"send_email")]

@@ -1,7 +1,7 @@
 from telethon import TelegramClient, events, Button
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
-import os, asyncio, smtplib
+import os, asyncio, smtplib, time
 from telethon.errors import MessageIdInvalidError
 
 default_smtp_server = "smtp.gmail.com"
@@ -26,9 +26,83 @@ async def start(event):
         [Button.inline("إنشاء رسالة", b"create_message")],
     ]
     await event.respond(
-        "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
+        "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية ارسل /emails ل اضافه ايميل \n المطور @K_4X1",
         buttons=buttons
     )
+@client.on(events.NewMessage(pattern='/emails'))
+async def emails(event):
+    buttons = [
+        [Button.inline("الايميل الاول", b"email1")],
+        [Button.inline("الايميل الثاني", b"email2")],
+        [Button.inline("الايميل الثالث", b"email3")],
+        [Button.inline("المطور", b"dev")]
+    ]
+@client.on(events.CallbackQuery(data=b"email1"))
+async def emails(event):
+    global subject, body, recipient, sender_email, password
+    if subject and body and recipient and sender_email and password:
+        email_message = create_email_message(subject, body, recipient)
+        buttons = [
+            [Button.inline("إرسال الرسالة", b"send_email")]
+        ]
+        await event.respond(
+            f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها",
+            buttons=buttons
+        )
+        state = user_states[user_id]
+        step = state['step']
+        state['step'] = 'confirm_send'
+        user_id = event.sender_id
+        user_states[user_id] = {'step': 'get_subject'}
+        await event.respond("ارسل الكلايش لحفظها مؤقتاً \n ربما تحذف بعد فترة")
+        await time.sleep(3)
+        await event.respond("أرسل الموضوع (الكليشة القصيرة)")
+@client.on(events.NewMessage)
+async def handle_message(event):
+    user_id = event.sender_id
+    if user_id not in user_states:
+        return
+
+    state = user_states[user_id]
+    step = state['step']
+
+    if step == 'get_subject':
+        state['subject'] = event.text
+        state['step'] = 'get_body'
+        await event.respond("أرسل نص الكليشة (الكليشة الكبيرة)")
+    elif step == 'get_body':
+        state['body'] = event.text
+        state['step'] = 'get_recipient'
+        await event.respond("أرسل الإيميل المستلم (`abuse@telegram.org`)")
+    elif step == 'get_recipient':
+        state['recipient'] = event.text
+        state['step'] = 'get_email'
+        await event.respond("أرسل بريدك الإلكتروني (الايميل الذي تريد منه الارسال)")
+    elif step == 'get_email':
+        state['sender_email'] = event.text
+        state['step'] = 'get_password'
+        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
+    elif step == 'get_password':
+        state['password'] = event.text
+        subject = state['subject']
+        body = state['body']
+        recipient = state['recipient']
+        sender_email = state['sender_email']
+        password = state['password']
+        if not subject or not body or not recipient or not sender_email or not password:
+            await event.respond("حدث خطأ أثناء جمع البيانات. يرجى المحاولة مرة أخرى.")
+            state['isInfo'] = False
+        else:
+            state['isInfo'] = True
+        email_message = create_email_message(subject, body, recipient)
+        buttons = [
+            [Button.inline("إرسال الرسالة", b"send_email")]
+        ]
+        await event.respond(
+            f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها",
+            buttons=buttons
+        )
+        state['step'] = 'confirm_send'
 
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
@@ -126,20 +200,5 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
-
-@client.on(events.NewMessage(pattern='/send'))
-async def send(event):
-    user_id = event.sender_id
-    if user_id not in user_states:
-        await event.respond("حدث خطأ غير متوقع. \n حاول مره اخرئ مع /start")
-        return
-
-    state = user_states[user_id]
-    if state.get('isInfo') == False:
-        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
-    elif state.get('isInfo') == True:
-        await send_email(event)
-    else:
-        await event.respond("حدث خطأ غير متوقع. \n حاول مره اخرئ مع /start")
-
+        
 client.run_until_disconnected()

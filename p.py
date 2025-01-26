@@ -1,31 +1,63 @@
 from telethon import TelegramClient, events, Button
-from db import store_whisper, get_whisper  # استيراد الدوال من ملف models.py
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy import create_engine
 
+# إعدادات قاعدة البيانات
+DATABASE_URL = "postgresql://postgres:your_password@localhost:5432/num"
+engine = create_engine(DATABASE_URL, echo=True)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# تعريف قاعدة البيانات
+Base = declarative_base()
+
+# تعريف نموذج (Model) للهمسات
+class Whisper(Base):
+    __tablename__ = 'whispers'
+
+    whisper_id = Column(String, primary_key=True)
+    sender_id = Column(Integer)
+    reciver_id = Column(Integer)
+    username = Column(String)
+    message = Column(String)
+
+Base.metadata.create_all(engine)
+
+# إعدادات البوت
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
+# دالة لتخزين الهمسات في قاعدة البيانات
+def store_whisper(whisper_id, sender_id, reciver_id, username, message):
+    whisper = Whisper(whisper_id=whisper_id, sender_id=sender_id, reciver_id=reciver_id, username=username, message=message)
+    session.add(whisper)
+    session.commit()
+
+# دالة لاسترجاع الهمسة من قاعدة البيانات
+def get_whisper(whisper_id):
+    return session.query(Whisper).filter_by(whisper_id=whisper_id).first()
+
+# معالجة الاستعلامات الواردة من البوت
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
     builder = event.builder
     query = event.text
     sender = event.sender_id
-
-    if query.strip(): 
+    if query.strip():
         parts = query.split(' ')
-        if len(parts) >= 2: 
-            message = ' '.join(parts[:-1]) 
-            username = parts[-1] 
-            
+        if len(parts) >= 2:
+            message = ' '.join(parts[:-1])
+            username = parts[-1]
+
             if not username.startswith('@'):
                 username = f'@{username}'
-            
+
             try:
-                reciver = await client.get_entity(username)  # الحصول على ID المستلم
-                reciver_id = reciver.id  # الحصول على ID المستلم
-                whisper_id = f"{sender}:{reciver_id}"  # إنشاء معرف خاص بالهمسة
-                store_whisper(whisper_id, sender, reciver_id, username, message)
+                reciver_id = await client.get_entity(username)  # الحصول على ID المستلم
+                whisper_id = f"{sender}:{reciver_id.id}"  # إنشاء معرف خاص بالهمسة
+                store_whisper(whisper_id, sender, reciver_id.id, username, message)
 
                 result = builder.article(
                     title='اضغط لارسال الهمسة',

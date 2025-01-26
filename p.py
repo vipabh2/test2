@@ -19,19 +19,20 @@ async def fliby(event):
     p1 = event.sender_id
     n1 = sender.first_name
     await event.reply(f"عزيزي {n1} جاري تسجيلك في لعبة فليبي.",
-                      buttons=[[Button.inline("صورة", b"pic")]],
-                      buttons=[[Button.inline("كتابة", b"text")]]
+                      buttons=[[Button.inline("صورة", b"pic"), Button.inline("كتابة", b"text")]]
                       )
     await asyncio.sleep(3)
     await event.respond(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.")
+
 @ABH.on(events.CallbackQuery(data=b"pic"))
 async def pic(event):
     global p1, p2
     p2 = event.sender_id
     if p1 == p2:
-        await event.respond("لا يمكنك اللعب مع نفسك.", alret=True)
+        await event.respond("لا يمكنك اللعب مع نفسك.", alert=True)
         return
-    if not p1 or p2:
-        await event.respond("لا يوجد لاعب غيرك", alret=True)
+    if not p1 or not p2:
+        await event.respond("لا يوجد لاعب غيرك", alert=True)
         return
+
 ABH.run_until_disconnected()

@@ -36,9 +36,10 @@ async def pl2(event):
     
     head = random.choice([p1, p2])
     tail = p1 if head == p2 else p2
-    
+    n_h = (await ABH.get_entity(p1)).first_name
+    n_t = (await ABH.get_entity(p2)).first_name
     await event.respond(f"عزيزي {n2} تم تسجيلك في لعبة فليبي.")
     await asyncio.sleep(3)
-    await event.respond(f"اللاعب الأول هو {head} واللاعب الثاني هو {tail}.")
+    await event.respond(f"اللاعب الأول هو {n_h} واللاعب الثاني هو {n_t}.")
 
 ABH.run_until_disconnected()

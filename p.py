@@ -37,3 +37,6 @@ async def pl2(event):
     )
     await time.sleep(3)
     await event.respond(f"الاعب الاول هو {head} والاعب الثاني هو {Tail}")
+
+
+ABH.run_until_disconnected()

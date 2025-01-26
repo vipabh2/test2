@@ -48,19 +48,27 @@ async def account(event):
     return
 @client.on(events.CallbackQuery(data=b"email1"))
 async def email1(event):
-    global email1
-    if not subject or not body or not recipient or not sender_email or not password:
-        user_id = event.sender_id
-        state = user_states[user_id]
-        step = state['step']
-        if step == 'get_subject':
-            state['subject'] = event.text
-            state['step'] = 'get_body'
-            await event.respond("أرسل نص الكليشة (الكليشة الكبيرة)")
-        elif step == 'get_body':
-            state['body'] = event.text
-            state['step'] = 'get_recipient'
-            await event.respond("أرسل الإيميل المستلم (`abuse@telegram.org`)")
+    user_id = event.sender_id
+    user_states[user_id] = {'step': 'get_subject'}
+    await event.respond("أرسل الموضوع (الكليشة القصيرة)")
+
+@client.on(events.NewMessage)
+async def handle_message(event):
+    user_id = event.sender_id
+    if user_id not in user_states:
+        return
+
+    state = user_states[user_id]
+    step = state['step']
+
+    if step == 'get_subject':
+        state['subject'] = event.text
+        state['step'] = 'get_body'
+        await event.respond("أرسل نص الكليشة (الكليشة الكبيرة)")
+    elif step == 'get_body':
+        state['body'] = event.text
+        state['step'] = 'get_recipient'
+        await event.respond("أرسل الإيميل المستلم (`abuse@telegram.org`)")
     elif step == 'get_recipient':
         state['recipient'] = event.text
         state['step'] = 'get_email'
@@ -76,6 +84,20 @@ async def email1(event):
         recipient = state['recipient']
         sender_email = state['sender_email']
         password = state['password']
+        if not subject or not body or not recipient or not sender_email or not password:
+            await event.respond("حدث خطأ أثناء جمع البيانات. يرجى المحاولة مرة أخرى.")
+            state['isInfo'] = False
+        else:
+            state['isInfo'] = True
+        email_message = create_email_message(subject, body, recipient)
+        buttons = [
+            [Button.inline("إرسال الرسالة", b"send_email")]
+        ]
+        await event.respond(
+            f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها",
+            buttons=buttons
+        )
+        state['step'] = 'confirm_send'
     
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):

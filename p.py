@@ -32,11 +32,10 @@ async def inline_query_handler(event):
                     buttons=[Button.inline(text='tap to see', data=f'send:{username}:{message}:{event.sender_id}:{whisper_id}')]
                 )
             except Exception as e:
-                print(f"Error storing whisper: {e}")
                 result = builder.article(
                     title='لرؤية المزيد حول الهمس',
                     description="همس",
-                    text='اضغط هنا'
+                    text=f'حدث خطأ أثناء إنشاء الرسالة: {str(e)}'
                 )
         else:
             result = builder.article(
@@ -68,12 +67,11 @@ async def callback_query_handler(event):
 def store_whisper(whisper_id, sender_id, username, message):
     # Store the whisper details in a database or a file
     print(f"Storing whisper: {whisper_id}, {sender_id}, {username}, {message}")
-    # Placeholder for actual storage logic
 
 def get_whisper(whisper_id):
     # Retrieve the whisper details from a database or a file
     print(f"Retrieving whisper: {whisper_id}")
-    # Placeholder for actual retrieval logic
     return None
+
 
 client.run_until_disconnected()

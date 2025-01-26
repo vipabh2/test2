@@ -1,22 +1,12 @@
+# bot.py
 from telethon import TelegramClient, events, Button
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy import create_engine
+from db import store_whisper, get_whisper  # استيراد الدوال من db.py
 
 # إعدادات البوت
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
-
-# دالة لتخزين الهمسات في قاعدة البيانات
-def store_whisper(whisper_id, sender_id, reciver_id, username, message):
-    whisper = Whisper(whisper_id=whisper_id, sender_id=sender_id, reciver_id=reciver_id, username=username, message=message)
-    session.add(whisper)
-    session.commit()
-
-# دالة لاسترجاع الهمسة من قاعدة البيانات
-def get_whisper(whisper_id):
-    return session.query(Whisper).filter_by(whisper_id=whisper_id).first()
 
 # معالجة الاستعلامات الواردة من البوت
 @client.on(events.InlineQuery)

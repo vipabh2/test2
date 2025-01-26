@@ -41,5 +41,7 @@ async def pl2(event):
     await event.respond(f"عزيزي {n2} تم تسجيلك في لعبة فليبي.")
     await asyncio.sleep(3)
     await event.respond(f"اللاعب الأول هو {n_h} واللاعب الثاني هو {n_t}.")
-
+    await asyncio.sleep(3)
+    winner = random.choice([head, tail])
+    await event.respond(f"الفائز هو {winner} 🎉")
 ABH.run_until_disconnected()

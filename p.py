@@ -1,9 +1,12 @@
 from telethon import TelegramClient, events, Button
 import os
+
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
+
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
     builder = event.builder
@@ -28,7 +31,8 @@ async def inline_query_handler(event):
                     text=f"همسة سرية إلى \n الله يثخن اللبن عمي ({username})",
                     buttons=[Button.inline(text='tap to see', data=f'send:{username}:{message}:{event.sender_id}:{whisper_id}')]
                 )
-            except Exception:
+            except Exception as e:
+                print(f"Error storing whisper: {e}")
                 result = builder.article(
                     title='لرؤية المزيد حول الهمس',
                     description="همس",
@@ -64,10 +68,12 @@ async def callback_query_handler(event):
 def store_whisper(whisper_id, sender_id, username, message):
     # Store the whisper details in a database or a file
     print(f"Storing whisper: {whisper_id}, {sender_id}, {username}, {message}")
+    # Placeholder for actual storage logic
+
 def get_whisper(whisper_id):
     # Retrieve the whisper details from a database or a file
     print(f"Retrieving whisper: {whisper_id}")
-    return None
+    # Placeholder for actual retrieval logic
     return None
 
 client.run_until_disconnected()

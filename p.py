@@ -98,7 +98,12 @@ async def handle_message(event):
             buttons=buttons
         )
         state['step'] = 'confirm_send'
-    
+    if state['isInfo'] == False:
+        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
+    elif state['isInfo'] == True:
+        await send_email(event)
+    else:
+        await event.respond("...حدث خطأ غير متوقع. \n حاول مره اخرئ مع /start")
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_id = event.sender_id

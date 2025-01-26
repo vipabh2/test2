@@ -124,11 +124,11 @@ async def send_email(event):
     except Exception as query_error:
         print(f"Query Error: {query_error}")
 @client.on(events.NewMessage(pattern='/send'))
-async def send(event):
+async def send():
     global isInfo
     if isInfo == False:
         await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
     elif isInfo == True:
         await event.respond("تم الارسال بنجاح")
-        send_email(event)
+        send_email()
 client.run_until_disconnected()

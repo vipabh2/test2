@@ -2,27 +2,6 @@ from telethon import TelegramClient, events, Button
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy import create_engine
 
-# إعدادات قاعدة البيانات
-DATABASE_URL = "postgresql://postgres:your_password@localhost:5432/num"
-engine = create_engine(DATABASE_URL, echo=True)
-Session = sessionmaker(bind=engine)
-session = Session()
-
-# تعريف قاعدة البيانات
-Base = declarative_base()
-
-# تعريف نموذج (Model) للهمسات
-class Whisper(Base):
-    __tablename__ = 'whispers'
-
-    whisper_id = Column(String, primary_key=True)
-    sender_id = Column(Integer)
-    reciver_id = Column(Integer)
-    username = Column(String)
-    message = Column(String)
-
-Base.metadata.create_all(engine)
-
 # إعدادات البوت
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"

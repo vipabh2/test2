@@ -139,6 +139,6 @@ async def send(event):
         await event.respond("تم الارسال بنجاح")
         await send_email(event)
     else:
-        await event.respond("حدث خطأ غير متوقع. \n حاول مره اخرئ مع /start")
+        await event.edit("حدث خطأ غير متوقع. \n حاول مره اخرئ مع /start")
 
 client.run_until_disconnected()

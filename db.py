@@ -2,14 +2,19 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# تعريف قاعدة البيانات
+# قاعدة البيانات (تأكد من استبدال بيانات الاتصال)
 DATABASE_URL = "postgresql://postgres:your_password@localhost:5432/num"
-engine = create_engine(DATABASE_URL, echo=False)
 
-# تعريف Base للنماذج
+# إنشاء الاتصال
+engine = create_engine(DATABASE_URL, echo=True)
+
+# إنشاء جلسة (Session)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# تعريف النموذج (Model) للهمسات
 Base = declarative_base()
 
-# تعريف نموذج (Model) للهمسات
 class Whisper(Base):
     __tablename__ = 'whispers'
 
@@ -21,10 +26,6 @@ class Whisper(Base):
 
 # إنشاء الجداول
 Base.metadata.create_all(engine)
-
-# إنشاء الجلسة
-Session = sessionmaker(bind=engine)
-session = Session()
 
 # دالة لتخزين الهمسات في قاعدة البيانات
 def store_whisper(whisper_id, sender_id, reciver_id, username, message):

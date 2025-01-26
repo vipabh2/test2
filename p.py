@@ -1,38 +1,73 @@
 from telethon import TelegramClient, events, Button
-import os, random, asyncio
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 
-ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+@client.on(events.InlineQuery)
+async def inline_query_handler(event):
+    builder = event.builder
+    query = event.text
 
-head = None
-tail = None
-p1 = None
-p2 = None
+    if query.strip(): 
+        parts = query.split(' ')
+        if len(parts) >= 2: 
+            message = ' '.join(parts[:-1]) 
+            username = parts[-1] 
+            
+            if not username.startswith('@'):
+                username = f'@{username}'
+            
+            try:
+                whisper_id = f"{event.sender_id}:{username}"
+                store_whisper(whisper_id, event.sender_id, username, message)
 
-@ABH.on(events.NewMessage(pattern='/fliby'))
-async def fliby(event):
-    global head, tail, p1, p2
-    sender = await event.get_sender()
-    p1 = event.sender_id
-    n1 = sender.first_name
-    await event.reply(f"عزيزي {n1} جاري تسجيلك في لعبة فليبي.",
-                      buttons=[[Button.inline("صورة", b"pic"), Button.inline("كتابة", b"text")]]
-                      )
-    await asyncio.sleep(3)
-    await event.respond(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.")
+                result = builder.article(
+                    title='اضغط لارسال الهمسة',
+                    description=f'إرسال الرسالة إلى {username}',
+                    text=f"همسة سرية إلى \n الله يثخن اللبن عمي ({username})",
+                    buttons=[Button.inline(text='tap to see', data=f'send:{username}:{message}:{event.sender_id}:{whisper_id}')]
+                )
+            except Exception:
+                result = builder.article(
+                    title='لرؤية المزيد حول الهمس',
+                    description="همس",
+                    text='اضغط هنا'
+                )
+        else:
+            result = builder.article(
+                title='خطأ في التنسيق',
+                description="يرجى استخدام التنسيق الصحيح: @username <message>",
+                text='التنسيق غير صحيح، يرجى إرسال الهمسة بالتنسيق الصحيح: @username <message>'
+            )
+        await event.answer([result])
 
-@ABH.on(events.CallbackQuery(data=b"pic"))
-async def pic(event):
-    global p1, p2
-    p2 = event.sender_id
-    if p1 == p2:
-        await event.respond("لا يمكنك اللعب مع نفسك.", alert=True)
-        return
-    if not p1 or not p2:
-        await event.respond("لا يوجد لاعب غيرك", alert=True)
-        return
+@client.on(events.CallbackQuery)
+async def callback_query_handler(event):
+    data = event.data.decode('utf-8')
+    if data.startswith('send:'):
+        _, username, message, sender_id, whisper_id = data.split(':', 4)
+        try:
+            whisper = get_whisper(whisper_id)
 
-ABH.run_until_disconnected()
+            if whisper:
+                if f"@{event.sender.username}" == username or str(event.sender_id) == sender_id:
+                    await event.answer(f"{whisper.message}", alert=True)
+                else:
+                    await event.answer("هذه الرسالة ليست موجهة لك!", alert=True)
+            else:
+                await event.answer("لم يتم العثور على الهمسة!", alert=True)
+
+        except Exception as e:
+            await event.answer(f'حدث خطأ: {str(e)}', alert=True)
+
+def store_whisper(whisper_id, sender_id, username, message):
+    # Store the whisper details in a database or a file
+    print(f"Storing whisper: {whisper_id}, {sender_id}, {username}, {message}")
+def get_whisper(whisper_id):
+    # Retrieve the whisper details from a database or a file
+    print(f"Retrieving whisper: {whisper_id}")
+    return None
+    return None
+
+client.run_until_disconnected()

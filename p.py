@@ -291,6 +291,7 @@ async def handle_message(event):
         )
         state['step'] = 'confirm_send'
 
+
 @client.on(events.CallbackQuery(data=b"send_email"))
 async def send_email(event):
     user_id = event.sender_id
@@ -313,26 +314,28 @@ async def send_email(event):
             server.login(sender_email, password)
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
-                try:
-                    await event.edit(f"تم الإرسال {i+1} بنجاح")
-                except MessageIdInvalidError:
-                    await event.edit(f"تم الإرسال {i+1} بنجاح")
+                await event.edit(f"تم الإرسال {i+1} بنجاح")
                 await asyncio.sleep(1)
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")
-        if "Username and Password not accepted" in str(e):
-            await event.respond("فشل الإرسال بسبب بيانات الاعتماد غير صحيحة. تأكد من البريد الإلكتروني وكلمة المرور وأعد المحاولة.")
-        elif "Connection unexpectedly closed" in str(e):
+        if "Connection unexpectedly closed" in str(e):
             await event.respond("فشل الإرسال بسبب انقطاع الاتصال بالسيرفر. تأكد من بيانات الاتصال وأعد المحاولة.")
         else:
             await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
     except Exception as e:
         print(f"Exception: {e}")
         await event.respond(f"حدث خطأ غير متوقع: {e}")
-        await event.respond("تمت العملية بنجاح")
+
     try:
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
-        
+@client.on(events.NewMessage(pattern='/send'))
+async def send(event):
+    global isInfo
+    if isInfo == False:
+        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
+    elif isInfo == True:
+        await event.respond("تم الارسال بنجاح")
+        send_email(event)
 client.run_until_disconnected()

@@ -2,9 +2,11 @@ from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-# إعداد الاتصال بقاعدة البيانات SQLite
-DATABASE_URL = "sqlite:///db.db"
+# تعريف قاعدة البيانات
+DATABASE_URL = "postgresql://postgres:your_password@localhost:5432/num"
 engine = create_engine(DATABASE_URL, echo=True)
+
+# تعريف Base للنماذج
 Base = declarative_base()
 
 # تعريف نموذج (Model) للهمسات
@@ -20,6 +22,7 @@ class Whisper(Base):
 # إنشاء الجداول
 Base.metadata.create_all(engine)
 
+# إنشاء الجلسة
 Session = sessionmaker(bind=engine)
 session = Session()
 
@@ -32,3 +35,6 @@ def store_whisper(whisper_id, sender_id, reciver_id, username, message):
 # دالة لاسترجاع الهمسة من قاعدة البيانات
 def get_whisper(whisper_id):
     return session.query(Whisper).filter_by(whisper_id=whisper_id).first()
+
+# إغلاق الجلسة بعد الانتهاء
+session.close()

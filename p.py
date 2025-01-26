@@ -5,11 +5,13 @@ api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
+# تخزين الهمسات في الذاكرة
 whispers = {}
 
-def store_whisper(whisper_id, sender_id, username, message):
+def store_whisper(whisper_id, sender_id, reciver_id, username, message):
     whispers[whisper_id] = {
         'sender_id': sender_id,
+        'reciver_id': reciver_id,
         'username': username,
         'message': message
     }
@@ -19,7 +21,7 @@ def get_whisper(whisper_id):
 
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
-    global whispers, sender
+    global whispers
     builder = event.builder
     query = event.text
     sender = event.sender_id
@@ -33,20 +35,20 @@ async def inline_query_handler(event):
                 username = f'@{username}'
             
             try:
-                whisper_id = f"{event.sender_id}:{username}"
-                store_whisper(whisper_id, event.sender_id, username, message)
+                reciver_id = await client.get_entity(username)  # الحصول على ID المستلم
+                whisper_id = f"{sender}:{reciver_id.id}"  # إنشاء معرف خاص بالهمسة
+                store_whisper(whisper_id, sender, reciver_id.id, username, message)
 
                 result = builder.article(
                     title='اضغط لارسال الهمسة',
                     description=f'إرسال الرسالة إلى {username}',
                     text=f"همسة سرية إلى \n الله يثخن اللبن عمي ({username})",
-                    buttons=[Button.inline(text='tap to see', data=f'send:{username}:{message}:{event.sender_id}:{whisper_id}')]
-                )
-            except Exception:
+                    buttons=[Button.inline(text='tap to see', data=f'send:{username}:{message}:{sender}:{whisper_id}')])
+            except Exception as e:
                 result = builder.article(
                     title='لرؤية المزيد حول الهمس',
                     description="همس",
-                    text='اضغط هنا'
+                    text=f'خطأ: {str(e)}'
                 )
         else:
             result = builder.article(
@@ -58,12 +60,6 @@ async def inline_query_handler(event):
 
 @client.on(events.CallbackQuery)
 async def callback_query_handler(event):
-    global whispers, sender, reciver, username
-    reciver = event.username
-    if reciver != username:
-        await event.answer("هذه الرسالة ليست موجهة لك!", alert=True)
-        return
-    
     data = event.data.decode('utf-8')
     if data.startswith('send:'):
         _, username, message, sender_id, whisper_id = data.split(':', 4)
@@ -71,7 +67,8 @@ async def callback_query_handler(event):
             whisper = get_whisper(whisper_id)
 
             if whisper:
-                if sender_id == whisper['sender_id']:
+                # التحقق من أن الشخص الذي يطلب الهمسة هو إما المرسل أو المستلم
+                if event.sender_id == whisper['sender_id'] or event.sender_id == whisper['reciver_id']:
                     await event.answer(f"{whisper['message']}", alert=True)
                 else:
                     await event.answer("هذه الرسالة ليست موجهة لك!", alert=True)

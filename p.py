@@ -13,14 +13,15 @@ bot_token = os.getenv('BOT_TOKEN')
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 user_states = {}
+isInfo = None
 
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
-    user_id = event.sender_id
-    user_states[user_id] = {'step': None, 'isInfo': None}
+    global isInfo
+    isInfo = None
     buttons = [
         [Button.inline("إنشاء رسالة", b"create_message")],
     ]
@@ -31,12 +32,12 @@ async def start(event):
 
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
-    user_id = event.sender_id
-    user_states[user_id] = {'step': 'get_subject', 'isInfo': None}
+    user_states[event.sender_id] = {'step': 'get_subject'}
     await event.respond("أرسل الموضوع (الكليشة القصيرة)")
 
 @client.on(events.NewMessage)
 async def handle_message(event):
+    global isInfo
     user_id = event.sender_id
     if user_id not in user_states:
         return
@@ -69,9 +70,9 @@ async def handle_message(event):
         password = state['password']
         if not subject or not body or not recipient or not sender_email or not password:
             await event.respond("حدث خطأ أثناء جمع البيانات. يرجى المحاولة مرة أخرى.")
-            state['isInfo'] = False
+            isInfo = False
         else:
-            state['isInfo'] = True
+            isInfo = True
         email_message = create_email_message(subject, body, recipient)
         buttons = [
             [Button.inline("إرسال الرسالة", b"send_email")]
@@ -123,16 +124,13 @@ async def send_email(event):
 
 @client.on(events.NewMessage(pattern='/send'))
 async def send(event):
-    user_id = event.sender_id
-    if user_id not in user_states:
+    global isInfo
+    if isInfo == False:
         await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
-        return
-
-    state = user_states[user_id]
-    if state['isInfo'] == False:
-        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
-    elif state['isInfo'] == True:
+    elif isInfo == True:
         await event.respond("تم الارسال بنجاح")
         await send_email(event)
-
+    else:
+        await event.respond("حدث خطأ غير متوقع. \n حاول مره اخرئ مع /start")
+        
 client.run_until_disconnected()

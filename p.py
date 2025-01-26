@@ -108,7 +108,7 @@ async def send_email(event):
                 try:
                     await event.edit(f"تم الإرسال {i+1} بنجاح")
                 except MessageIdInvalidError:
-                    await event.respond(f"تم الإرسال {i+1} بنجاح")
+                    await event.edit(f"تم الإرسال {i+1} بنجاح")
                 await asyncio.sleep(1)
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")
@@ -136,9 +136,9 @@ async def send(event):
     if state.get('isInfo') == False:
         await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
     elif state.get('isInfo') == True:
-        await event.edit("تم الارسال بنجاح")
+        await event.respond("تم الارسال بنجاح")
         await send_email(event)
     else:
-        await event.edit("حدث خطأ غير متوقع. \n حاول مره اخرئ مع /start")
+        await event.respond("حدث خطأ غير متوقع. \n حاول مره اخرئ مع /start")
 
 client.run_until_disconnected()

@@ -5,7 +5,6 @@ api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# Dummy functions to simulate storing and retrieving whispers
 whispers = {}
 
 def store_whisper(whisper_id, sender_id, username, message):
@@ -20,9 +19,10 @@ def get_whisper(whisper_id):
 
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
+    global whispers, sender
     builder = event.builder
     query = event.text
-
+    sender = event.sender_id
     if query.strip(): 
         parts = query.split(' ')
         if len(parts) >= 2: 
@@ -58,7 +58,12 @@ async def inline_query_handler(event):
 
 @client.on(events.CallbackQuery)
 async def callback_query_handler(event):
-    sender_id = event.sender_id
+    global whispers, sender, reciver, username
+    reciver = event.username
+    if reciver != username:
+        await event.answer("هذه الرسالة ليست موجهة لك!", alert=True)
+        return
+    
     data = event.data.decode('utf-8')
     if data.startswith('send:'):
         _, username, message, sender_id, whisper_id = data.split(':', 4)

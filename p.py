@@ -31,6 +31,7 @@ t = f"{counter}p{B}{C}{AA}{aa}{CCC}"
 
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
+    global t
     builder = event.builder
     query = event.text
     sender = event.sender_id

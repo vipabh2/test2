@@ -19,7 +19,10 @@ class Whisper(Base):
     message = Column(String)
     timestamp = Column(String)  # لتخزين الوقت الذي تم فيه إرسال الهمسة
 
-Base.metadata.create_all(engine)
+# دالة لحذف قاعدة البيانات القديمة وإعادة إنشاء الجداول من جديد
+def reset_database():
+    Base.metadata.drop_all(engine)  # حذف الجداول
+    Base.metadata.create_all(engine)  # إعادة إنشاء الجداول
 
 Session = sessionmaker(bind=engine)
 session = Session()

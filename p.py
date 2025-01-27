@@ -51,33 +51,19 @@ async def inline_query_handler(event):
 async def callback_query_handler(event):
     data = event.data.decode('utf-8')
     if data.startswith('send:'):
+        _, username, message, sender_id, whisper_id = data.split(':', 4)
         try:
-            # تقسيم البيانات القادمة
-            _, username, message_id, sender_id, whisper_id = data.split(':', 4)
-
-            # استدعاء الهمسة باستخدام المعرف
             whisper = get_whisper(whisper_id)
 
             if whisper:
-                # التحقق من صلاحيات الوصول
                 if event.sender_id == whisper.sender_id or event.sender_id == whisper.reciver_id:
-                    # إنشاء رابط الرسالة
-                    link = f"https://t.me/{username}/{message_id}"
-
-                    # إرسال رابط الرسالة كرد
-                    await event.respond(f"رابط الهمسة: {link}")
+                    await event.answer(f"{whisper.message}", alert=True)
                 else:
-                    # المستخدم ليس مرسل الهمسة أو مستقبلها
-                    await event.respond("❌ عزيزي الحشري، هذه الهمسة ليست موجهة إليك!")
+                    await event.answer("عزيزي الحشري الهمسة ليس موجهه اليك!", alert=True)
             else:
-                # الهمسة غير موجودة
-                await event.respond("⚠️ الهمسة غير موجودة أو قد تكون محذوفة.")
-        except ValueError:
-            # إذا كان هناك خطأ في تقسيم البيانات
-            await event.respond("⚠️ البيانات غير صحيحة، تأكد من المدخلات.")
+                return
         except Exception as e:
-            # أخطاء عامة
-            await event.respond(f"🚨 حدث خطأ أثناء المعالجة: {str(e)}")
+            await event.answer(f'حدث خطأ: {str(e)}', alert=True)
 
 
 client.run_until_disconnected()

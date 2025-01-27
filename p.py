@@ -1,37 +1,16 @@
-import random
+import uuid
 from telethon import TelegramClient, events, Button
-from db import store_whisper, get_whisper
+from db import store_whisper, get_whisper  # استيراد الدوال من db.py
+
 # إعدادات البوت
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
-A = [
-    887, 7, 75, 92, 9, "xza", "xd3", "oo33", "1o33", "12ea33"
-]
-a = [
-    1, 23, 332, 721, 998, 6612, 928, "qqa", "q", "ppp", "psaw", "pjfn", "prwn"
-]
-c = [
-    313, 376, 322, 1211, 12694, "a", "q", "d", "dD", "EA", "ZA", "MC"
-]
-CC = [
-    "A", "W", "R", "RG", "LK", "EW", "EETW", "ESSA"
-]
-b = list(range(1, 125))
-f = range(1, 22)
-counter = random.randint(1, 100)
-AA = random.choice(A)
-aa = random.choice(a)
-C = random.choice(c)
-CCC = random.choice(CC)
-B = random.choice(b)
-ff = random.choice(f)
-t = f"{counter}p{B}{C}{AA}{aa}{CCC}"
 
+# معالجة الاستعلامات الواردة من البوت
 @client.on(events.InlineQuery)
 async def inline_query_handler(event):
-    global t
     builder = event.builder
     query = event.text
     sender = event.sender_id
@@ -49,9 +28,9 @@ async def inline_query_handler(event):
                 reciver_id = reciver.id  # استخراج معرف المستلم
                 
                 # إنشاء معرف فريد للهمسة باستخدام uuid4
-                whisper_id = t
+                whisper_id = str(uuid.uuid4())
                 
-                # تخزين الهمسة في قاعدة البيانات
+                # تخزين الهمسة في قاعدة البيانات مع الوقت
                 store_whisper(whisper_id, sender, reciver_id, username, message)
 
                 result = builder.article(
@@ -89,7 +68,7 @@ async def callback_query_handler(event):
 
             if whisper:
                 if event.sender_id == whisper.sender_id or event.sender_id == whisper.reciver_id:
-                    await event.answer(f"\n\n{whisper.message}", alert=True)
+                    await event.answer(f"\n\n{whisper.message}\nتم إرسال الهمسة في: {whisper.timestamp}", alert=True)
                 else:
                     await event.answer(" عزيزي الحشري، هذه الهمسة ليست موجهة إليك!", alert=True)
             else:

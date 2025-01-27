@@ -40,7 +40,7 @@ async def inline_query_handler(event):
                     buttons=[
                         Button.inline(
                             text='📩 اضغط لعرض الهمسة', 
-                            data=f'send:{username}:{message}:{sender}:{whisper_id}'
+                            data=f'send:{whisper_id}'  # إرسال معرف الهمسة فقط
                         )
                     ]
                 )
@@ -63,7 +63,7 @@ async def callback_query_handler(event):
     data = event.data.decode('utf-8')
     if data.startswith('send:'):
         try:
-            _, username, message, sender_id, whisper_id = data.split(':', 4)
+            whisper_id = data.split(':')[1]  # استخراج معرف الهمسة فقط
             whisper = get_whisper(whisper_id)
 
             if whisper:
@@ -76,4 +76,5 @@ async def callback_query_handler(event):
         except Exception as e:
             await event.answer(f"🚨 حدث خطأ أثناء معالجة الطلب: {str(e)}", alert=True)
 
+# تشغيل البوت حتى يتم إيقافه يدويًا
 client.run_until_disconnected()

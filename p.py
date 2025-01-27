@@ -60,10 +60,9 @@ async def callback_query_handler(event):
                 if event.sender_id == whisper.sender_id or event.sender_id == whisper.reciver_id:
                     await event.answer(f"{whisper.message}", alert=True)
                 else:
-                    await event.answer("هذه الرسالة ليست موجهة لك!", alert=True)
+                    await event.answer("عزيزي الحشري الهمسة ليس موجهه اليك!", alert=True)
             else:
-                await event.answer("لم يتم العثور على الهمسة!", alert=True)
-
+                return
         except Exception as e:
             await event.answer(f'حدث خطأ: {str(e)}', alert=True)
 

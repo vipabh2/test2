@@ -35,6 +35,5 @@ def store_whisper(whisper_id, sender_id, reciver_id, username, message):
         session.rollback()  # إذا حدث خطأ، تراجع عن العملية
         print(f"حدث خطأ أثناء إضافة الهمسة: {str(e)}")
 
-# دالة لاسترجاع الهمسة من قاعدة البيانات
 def get_whisper(whisper_id):
-    return session.query(Whisper).filter_by(whisper_id=whisper_id).all()
+    return session.query(Whisper).filter_by(whisper_id=whisper_id).first()  # تعديل هنا

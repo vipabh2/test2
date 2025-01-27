@@ -47,7 +47,6 @@ async def inline_query_handler(event):
             )
         await event.answer([result])
 
-from telethon import events
 
 @client.on(events.CallbackQuery)
 async def callback_query_handler(event):
@@ -63,14 +62,14 @@ async def callback_query_handler(event):
                     # تكوين رابط الرسالة
                     link = f"https://t.me/{username}/{message_id}"
                     
-                    # إرسال الرابط كرد
-                    await event.answer(f"رابط الرسالة: {link}", alert=True)
+                    # إرسال الرابط كرسالة في المحادثة
+                    await event.respond(f"رابط الرسالة: {link}")
                 else:
-                    await event.answer("عزيزي الحشري، الهمسة ليست موجهة إليك!", alert=True)
+                    await event.respond("عزيزي الحشري، الهمسة ليست موجهة إليك!")
             else:
-                await event.answer("الهمسة غير موجودة أو قد تكون محذوفة!", alert=True)
+                await event.respond("الهمسة غير موجودة أو قد تكون محذوفة!")
         except Exception as e:
-            await event.answer(f'حدث خطأ: {str(e)}', alert=True)
+            await event.respond(f'حدث خطأ: {str(e)}')
 
 
 client.run_until_disconnected()

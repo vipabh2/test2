@@ -1,45 +1,90 @@
-from sqlalchemy import create_engine, Column, Integer, String
-from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
+import uuid  # استيراد مكتبة uuid
+from telethon import TelegramClient, events, Button
+from db import store_whisper, get_whisper  # استيراد الدوال من db.py
 
-# إعداد قاعدة البيانات
-DATABASE_URL = "sqlite:///db.sqlite3"
-engine = create_engine(DATABASE_URL, echo=False)
+# إعدادات البوت
+api_id = "20464188"
+api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
+bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
+client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-Base = declarative_base()
+# معالجة الاستعلامات الواردة من البوت
+@client.on(events.InlineQuery)
+async def inline_query_handler(event):
+    builder = event.builder
+    query = event.text
+    sender = event.sender_id
+    if query.strip():
+        parts = query.split(' ')
+        if len(parts) >= 2:
+            message = ' '.join(parts[:-1])
+            username = parts[-1]
 
-# تعريف جدول الهمسات
-class Whisper(Base):
-    __tablename__ = 'whispers'
+            if not username.startswith('@'):
+                username = f'@{username}'
 
-    id = Column(Integer, primary_key=True, autoincrement=True)  # مفتاح أساسي فريد
-    whisper_id = Column(String)  # معرف الهمسة (يمكن أن يكون مكررًا)
-    sender_id = Column(Integer)  # معرف المرسل
-    reciver_id = Column(Integer)  # معرف المستقبل
-    username = Column(String)  # اسم المستخدم
-    message = Column(String)  # الرسالة نفسها
+            try:
+                reciver = await client.get_entity(username)  # الحصول على كيان المستلم
+                reciver_id = reciver.id  # استخراج معرف المستلم
+                
+                # إنشاء معرف فريد للهمسة باستخدام uuid4
+                whisper_id = str(uuid.uuid4())
+                
+                # تخزين الهمسة في قاعدة البيانات
+                store_whisper(whisper_id, sender, reciver_id, username, message)
 
-# إنشاء الجدول
-Base.metadata.create_all(engine)
+                # إنشاء الرد للمستخدم
+                result = builder.article(
+                    title='اضغط لإرسال الهمسة',
+                    description=f'إرسال الرسالة إلى {username}',
+                    text=f"همسة سرية إلى ({username})",
+                    buttons=[
+                        Button.inline(
+                            text='📩 اضغط لعرض الهمسة', 
+                            data=f'send:{username}:{message}:{sender}:{whisper_id}'
+                        )
+                    ]
+                )
+            except Exception as e:
+                result = builder.article(
+                    title='خطأ في الإرسال',
+                    description="حدث خطأ أثناء معالجة طلبك.",
+                    text=f'⚠️ خطأ: {str(e)}'
+                )
+        else:
+            # عرض رسالة خطأ عند عدم استخدام التنسيق الصحيح
+            result = builder.article(
+                title='خطأ في التنسيق',
+                description="يرجى استخدام التنسيق الصحيح: <message> @username",
+                text='⚠️ التنسيق غير صحيح. يرجى إرسال الهمسة بالتنسيق: <message> @username'
+            )
+        await event.answer([result])
 
-# إعداد الجلسة
-Session = sessionmaker(bind=engine)
-session = Session()
+@client.on(events.CallbackQuery)
+async def callback_query_handler(event):
+    data = event.data.decode('utf-8')
+    if data.startswith('send:'):
+        try:
+            # فك البيانات المرسلة
+            _, username, message, sender_id, whisper_id = data.split(':', 4)
+            
+            # استرجاع الهمسة باستخدام المعرف الفريد
+            whisper = get_whisper(whisper_id)
 
-# دالة لتخزين الهمسات
-def store_whisper(whisper_id, sender_id, reciver_id, username, message):
-    whisper = Whisper(
-        whisper_id=whisper_id,
-        sender_id=sender_id,
-        reciver_id=reciver_id,
-        username=username,
-        message=message
-    )
-    session.add(whisper)  # إضافة الهمسة
-    session.commit()  # حفظها في قاعدة البيانات
+            if whisper:
+                if event.sender_id == whisper.sender_id or event.sender_id == whisper.reciver_id:
+                    # إنشاء معرف جديد عند عرض الرسالة
+                    new_whisper_id = str(uuid.uuid4())
+                    store_whisper(new_whisper_id, whisper.sender_id, whisper.reciver_id, whisper.username, whisper.message)
+                    
+                    await event.answer(f"📩 همستك:\n\n{whisper.message}", alert=True)
+                else:
+                    await event.answer("❌ عزيزي الحشري، هذه الهمسة ليست موجهة إليك!", alert=True)
+            else:
+                await event.answer("⚠️ هذه الهمسة لم تعد متاحة أو قد تكون محذوفة.", alert=True)
+        except Exception as e:
+            # التعامل مع الأخطاء عند استرجاع الهمسة
+            await event.answer(f"🚨 حدث خطأ أثناء معالجة الطلب: {str(e)}", alert=True)
 
-# دالة لاسترجاع الهمسة
-def get_whisper(whisper_id):
-    return session.query(Whisper).filter_by(whisper_id=whisper_id).first()  # استرجاع أول همسة فقط
-
-
+# تشغيل البوت حتى يتم إيقافه يدويًا
+client.run_until_disconnected()

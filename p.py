@@ -1,4 +1,4 @@
-import uuid  # استيراد مكتبة uuid
+import uuid
 from telethon import TelegramClient, events, Button
 from db import store_whisper, get_whisper  # استيراد الدوال من db.py
 
@@ -33,7 +33,6 @@ async def inline_query_handler(event):
                 # تخزين الهمسة في قاعدة البيانات
                 store_whisper(whisper_id, sender, reciver_id, username, message)
 
-                # إنشاء رد للمستخدم الذي يرسل الهمسة
                 result = builder.article(
                     title='اضغط لإرسال الهمسة',
                     description=f'إرسال الرسالة إلى {username}',
@@ -46,14 +45,12 @@ async def inline_query_handler(event):
                     ]
                 )
             except Exception as e:
-                # معالجة الأخطاء أثناء محاولة الحصول على المستخدم أو حفظ الهمسة
                 result = builder.article(
                     title='خطأ في الإرسال',
                     description="حدث خطأ أثناء معالجة طلبك.",
                     text=f'⚠️ خطأ: {str(e)}'
                 )
         else:
-            # عرض رسالة خطأ عند عدم استخدام التنسيق الصحيح
             result = builder.article(
                 title='خطأ في التنسيق',
                 description="يرجى استخدام التنسيق الصحيح: <message> @username",
@@ -66,23 +63,17 @@ async def callback_query_handler(event):
     data = event.data.decode('utf-8')
     if data.startswith('send:'):
         try:
-            # فك البيانات المرسلة
             _, username, message, sender_id, whisper_id = data.split(':', 4)
-            
-            # استرجاع الهمسة باستخدام المعرف الفريد
             whisper = get_whisper(whisper_id)
 
             if whisper:
-                # التحقق من صلاحيات الوصول للهمسة
                 if event.sender_id == whisper.sender_id or event.sender_id == whisper.reciver_id:
-                    await event.answer(f"📩 همستك:\n\n{whisper.message}", alert=True)
+                    await event.answer(f"\n\n{whisper.message}", alert=True)
                 else:
-                    await event.answer("❌ عزيزي الحشري، هذه الهمسة ليست موجهة إليك!", alert=True)
+                    await event.answer(" عزيزي الحشري، هذه الهمسة ليست موجهة إليك!", alert=True)
             else:
                 await event.answer("⚠️ هذه الهمسة لم تعد متاحة أو قد تكون محذوفة.", alert=True)
         except Exception as e:
-            # التعامل مع الأخطاء عند استرجاع الهمسة
             await event.answer(f"🚨 حدث خطأ أثناء معالجة الطلب: {str(e)}", alert=True)
 
-# تشغيل البوت حتى يتم إيقافه يدويًا
 client.run_until_disconnected()

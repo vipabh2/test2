@@ -47,29 +47,37 @@ async def inline_query_handler(event):
             )
         await event.answer([result])
 
-
 @client.on(events.CallbackQuery)
 async def callback_query_handler(event):
     data = event.data.decode('utf-8')
     if data.startswith('send:'):
-        _, username, message_id, sender_id, whisper_id = data.split(':', 4)
         try:
+            # تقسيم البيانات القادمة
+            _, username, message_id, sender_id, whisper_id = data.split(':', 4)
+
+            # استدعاء الهمسة باستخدام المعرف
             whisper = get_whisper(whisper_id)
 
             if whisper:
-                # التحقق من أن الشخص الذي يطلب الهمسة هو إما المرسل أو المستلم
+                # التحقق من صلاحيات الوصول
                 if event.sender_id == whisper.sender_id or event.sender_id == whisper.reciver_id:
-                    # تكوين رابط الرسالة
+                    # إنشاء رابط الرسالة
                     link = f"https://t.me/{username}/{message_id}"
-                    
-                    # إرسال الرابط كرسالة في المحادثة
-                    await event.respond(f"رابط الرسالة: {link}")
+
+                    # إرسال رابط الرسالة كرد
+                    await event.respond(f"رابط الهمسة: {link}")
                 else:
-                    await event.respond("عزيزي الحشري، الهمسة ليست موجهة إليك!")
+                    # المستخدم ليس مرسل الهمسة أو مستقبلها
+                    await event.respond("❌ عزيزي الحشري، هذه الهمسة ليست موجهة إليك!")
             else:
-                await event.respond("الهمسة غير موجودة أو قد تكون محذوفة!")
+                # الهمسة غير موجودة
+                await event.respond("⚠️ الهمسة غير موجودة أو قد تكون محذوفة.")
+        except ValueError:
+            # إذا كان هناك خطأ في تقسيم البيانات
+            await event.respond("⚠️ البيانات غير صحيحة، تأكد من المدخلات.")
         except Exception as e:
-            await event.respond(f'حدث خطأ: {str(e)}')
+            # أخطاء عامة
+            await event.respond(f"🚨 حدث خطأ أثناء المعالجة: {str(e)}")
 
 
 client.run_until_disconnected()

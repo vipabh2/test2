@@ -1,12 +1,15 @@
 import uuid
 from telethon import TelegramClient, events, Button
-from db import store_whisper, get_whisper  # استيراد الدوال من db.py
+from db import store_whisper, get_whisper, reset_database  # استيراد الدوال من db.py
 
 # إعدادات البوت
 api_id = "20464188"
 api_hash = "91f0d1ea99e43f18d239c6c7af21c40f"
 bot_token = "6965198274:AAEEKwAxxzrKLe3y9qMsjidULbcdm_uQ8IE"
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+
+# قم بإلغاء إنشاء قاعدة البيانات في البداية إذا كنت ترغب في مسح البيانات القديمة
+reset_database()  # حذف القاعدة الحالية وإعادة إنشائها
 
 # معالجة الاستعلامات الواردة من البوت
 @client.on(events.InlineQuery)

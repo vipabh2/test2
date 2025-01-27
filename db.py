@@ -1,9 +1,8 @@
 from sqlalchemy import create_engine, Column, Integer, String
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-import uuid
 
-DATABASE_URL = "sqlite:///db.sqlite3"  # رابط قاعدة البيانات
+DATABASE_URL = "sqlite:///db.sqlite3"
 engine = create_engine(DATABASE_URL, echo=False)
 
 Base = declarative_base()
@@ -12,13 +11,13 @@ class Whisper(Base):
     __tablename__ = 'whispers'
 
     id = Column(Integer, primary_key=True, autoincrement=True)
-    whisper_id = Column(String, unique=True, nullable=False)
-    sender_id = Column(Integer, nullable=False)
-    reciver_id = Column(Integer, nullable=False)
-    username = Column(String, nullable=False)
-    message = Column(String, nullable=False)
+    whisper_id = Column(String)
+    sender_id = Column(Integer)
+    reciver_id = Column(Integer)
+    username = Column(String)
+    message = Column(String)
 
-Base.metadata.create_all(engine)  # إنشاء الجداول في قاعدة البيانات
+Base.metadata.create_all(engine)
 
 Session = sessionmaker(bind=engine)
 session = Session()

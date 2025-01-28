@@ -108,7 +108,6 @@ async def send_email(event):
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
                 await event.edit(f"تم الإرسال {i+1} بنجاح")
-                await asyncio.sleep(100)
                 email_message = create_email_message(subject, body, recipient)
                 buttons = [
                     [Button.inline("إرسال الرسالة", b"send_email")]

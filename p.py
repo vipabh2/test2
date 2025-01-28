@@ -17,23 +17,34 @@ isInfo = None
 
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
+
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
     global isInfo
     isInfo = None
     user_id = event.sender_id
-    if user_id in user_states and user_states[user_id].get('step') == 'confirm_send':
+    if user_id in user_states and all(key in user_states[user_id] for key in ['subject', 'body', 'recipient', 'sender_email', 'password']):
         buttons = [
-            [Button.inline("ارسال رسالة", b"send_email")]
+            [Button.inline("نعم، أريد الشد", b"confirm_send")],
+            [Button.inline("لا، أريد البدء من جديد", b"restart")]
         ]
+        await event.respond(
+            "جميع المعلومات موجودة بالفعل. هل تريد الشد؟",
+            buttons=buttons
+        )
     else:
         buttons = [
             [Button.inline("إنشاء رسالة", b"create_message")]
         ]
         await event.respond(
-        "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
-        buttons=buttons
-    )
+            "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
+            buttons=buttons
+        )
+@client.on(events.CallbackQuery(data=b"restart"))
+async def restart(event):
+    user_states[event.sender_id] = {}
+    await event.edit("تم إعادة تعيين الحالة. يمكنك البدء من جديد باستخدام /start.")
+
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}

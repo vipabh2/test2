@@ -129,6 +129,5 @@ async def send(event):
     if isInfo == False:
         await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
     elif isInfo == True:
-        await event.respond("تم الارسال بنجاح")
-        send_email(event)
+        await send_email(event)
 client.run_until_disconnected()

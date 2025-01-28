@@ -6,9 +6,9 @@ import os, asyncio, smtplib
 default_smtp_server = "smtp.gmail.com"
 default_smtp_port = 465
 
-api_id = os.getenv('API_ID')      
-api_hash = os.getenv('API_HASH')  
-bot_token = os.getenv('BOT_TOKEN') 
+api_id = os.getenv('API_ID')
+api_hash = os.getenv('API_HASH')
+bot_token = os.getenv('BOT_TOKEN')
 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
@@ -18,32 +18,24 @@ isInfo = None
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
 
-    
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
     global isInfo
     isInfo = None
     user_id = event.sender_id
-    if user_id not in user_states or user_states[user_id]['step'] != 'confirm_send':
-        buttons = [
-            [Button.inline("ارسال رسالة", b"send_email")],
-    ]
-        await event.respond(
-            "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
-            buttons=buttons
-            )
-    else:    
-        buttons = [
-        [Button.inline("إنشاء رسالة", b"create_message")],
+    buttons = [
+        [Button.inline("ارسال رسالة", b"send_email")] if user_id not in user_states or user_states[user_id].get('step') != 'confirm_send'
+        else [Button.inline("إنشاء رسالة", b"create_message")]
     ]
     await event.respond(
         "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
         buttons=buttons
     )
+
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}
-    await event.respond("أرسل الموضوع (الكليشة القصيرة)")
+    await event.edit("أرسل الموضوع (الكليشة القصيرة)")
 
 @client.on(events.NewMessage)
 async def handle_message(event):
@@ -71,17 +63,14 @@ async def handle_message(event):
         state['sender_email'] = event.text
         state['step'] = 'get_password'
         await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
-        state['sender_email'] = event.text
-        state['step'] = 'get_password'
-        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
     elif step == 'get_password':
         state['password'] = event.text
-        subject = state['subject']
-        body = state['body']
-        recipient = state['recipient']
-        sender_email = state['sender_email']
-        password = state['password']
-        if not subject or not body or not recipient or not sender_email or not password:
+        subject = state.get('subject')
+        body = state.get('body')
+        recipient = state.get('recipient')
+        sender_email = state.get('sender_email')
+        password = state.get('password')
+        if not all([subject, body, recipient, sender_email, password]):
             await event.respond("حدث خطأ أثناء جمع البيانات. يرجى المحاولة مرة أخرى.")
             isInfo = False
         else:
@@ -99,14 +88,17 @@ async def handle_message(event):
 @client.on(events.CallbackQuery(data=b"send_email"))
 async def send_email(event):
     user_id = event.sender_id
-    if user_id not in user_states or user_states[user_id]['step'] != 'confirm_send':
-        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
+    if user_id not in user_states or user_states[user_id].get('step') != 'confirm_send':
+        await event.edit("أحدا أو كل المعلومات فيها نقص. \n حاول مره أخرى مع /start")
+        return
+
     state = user_states[user_id]
     subject = state['subject']
     body = state['body']
     recipient = state['recipient']
     sender_email = state['sender_email']
     password = state['password']
+
     try:
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
@@ -118,22 +110,16 @@ async def send_email(event):
             server.login(sender_email, password)
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
-                await event.respond(f"تم الإرسال {i+1} بنجاح")
-                await event.edit(f"تم الإرسال {i+1} بنجاح")
+                if i == 0:
+                    await event.edit(f"تم الإرسال {i+1} بنجاح")
+                else:
+                    await event.respond(f"تم الإرسال {i+1} بنجاح")
                 await asyncio.sleep(1)
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")
-        if "Connection unexpectedly closed" in str(e):
-            await event.respond("فشل الإرسال بسبب انقطاع الاتصال بالسيرفر. تأكد من بيانات الاتصال وأعد المحاولة.")
-        else:
-            await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
+        await event.respond("حدث خطأ أثناء الإرسال. يرجى التحقق من البيانات.")
     except Exception as e:
         print(f"Exception: {e}")
-        await event.respond(f"حدث خطأ غير متوقع: {e}")
-
-    try:
-        await event.answer()
-    except Exception as query_error:
-        print(f"Query Error: {query_error}")
+        await event.respond("حدث خطأ غير متوقع.")
 
 client.run_until_disconnected()

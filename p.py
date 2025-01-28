@@ -18,6 +18,7 @@ isInfo = None
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
 
+    
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
     global isInfo
@@ -89,7 +90,7 @@ async def handle_message(event):
 async def send_email(event):
     user_id = event.sender_id
     if user_id not in user_states or user_states[user_id]['step'] != 'confirm_send':
-        return
+        await event.respond("حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.")
     state = user_states[user_id]
     subject = state['subject']
     body = state['body']
@@ -107,6 +108,7 @@ async def send_email(event):
             server.login(sender_email, password)
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
+                await event.respond(f"تم الإرسال {i+1} بنجاح")
                 await event.edit(f"تم الإرسال {i+1} بنجاح")
                 await asyncio.sleep(1)
     except smtplib.SMTPException as e:

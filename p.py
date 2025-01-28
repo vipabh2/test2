@@ -17,21 +17,23 @@ isInfo = None
 
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
-
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
     global isInfo
     isInfo = None
     user_id = event.sender_id
-    buttons = [
-        [Button.inline("ارسال رسالة", b"send_email")] if user_id not in user_states or user_states[user_id].get('step') != 'confirm_send'
-        else [Button.inline("إنشاء رسالة", b"create_message")]
-    ]
-    await event.respond(
+    if user_id in user_states and user_states[user_id].get('step') == 'confirm_send':
+        buttons = [
+            [Button.inline("ارسال رسالة", b"send_email")]
+        ]
+    else:
+        buttons = [
+            [Button.inline("إنشاء رسالة", b"create_message")]
+        ]
+        await event.respond(
         "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
         buttons=buttons
     )
-
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}

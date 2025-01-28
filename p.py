@@ -23,6 +23,15 @@ def create_email_message(subject, body, recipient):
 async def start(event):
     global isInfo
     isInfo = None
+    user_id = event.sender_id
+    if user_id not in user_states or user_states[user_id]['step'] != 'confirm_send':
+        buttons = [
+            [Button.inline("ارسال رسالة", b"send_email")],
+    ]
+        await event.respond(
+            "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
+            buttons=buttons
+    )    
     buttons = [
         [Button.inline("إنشاء رسالة", b"create_message")],
     ]
@@ -90,7 +99,7 @@ async def handle_message(event):
 async def send_email(event):
     user_id = event.sender_id
     if user_id not in user_states or user_states[user_id]['step'] != 'confirm_send':
-        await event.respond("حدث خطأ أثناء الإرسال. يرجى المحاولة مرة أخرى.")
+        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
     state = user_states[user_id]
     subject = state['subject']
     body = state['body']
@@ -125,12 +134,5 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
-@client.on(events.NewMessage(pattern='/send'))
-async def send(event):
-    global isInfo
-    if isInfo == False:
-        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
-    elif isInfo == True:
-        await event.respond("تم الارسال بنجاح")
-        send_email(event)
+
 client.run_until_disconnected()

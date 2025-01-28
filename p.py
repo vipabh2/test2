@@ -40,6 +40,7 @@ async def start(event):
             "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
             buttons=buttons
         )
+
 @client.on(events.CallbackQuery(data=b"restart"))
 async def restart(event):
     user_states[event.sender_id] = {}

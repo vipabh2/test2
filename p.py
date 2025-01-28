@@ -31,8 +31,9 @@ async def start(event):
         await event.respond(
             "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
             buttons=buttons
-    )    
-    buttons = [
+            )
+    else:    
+        buttons = [
         [Button.inline("إنشاء رسالة", b"create_message")],
     ]
     await event.respond(

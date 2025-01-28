@@ -132,5 +132,12 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
-
+        await asyncio.sleep(100)
+        email_message = create_email_message(subject, body, recipient)
+        buttons = [[Button.inline("إرسال الرسالة", b"send_email")]]
+        await event.respond(
+            f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها",
+            buttons=buttons
+        )
+        state['step'] = 'confirm_send'
 client.run_until_disconnected()

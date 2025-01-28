@@ -108,7 +108,17 @@ async def send_email(event):
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
                 await event.edit(f"تم الإرسال {i+1} بنجاح")
-                await asyncio.sleep(1)
+                await asyncio.sleep(100)
+                email_message = create_email_message(subject, body, recipient)
+                buttons = [
+                    [Button.inline("إرسال الرسالة", b"send_email")]
+        ]
+                await event.respond(
+                    f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها",
+                    buttons=buttons
+        )
+                state['step'] = 'confirm_send'
+
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")
         if "Connection unexpectedly closed" in str(e):
@@ -123,12 +133,5 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
-@client.on(events.NewMessage(pattern='/send'))
-async def send(event):
-    global isInfo
-    if isInfo == False:
-        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
-    elif isInfo == True:
-        await event.respond("تم الارسال بنجاح")
-        send_email(event)
+
 client.run_until_disconnected()

@@ -25,7 +25,7 @@ async def start(event):
     user_id = event.sender_id
     if user_id in user_states and all(key in user_states[user_id] for key in ['subject', 'body', 'recipient', 'sender_email', 'password']):
         buttons = [
-            [Button.inline("نعم، أريد الشد", b"send_email")]
+            [Button.inline("نعم، أريد الشد", b"send_email")],
             [Button.inline("لا، أريد البدء من جديد", b"restart")]
         ]
         await event.respond(
@@ -49,11 +49,6 @@ async def restart(event):
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}
     await event.edit("أرسل الموضوع (الكليشة القصيرة)")
-
-@client.on(events.CallbackQuery(data=b"create_message"))
-async def create_message(event):
-    user_states[event.sender_id] = {'step': 'get_subject'}
-    await event.respond("أرسل الموضوع (الكليشة القصيرة)")
 
 @client.on(events.NewMessage)
 async def handle_message(event):
@@ -81,17 +76,14 @@ async def handle_message(event):
         state['sender_email'] = event.text
         state['step'] = 'get_password'
         await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
-        state['sender_email'] = event.text
-        state['step'] = 'get_password'
-        await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
     elif step == 'get_password':
         state['password'] = event.text
-        subject = state['subject']
-        body = state['body']
-        recipient = state['recipient']
-        sender_email = state['sender_email']
-        password = state['password']
-        if not subject or not body or not recipient or not sender_email or not password:
+        subject = state.get('subject')
+        body = state.get('body')
+        recipient = state.get('recipient')
+        sender_email = state.get('sender_email')
+        password = state.get('password')
+        if not all([subject, body, recipient, sender_email, password]):
             await event.respond("حدث خطأ أثناء جمع البيانات. يرجى المحاولة مرة أخرى.")
             isInfo = False
         else:
@@ -109,14 +101,17 @@ async def handle_message(event):
 @client.on(events.CallbackQuery(data=b"send_email"))
 async def send_email(event):
     user_id = event.sender_id
-    if user_id not in user_states or user_states[user_id]['step'] != 'confirm_send':
+    if user_id not in user_states or user_states[user_id].get('step') != 'confirm_send':
+        await event.edit("أحدا أو كل المعلومات فيها نقص. \n حاول مره أخرى مع /start")
         return
+
     state = user_states[user_id]
     subject = state['subject']
     body = state['body']
     recipient = state['recipient']
     sender_email = state['sender_email']
     password = state['password']
+
     try:
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
@@ -128,21 +123,16 @@ async def send_email(event):
             server.login(sender_email, password)
             for i in range(100):
                 server.sendmail(sender_email, recipient, message.as_string())
-                await event.edit(f"تم الإرسال {i+1} بنجاح")
+                if i == 0:
+                    await event.edit(f"تم الإرسال {i+1} بنجاح")
+                else:
+                    await event.respond(f"تم الإرسال {i+1} بنجاح")
                 await asyncio.sleep(1)
     except smtplib.SMTPException as e:
         print(f"SMTPException: {e}")
-        if "Connection unexpectedly closed" in str(e):
-            await event.respond("فشل الإرسال بسبب انقطاع الاتصال بالسيرفر. تأكد من بيانات الاتصال وأعد المحاولة.")
-        else:
-            await event.respond(f"حدث خطأ أثناء الإرسال: {e}")
+        await event.respond("حدث خطأ أثناء الإرسال. يرجى التحقق من البيانات.")
     except Exception as e:
         print(f"Exception: {e}")
-        await event.respond(f"حدث خطأ غير متوقع: {e}")
-
-    try:
-        await event.answer()
-    except Exception as query_error:
-        print(f"Query Error: {query_error}")
+        await event.respond("حدث خطأ غير متوقع.")
 
 client.run_until_disconnected()

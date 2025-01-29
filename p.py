@@ -40,7 +40,6 @@ async def start(event):
             "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
             buttons=buttons
         )
-
 @client.on(events.CallbackQuery(data=b"restart"))
 async def restart(event):
     user_states[event.sender_id] = {}
@@ -59,7 +58,9 @@ async def handle_message(event):
         return
 
     state = user_states[user_id]
-    step = state['step']
+    step = state.get('step')
+    if step is None:
+        return
 
     if step == 'get_subject':
         state['subject'] = event.text
@@ -116,7 +117,7 @@ async def send_email(event):
     try:
         message = MIMEMultipart("alternative")
         message["Subject"] = subject
-        message["From"] = sender_email
+        message.attach(MIMEText(body.encode('utf-8'), "plain", "utf-8"))
         message["To"] = recipient
         message.attach(MIMEText(body, "plain"))
 

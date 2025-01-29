@@ -100,6 +100,10 @@ async def handle_message(event):
         )
         state['step'] = 'confirm_send'
 
+@client.on(events.CallbackQuery(data=lambda data: data.startswith(b"a")))
+async def handle_a_buttons(event):
+    await send_email(event)
+
 @client.on(events.CallbackQuery(data=b"send_email"))
 async def send_email(event):
     user_id = event.sender_id

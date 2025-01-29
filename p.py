@@ -6,9 +6,9 @@ import os, asyncio, smtplib
 default_smtp_server = "smtp.gmail.com"
 default_smtp_port = 465
 
-api_id = os.getenv('API_ID')      
-api_hash = os.getenv('API_HASH')  
-bot_token = os.getenv('BOT_TOKEN') 
+api_id = os.getenv('API_ID')
+api_hash = os.getenv('API_HASH')
+bot_token = os.getenv('BOT_TOKEN')
 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
@@ -22,13 +22,34 @@ def create_email_message(subject, body, recipient):
 async def start(event):
     global isInfo
     isInfo = None
-    buttons = [
-        [Button.inline("إنشاء رسالة", b"create_message")],
-    ]
-    await event.respond(
-        "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
-        buttons=buttons
-    )
+    user_id = event.sender_id
+    if user_id in user_states and all(key in user_states[user_id] for key in ['subject', 'body', 'recipient', 'sender_email', 'password']):
+        buttons = [
+            [Button.inline("نعم، أريد الشد", b"send_email")]
+            [Button.inline("لا، أريد البدء من جديد", b"restart")]
+        ]
+        await event.respond(
+            "جميع المعلومات موجودة بالفعل. هل تريد الشد؟",
+            buttons=buttons
+        )
+    else:
+        buttons = [
+            [Button.inline("إنشاء رسالة", b"create_message")]
+        ]
+        await event.respond(
+            "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
+            buttons=buttons
+        )
+@client.on(events.CallbackQuery(data=b"restart"))
+async def restart(event):
+    user_states[event.sender_id] = {}
+    await event.edit("تم إعادة تعيين الحالة. يمكنك البدء من جديد باستخدام /start.")
+
+@client.on(events.CallbackQuery(data=b"create_message"))
+async def create_message(event):
+    user_states[event.sender_id] = {'step': 'get_subject'}
+    await event.edit("أرسل الموضوع (الكليشة القصيرة)")
+
 @client.on(events.CallbackQuery(data=b"create_message"))
 async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}
@@ -123,12 +144,5 @@ async def send_email(event):
         await event.answer()
     except Exception as query_error:
         print(f"Query Error: {query_error}")
-@client.on(events.NewMessage(pattern='/send'))
-async def send(event):
-    global isInfo
-    if isInfo == False:
-        await event.respond("احدا او كل المعلومات فيها نقص. \n حاول مره اخرئ مع /start")
-    elif isInfo == True:
-        await event.respond("تم الارسال بنجاح")
-        send_email(event)
+
 client.run_until_disconnected()

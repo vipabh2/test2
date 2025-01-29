@@ -73,24 +73,14 @@ async def handle_message(event):
         await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
     elif step == 'get_password':
         state['password'] = event.text
-        subject = state.get('subject')
-        body = state.get('body')
-        recipient = state.get('recipient')
-        sender_email = state.get('sender_email')
-        password = state.get('password')
-        if not all([subject, body, recipient, sender_email, password]):
+        if not all([state.get(k) for k in ['subject', 'body', 'recipient', 'sender_email', 'password']]):
             await event.respond("حدث خطأ أثناء جمع البيانات. يرجى المحاولة مرة أخرى.")
             isInfo = False
         else:
             isInfo = True
-        email_message = create_email_message(subject, body, recipient)
-        buttons = [
-            [Button.inline("إرسال الرسالة", b"send_email")]
-        ]
-        await event.respond(
-            f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها",
-            buttons=buttons
-        )
+        email_message = create_email_message(state['subject'], state['body'], state['recipient'])
+        buttons = [[Button.inline("إرسال الرسالة", b"send_email")]]
+        await event.respond(f"تم إنشاء الكليشة التالية:\n\n{email_message}\n\nاضغط على الزر أدناه لإرسالها", buttons=buttons)
         state['step'] = 'confirm_send'
 
 @client.on(events.CallbackQuery(data=b"send_email"))
@@ -101,27 +91,21 @@ async def send_email(event):
         return
 
     state = user_states[user_id]
-    subject = state['subject']
-    body = state['body']
-    recipient = state['recipient']
-    sender_email = state['sender_email']
-    password = state['password']
-
     try:
         message = MIMEMultipart("alternative")
-        message["Subject"] = subject
-        message.attach(MIMEText(body, "plain", "utf-8"))
-        message["To"] = recipient
+        message["Subject"] = state['subject']
+        message.attach(MIMEText(state['body'], "plain", "utf-8"))
+        message["To"] = state['recipient']
 
         with smtplib.SMTP_SSL(default_smtp_server, default_smtp_port) as server:
-            server.login(sender_email, password)
+            server.login(state['sender_email'], state['password'])
             for i in range(100):
-                server.sendmail(sender_email, recipient, message.as_string())
+                server.sendmail(state['sender_email'], state['recipient'], message.as_string())
                 await event.respond(f"تم الإرسال {i+1} بنجاح")
                 await asyncio.sleep(1)
     except smtplib.SMTPException:
         await event.respond("حدث خطأ أثناء الإرسال. يرجى التحقق من البيانات.")
-    except Exception:
-        await event.respond("حدث خطأ غير متوقع.")
+    except Exception as e:
+        await event.respond(f"حدث خطأ غير متوقع: {e}")
 
 client.run_until_disconnected()

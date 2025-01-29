@@ -13,15 +13,12 @@ bot_token = os.getenv('BOT_TOKEN')
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 user_states = {}
-isInfo = None
 
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
 
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):
-    global isInfo
-    isInfo = None
     user_id = event.sender_id
     if user_id in user_states and all(key in user_states[user_id] for key in ['subject', 'body', 'recipient', 'sender_email', 'password']):
         buttons = [
@@ -40,6 +37,7 @@ async def start(event):
             "اهلا اخي حياك الله , البوت مجاني حاليا يرفع بلاغات بصوره امنة وحقيقية \n المطور @K_4X1",
             buttons=buttons
         )
+
 @client.on(events.CallbackQuery(data=b"restart"))
 async def restart(event):
     user_states[event.sender_id] = {}
@@ -52,7 +50,6 @@ async def create_message(event):
 
 @client.on(events.NewMessage)
 async def handle_message(event):
-    global isInfo
     user_id = event.sender_id
     if user_id not in user_states:
         return
@@ -64,18 +61,22 @@ async def handle_message(event):
         state['subject'] = event.text
         state['step'] = 'get_body'
         await event.respond("أرسل نص الكليشة (الكليشة الكبيرة)")
+
     elif step == 'get_body':
         state['body'] = event.text
         state['step'] = 'get_recipient'
         await event.respond("أرسل الإيميل المستلم (`abuse@telegram.org`)")
+
     elif step == 'get_recipient':
         state['recipient'] = event.text
         state['step'] = 'get_email'
         await event.respond("أرسل بريدك الإلكتروني (الايميل الذي تريد منه الارسال)")
+
     elif step == 'get_email':
         state['sender_email'] = event.text
         state['step'] = 'get_password'
         await event.respond("أرسل كلمة المرور (كلمة مرور التطبيق كما في الفديو)")
+
     elif step == 'get_password':
         state['password'] = event.text
         subject = state.get('subject')
@@ -83,11 +84,12 @@ async def handle_message(event):
         recipient = state.get('recipient')
         sender_email = state.get('sender_email')
         password = state.get('password')
+
         if not all([subject, body, recipient, sender_email, password]):
-            await event.respond("حدث خطأ أثناء جمع البيانات. يرجى المحاولة مرة أخرى.")
-            isInfo = False
-        else:
-            isInfo = True
+            await event.respond("يرجى التأكد من إدخال جميع المعلومات. حاول مجددًا.")
+            user_states[user_id] = {}  # Reset state for user
+            return
+        
         email_message = create_email_message(subject, body, recipient)
         buttons = [
             [Button.inline("إرسال الرسالة", b"send_email")]
@@ -135,4 +137,17 @@ async def send_email(event):
         print(f"Exception: {e}")
         await event.respond("حدث خطأ غير متوقع.")
 
+@client.on(events.NewMessage(pattern='/account'))
+async def account(event):
+    Buttons = [
+        [Button.inline("الحساب الاول", b"a1")],
+        [Button.inline("الحساب الثاني", b"a2")],
+        [Button.inline("الحساب الثالث", b"a3")]
+    ]
+    await event.respond("اختر الحساب الذي تريد الدخول اليه", buttons=Buttons)
+
+@client.on(events.NewMessage(pattern='/a1'))
+async def a1(event):
+    start(event)
+        
 client.run_until_disconnected()

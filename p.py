@@ -36,20 +36,30 @@ async def create_message(event):
     user_states[event.sender_id] = {'step': 'get_subject'}
     await event.edit("أرسل الموضوع (الكليشة القصيرة)")
 
+def show_account_data(event, account):
+    user_id = event.sender_id
+    state = user_states.get(user_id, {})
+    if all(key in state for key in [f'subject_{account}', f'body_{account}', f'recipient_{account}', f'sender_email_{account}', f'password_{account}']):
+        email_message = create_email_message(state[f'subject_{account}'], state[f'body_{account}'], state[f'recipient_{account}'])
+        return f"البيانات المخزنة للحساب {account}:\n\n{email_message}\n\nاضغط إرسال لإعادة الإرسال", [[Button.inline("إرسال الرسالة", b"send_email")]]
+    else:
+        user_states[user_id] = {'account': account, 'step': 'get_subject'}
+        return f"أرسل الموضوع (الكليشة القصيرة) للحساب {account}", []
+
 @client.on(events.CallbackQuery(data=b"a1"))
 async def account_a1(event):
-    user_states[event.sender_id] = {'account': 'a1', 'step': 'get_subject'}
-    await event.edit("أرسل الموضوع (الكليشة القصيرة) للحساب الأول")
+    msg, buttons = show_account_data(event, 'a1')
+    await event.edit(msg, buttons=buttons)
 
 @client.on(events.CallbackQuery(data=b"a2"))
 async def account_a2(event):
-    user_states[event.sender_id] = {'account': 'a2', 'step': 'get_subject'}
-    await event.edit("أرسل الموضوع (الكليشة القصيرة) للحساب الثاني")
+    msg, buttons = show_account_data(event, 'a2')
+    await event.edit(msg, buttons=buttons)
 
 @client.on(events.CallbackQuery(data=b"a3"))
 async def account_a3(event):
-    user_states[event.sender_id] = {'account': 'a3', 'step': 'get_subject'}
-    await event.edit("أرسل الموضوع (الكليشة القصيرة) للحساب الثالث")
+    msg, buttons = show_account_data(event, 'a3')
+    await event.edit(msg, buttons=buttons)
 
 @client.on(events.NewMessage)
 async def handle_message(event):

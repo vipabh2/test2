@@ -48,8 +48,19 @@ def show_account_data(event, account):
 
 @client.on(events.CallbackQuery(data=b"a1"))
 async def account_a1(event):
-    msg, buttons = show_account_data(event, 'a1')
-    await event.edit(msg, buttons=buttons if buttons else None)
+        user_id = event.sender_id
+    if user_id in user_states and all(key in user_states[user_id] for key in ['subject', 'body', 'recipient', 'sender_email', 'password']):
+        buttons = [
+            [Button.inline("نعم، أريد الشد", b"send_email")],
+            [Button.inline("لا، أريد البدء من جديد", b"restart")]
+        ]
+        await event.respond(
+            "جميع المعلومات موجودة بالفعل. هل تريد الشد؟",
+            buttons=buttons
+        )
+    else:
+        msg, buttons = show_account_data(event, 'a1')
+        await event.edit(msg, buttons=buttons if buttons else None)
 
 @client.on(events.CallbackQuery(data=b"a2"))
 async def account_a2(event):

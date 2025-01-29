@@ -122,7 +122,7 @@ async def send_email(event):
         message["Subject"] = subject
         message["From"] = sender_email
         message["To"] = recipient
-        message.attach(MIMEText(body, "plain"))
+        message.attach(MIMEText(body, "plain", "utf-8"))
 
         with smtplib.SMTP_SSL(default_smtp_server, default_smtp_port) as server:
             server.login(sender_email, password)

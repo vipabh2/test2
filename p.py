@@ -49,17 +49,17 @@ def show_account_data(event, account):
 @client.on(events.CallbackQuery(data=b"a1"))
 async def account_a1(event):
     msg, buttons = show_account_data(event, 'a1')
-    await event.edit(msg, buttons=buttons)
+    await event.edit(msg, buttons=buttons if buttons else None)
 
 @client.on(events.CallbackQuery(data=b"a2"))
 async def account_a2(event):
     msg, buttons = show_account_data(event, 'a2')
-    await event.edit(msg, buttons=buttons)
+    await event.edit(msg, buttons=buttons if buttons else None)
 
 @client.on(events.CallbackQuery(data=b"a3"))
 async def account_a3(event):
     msg, buttons = show_account_data(event, 'a3')
-    await event.edit(msg, buttons=buttons)
+    await event.edit(msg, buttons=buttons if buttons else None)
 
 @client.on(events.NewMessage)
 async def handle_message(event):

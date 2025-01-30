@@ -1,4 +1,4 @@
-from database import remove_approved_user, ApprovedUser, get_approved_users, add_approved_user, is_approved_user, get_whisper, store_whisper #type: ignore
+from database import get_whisper, store_whisper #type: ignore
 from telethon import TelegramClient, events, Button
 import requests, os, operator, asyncio, random, uuid
 api_id = os.getenv('API_ID')      

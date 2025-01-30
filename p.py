@@ -1,3 +1,10 @@
+from database import remove_approved_user, ApprovedUser, get_approved_users, add_approved_user, is_approved_user, get_whisper, store_whisper #type: ignore
+from telethon import TelegramClient, events, Button
+import requests, os, operator, asyncio, random, uuid
+api_id = os.getenv('API_ID')      
+api_hash = os.getenv('API_HASH')  
+bot_token = os.getenv('BOT_TOKEN') 
+ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
 @ABH.on(events.InlineQuery)
 async def inline_query_handler(event):
     ifid = await event.get_reply_message()

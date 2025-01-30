@@ -1,74 +1,81 @@
-from database import remove_approved_user, ApprovedUser, get_approved_users, add_approved_user, is_approved_user, get_whisper, store_whisper #type: ignore
-from telethon import TelegramClient, events, Button
-import requests, os, operator, asyncio, random, uuid
+
+from telethon import TelegramClient, events
+import requests
+import asyncio
+from datetime import datetime
+import pytz
+
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
-ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
-@ABH.on(events.InlineQuery)
-async def inline_query_handler(event):
-    ifid = await event.get_reply_message()
-    to_id = None
+city = 'Baghdad' #هنا خلي محافظتك
+country = 'Iraq' #هنا خلي دولتك
+method = 0 #اذا چنت من المذهب الشيعي اتركه
+timezone = 'Asia/Baghdad'  #هنا تحط المنطقة الزمنية لدولتك
+ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-    if ifid:
-        # استخراج معرف المستلم الحقيقي من الرسالة المردود عليها
-        if ifid.forward and ifid.forward.from_id:
-            to_id = ifid.forward.from_id  # إذا كانت الرسالة محولة
-        elif hasattr(ifid.to_id, 'user_id'):
-            to_id = ifid.to_id.user_id  # إذا كانت رسالة خاصة
-        else:
-            to_id = ifid.chat_id  # إذا كانت في مجموعة
+prayer_names = {
+    'Fajr': 'الفجر',
+    'Dhuhr': 'الظهر',
+    'Asr': 'العصر',
+    'Maghrib': 'المغرب',
+    'Isha': 'العشاء'
+}
 
-    builder = event.builder
-    query = event.text.strip()
-    sender = event.sender_id
+jok = None
 
-    if not query:
-        return
-
-    parts = query.split(' ')
-    
-    # استخراج الرسالة واسم المستلم (اسم مستخدم أو ID أو الرد على شخص)
-    message = ' '.join(parts[:-1]) if len(parts) >= 2 else query
-    recipient = parts[-1] if len(parts) >= 2 else None
-
-    # التحقق مما إذا كان الإدخال معرفًا رقميًا
-    is_numeric_id = recipient and recipient.isdigit()
-
-    if recipient:
-        if recipient.startswith('@'):
-            username = recipient
-            reciver = await ABH.get_entity(username)  # جلب الكيان باستخدام اسم المستخدم
-            reciver_id = reciver.id
-        elif is_numeric_id:
-            reciver_id = int(recipient)  # تحويل المعرف النصي إلى عدد صحيح
-            username = f'User({reciver_id})'
-        else:
-            return  # تجاهل الإدخالات غير الصحيحة
-    elif to_id:  # إذا لم يتم إدخال اسم مستخدم أو ID، استخدم المستلم من الرسالة المردود عليها
-        reciver_id = to_id
-        username = f'User({to_id})'
+def joker_prayer_times(city, country, method):
+    url = f'http://api.aladhan.com/v1/timingsByCity?city={city}&country={country}&method={method}'
+    response = requests.get(url)
+    if response.status_code == 200:
+        data = response.json()
+        timings = data['data']['timings']
+        filtered_timings = {key: value for key, value in timings.items() if key in prayer_names}
+        return filtered_timings
     else:
-        return  # لا يوجد مستلم، تجاهل الطلب
+        return None
 
+async def lMl10l(chat_id):
+    tz = pytz.timezone(timezone)
+    while True:
+        now = datetime.now(tz).strftime("%H:%M")
+        timings = joker_prayer_times(city, country, method)
+        if timings:
+            for prayer_name, prayer_time in timings.items():
+                prayer_time = datetime.strptime(prayer_time, "%H:%M").time()
+                aljoker_time = datetime.strptime(now, "%H:%M").time()
+                if aljoker_time == prayer_time:
+                    hussein_name = prayer_names.get(prayer_name, prayer_name)
+                    joker_hussein = "https://t.me/najauaha/281"
+                    joker = f"**حان الآن موعد صلاة {hussein_name}**\n``` عن الإمام الصادق (عليه السلام) عن الرسول (صلى الله عليه وآله وسلم) قال: لاينال شفاعتي من إستخفّ بصلاتهِ```"
+                    await ABH.send_file(chat_id, joker_hussein, caption=joker)
+        await asyncio.sleep(60)
+
+@ABH.on(events.NewMessage(pattern='.تفعيل الاذان'))
+async def joker(hussein):
+    global jok
     try:
-        whisper_id = str(uuid.uuid4())
-        store_whisper(whisper_id, sender, reciver_id, username, message)
-
-        result = builder.article(
-            title='اضغط لإرسال الهمسة',
-            description=f'إرسال الرسالة إلى {username}',
-            text=f"همسة سرية إلى \n ({username})",
-            buttons=[Button.inline(text='🫵🏾 اضغط لعرض الهمسة', data=f'send:{whisper_id}')],
-            thumb_url="https://example.com/whisper.png"  # ضع رابط الصورة هنا
-        )
-
+        chat_id = hussein.chat_id
+        if jok is None:
+            jok = asyncio.create_task(lMl10l(chat_id))
+            await hussein.reply("**᯽︙ تم تفعيل التنبيهات للصلوات الخمسه هنا ** ")
+        else:
+            await hussein.reply("**᯽︙ التنبيهات مفعلة بالفعل ** ")
     except Exception as e:
-        print(f"خطأ أثناء معالجة الطلب: {e}")
-        result = builder.article(
-            title='خطأ في الإرسال',
-            description=f"حدث خطأ أثناء معالجة طلبك: {str(e)}",
-            thumb_url="https://example.com/error.png"
-        )
+        await hussein.reply(f"حدث خطأ: {str(e)}")
 
-    await event.answer([result])
+@ABH.on(events.NewMessage(pattern='.تعطيل الاذان'))
+async def joker(hussein):
+    global jok
+    try:
+        if jok:
+            jok.cancel()
+            jok = None
+            await hussein.reply("**᯽︙ تم تعطيل التنبيهات للصلوات الخمسه **")
+        else:
+            await hussein.reply("**᯽︙ التنبيهات غير مفعلة **")
+    except Exception as e:
+        await hussein.reply(f"حدث خطأ: {str(e)}")
+
+with ABH:
+    ABH.run_until_disconnected()

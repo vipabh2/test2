@@ -4,6 +4,7 @@ import requests
 import asyncio
 from datetime import datetime
 import pytz
+import os
 
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  

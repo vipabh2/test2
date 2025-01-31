@@ -17,9 +17,10 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 @ABH.on(events.NewMessage(pattern='/start$'))
 async def start(event):
     global c
-    rl = random.randint(2, 273)
-    url = f"https://t.me/IUABH/{rl}"
+    # rl = random.randint(2, 273)
+    rl = 1214
+    url = f"https://t.me/vipABH/{rl}"
     cap = random.choice(c)
-    await ABH.send_file(event.chat_id, url, caption=f"{cap}")
+    await ABH.send_file(event.chat_id, url, caption=f"{cap}", reply_to=event.id)
 
 ABH.run_until_disconnected()

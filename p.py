@@ -15,7 +15,7 @@ async def reply_abh(event):
         await event.reply("👋 أهلاً! استخدم هذا البوت داخل المجموعة فقط.")
         return
 
-    if event.chat_id == -1001968219024:
+    # if event.chat_id == -1001968219024:
         # اختيار قناة عشوائية
         iu = random.choice(["ch1", "ch2"])  
 

@@ -11,5 +11,6 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 async def start(event):
     rl = random.randint(2, 273)
     url = f"https://t.me/IUABH/{rl}"
-    await event.send_file(event.chat_id, url, caption="📹")
+    await ABH.send_file(event.chat_id, url, caption="📹")
+
 ABH.run_until_disconnected()

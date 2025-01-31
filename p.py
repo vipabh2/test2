@@ -4,25 +4,6 @@ import os, random
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
-c = [
-    "ههههههه",
-    "راويني السنون الصفر",
-    "اضحك شبيك شايل الدنية علئ اجتافك",
-    "صح سخيفة بس هههه حلوه",
-    "انت طلبت الامر ليش ما ضحكت",
-    "😂",
-    "يسعدلي مسائك😀"
-]
-ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
-@ABH.on(events.NewMessage(pattern='/start$'))
-from telethon import TelegramClient, events
-import os, random 
-
-api_id = os.getenv('API_ID')
-api_hash = os.getenv('API_HASH')
-bot_token = os.getenv('BOT_TOKEN')
-
-ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
 @ABH.on(events.NewMessage(pattern='/start'))
 async def reply_abh(event):
@@ -40,7 +21,6 @@ async def reply_abh(event):
         caption = "ابن هاشم (رض) مرات متواضع ،🌚 @K_4x1" 
         await event.client.send_file(event.chat_id, url, caption=caption, reply_to=event.message.id)    
 
-ABH.run_until_disconnected()
 
 
 ABH.run_until_disconnected()

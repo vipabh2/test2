@@ -1,7 +1,5 @@
-from telethon import TelegramClient, events, Button
-import requests, os, operator, asyncio, random
-from googletrans import Translator
-from bs4 import BeautifulSoup
+from telethon import TelegramClient, events
+import os, asyncio, random
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
@@ -20,8 +18,10 @@ async def start_game(event):
         await event.reply("تم بدء لعبة الافاعي 🐍\nأرسل `انا` لدخول اللعبة.")
         asyncio.create_task(random_selection(event))
 
-@ABH.on(events.NewMessage(pattern='^انا$'))
+@ABH.on(events.NewMessage)
 async def join_game(event):
+    if event.text == "انا":
+        await join_game(event)
     global game_active
     if not game_active:
         await event.reply("لا توجد لعبة جارية حاليًا. ابدأ لعبة جديدة بكتابة `الافاعي`.")
@@ -32,8 +32,8 @@ async def join_game(event):
         await event.reply(f"تم تسجيلك في اللعبة، {event.sender.first_name}!")
     else:
         await event.reply("أنت مسجل بالفعل في اللعبة.")
-        await asyncio.sleep(8)
-
+        # await asyncio.sleep(8)
+@ABH.on(events.NewMessage(pattern='^بدء$'))
 async def random_selection(event):
     global game_active, players
     while game_active:

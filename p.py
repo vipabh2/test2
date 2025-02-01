@@ -15,25 +15,22 @@ async def reply_abh(event):
         await event.reply("👋 أهلاً! استخدم هذا البوت داخل المجموعة فقط.")
         return
 
-    # if event.chat_id == -1001968219024:
-        # اختيار قناة عشوائية
-        iu = random.choice(["ch1", "ch2"])  
+    # 🔹 يعمل الآن في جميع المجموعات بدون قيود على chat_id
+    iu = random.choice(["ch1", "ch2"])  
 
-        if iu == "ch1":  
-            rl = random.randint(1222, 1223)
-            url = f"https://t.me/VIPABH/{rl}"
-        else:  
-            rl = random.randint(242, 255)
-            url = f"https://t.me/iuABH/{rl}"  
+    if iu == "ch1":  
+        rl = random.randint(1222, 1223)
+        url = f"https://t.me/VIPABH/{rl}"
+    else:  
+        rl = random.randint(242, 255)
+        url = f"https://t.me/iuABH/{rl}"  
 
-        caption = "ابن هاشم (رض) مرات متواضع ،🌚 @K_4x1"
+    caption = "ابن هاشم (رض) مرات متواضع ،🌚 @K_4x1"
 
-        try:
-            await event.client.send_file(event.chat_id, url, caption=caption, reply_to=event.message.id)
-        except Exception as e:
-            await event.reply("⚠️ لم أتمكن من إرسال الفيديو. تأكد أن الفيديو متاح.")
-    else:
-        await event.reply("⚠️ هذا البوت يعمل فقط في مجموعة محددة.")
+    try:
+        await event.client.send_file(event.chat_id, url, caption=caption, reply_to=event.message.id)
+    except Exception:
+        await event.reply("⚠️ لم أتمكن من إرسال الفيديو. تأكد أن الفيديو متاح.")
 
 # تشغيل البوت حتى يتم إيقافه
 ABH.run_until_disconnected()

@@ -16,7 +16,7 @@ ABH = TelegramClient('c', int(api_id), api_hash).start(bot_token=bot_token)
 players = {}
 game_active = False
 
-@ABH.on(events.NewMessage(pattern='^الافاعي$'))
+@ABH.on(events.NewMessage(pattern='^الافاعي|الافعى$'))
 async def start_game(event):
     global game_active, players
     if game_active:

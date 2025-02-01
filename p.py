@@ -1,23 +1,39 @@
-from telethon import TelegramClient, events
-import os, random 
+from telethon import TelegramClient
+from telethon import events, Button
+import asyncio
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 
-ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
+ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-@ABH.on(events.NewMessage(pattern='/start'))
-async def reply_abh(event):
-    iu = random.choice(["ch1", "ch2"])  
-    if iu == "ch1":  
-        rl = random.randint(1222, 1223)
-        url = f"https://t.me/VIPABH/{rl}"
-    else:  
-        rl = random.randint(242, 255)
-        url = f"https://t.me/iuABH/{rl}"  
+head = None
+tail = None
+p1 = None
+p2 = None
 
-    caption = "ابن هاشم (رض) مرات متواضع ،🌚 @K_4x1"
-    await event.client.send_file(event.chat_id, url, caption=caption, reply_to=event.message.id)   
+@ABH.on(events.NewMessage(pattern='/fliby'))
+async def fliby(event):
+    global head, tail, p1, p2
+    sender = await event.get_sender()
+    p1 = event.sender_id
+    n1 = sender.first_name
+    await event.reply(f"عزيزي {n1} جاري تسجيلك في لعبة فليبي.",
+                      buttons=[[Button.inline("صورة", b"pic"), Button.inline("كتابة", b"text")]]
+                      )
+    await asyncio.sleep(3)
+    await event.respond(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.")
+
+@ABH.on(events.CallbackQuery(data=b"pic"))
+async def pic(event):
+    global p1, p2
+    p2 = event.sender_id
+    if p1 == p2:
+        await event.respond("لا يمكنك اللعب مع نفسك.", alert=True)
+        return
+    if not p1 or not p2:
+        await event.respond("لا يوجد لاعب غيرك", alert=True)
+        return
 
 ABH.run_until_disconnected()

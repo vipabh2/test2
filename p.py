@@ -1,39 +1,62 @@
-from telethon import TelegramClient
-from telethon import events, Button
-import asyncio, os
+from telethon import TelegramClient, events, Button
+import requests, os, operator, asyncio, random
+from googletrans import Translator
+from bs4 import BeautifulSoup
+api_id = os.getenv('API_ID')      
+api_hash = os.getenv('API_HASH')  
+bot_token = os.getenv('BOT_TOKEN') 
+ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-api_id = os.getenv('API_ID')
-api_hash = os.getenv('API_HASH')
-bot_token = os.getenv('BOT_TOKEN')
+players = {}
+game_active = False
 
-ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+@ABH.on(events.NewMessage(pattern='^الافاعي$'))
+async def start_game(event):
+    global game_active, players
+    if game_active:
+        await event.reply("اللعبة جارية بالفعل!")
+    else:
+        game_active = True
+        await event.reply("تم بدء لعبة الافاعي 🐍\nأرسل `انا` لدخول اللعبة.")
+        asyncio.create_task(random_selection(event))
 
-head = None
-tail = None
-p1 = None
-p2 = None
-
-@ABH.on(events.NewMessage(pattern='/fliby'))
-async def fliby(event):
-    global head, tail, p1, p2
-    sender = await event.get_sender()
-    p1 = event.sender_id
-    n1 = sender.first_name
-    await event.reply(f"عزيزي {n1} جاري تسجيلك في لعبة فليبي.",
-                      buttons=[[Button.inline("صورة", b"pic"), Button.inline("كتابة", b"text")]]
-                      )
-    await asyncio.sleep(3)
-    # await event.respond(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.")
-    await event.edit(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.")
-@ABH.on(events.CallbackQuery(data=b"pic"))
-async def pic(event):
-    global p1, p2
-    p2 = event.sender_id
-    if p1 == p2:
-        await event.respond("لا يمكنك اللعب مع نفسك.", alert=True)
+@ABH.on(events.NewMessage(pattern='^انا$'))
+async def join_game(event):
+    global game_active
+    if not game_active:
+        await event.reply("لا توجد لعبة جارية حاليًا. ابدأ لعبة جديدة بكتابة `الافاعي`.")
         return
-    if not p1 or not p2:
-        await event.respond("لا يوجد لاعب غيرك", alert=True)
-        return
+    user_id = event.sender_id
+    if user_id not in players:
+        players[user_id] = {'name': event.sender.first_name}
+        await event.reply(f"تم تسجيلك في اللعبة، {event.sender.first_name}!")
+    else:
+        await event.reply("أنت مسجل بالفعل في اللعبة.")
+        await asyncio.sleep(8)
 
-ABH.run_until_disconnected()
+async def random_selection(event):
+    global game_active, players
+    while game_active:
+        await asyncio.sleep(7)
+        if not players:
+            game_active = False
+            return
+        if len(players) == 1:
+            winner_id = list(players.keys())[0]
+            winner_name = players[winner_id]['name']
+            await event.reply(f"تهانينا! اللاعب {winner_name} هو الفائز 🎉🐍!")
+            game_active = False
+            players = {}
+            return
+        random_player_id = random.choice(list(players.keys()))
+        random_player_name = players[random_player_id]['name']
+        await event.reply(f"انتقل اللاعب {random_player_name} إلى رحمة الله 🪦\nسبب الوفاة: عضته حية 🐍")
+        del players[random_player_id]
+        if len(players) == 1:
+            winner_id = list(players.keys())[0]
+            winner_name = players[winner_id]['name']
+            await event.reply(f"الاعب {winner_name} نجى من الموت ب اعجوبة \n شكد فكر")
+            game_active = False
+            players = {}
+print("Bot is running...")
+asyncio.run(asyncio.sleep(5))

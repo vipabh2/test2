@@ -45,12 +45,12 @@ async def join_game(event):
 async def random_selection(event):
     global game_active, players
     while game_active:
-        await time.sleep(7)
+        await asyncio.sleep(7)
         if not players:
             game_active = False
             return
+        await time.sleep(7)
         if len(players) == 1:
-            
             winner_id = list(players.keys())[0]
             winner_name = players[winner_id]['name']
             await event.reply(f"تهانينا! اللاعب {winner_name} هو الفائز 🎉🐍!")

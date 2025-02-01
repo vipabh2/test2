@@ -49,7 +49,6 @@ async def random_selection(event):
         if not players:
             game_active = False
             return
-        await time.sleep(7)
         if len(players) == 1:
             winner_id = list(players.keys())[0]
             winner_name = players[winner_id]['name']
@@ -64,7 +63,7 @@ async def random_selection(event):
         if len(players) == 1:
             winner_id = list(players.keys())[0]
             winner_name = players[winner_id]['name']
-            await event.reply(f"الاعب {winner_name} نجى من الموت ب اعجوبة \n شكد فكر")
+            await event.reply(f"اللاعب {winner_name} نجا من الموت بأعجوبة.")
             game_active = False
             players = {}
 

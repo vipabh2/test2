@@ -23,8 +23,8 @@ async def fliby(event):
                       buttons=[[Button.inline("صورة", b"pic"), Button.inline("كتابة", b"text")]]
                       )
     await asyncio.sleep(3)
-    await event.respond(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.")
-
+    # await event.respond(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.")
+    await event.edit(f"عزيزي {n1} تم تسجيلك في لعبة فليبي.\nانتظر حتى يتم تسجيل اللاعب الآخر.")
 @ABH.on(events.CallbackQuery(data=b"pic"))
 async def pic(event):
     global p1, p2

@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-import os, asyncio, random
+import os, asyncio, random, time
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
@@ -32,7 +32,7 @@ async def join_game(event):
         await event.reply(f"تم تسجيلك في اللعبة، {event.sender.first_name}!")
     else:
         await event.reply("أنت مسجل بالفعل في اللعبة.")
-        # await asyncio.sleep(8)
+        await time.sleep(8)
 @ABH.on(events.NewMessage(pattern='^بدء$'))
 async def random_selection(event):
     global game_active, players

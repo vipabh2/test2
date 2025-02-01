@@ -1,6 +1,6 @@
 from telethon import TelegramClient
 from telethon import events, Button
-import asyncio
+import asyncio, os
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')

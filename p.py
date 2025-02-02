@@ -12,7 +12,7 @@ async def start_handler(event):
     t = datetime.datetime.now().date()
     hd = Gregorian(t.year, t.month, t.day).to_hijri()
     hd_str = f"{hd.day} {hd.month_name('ar')} {hd.year} هـ"    
-    await event.respond(f"📅 التاريخ الهجري اليوم:\n{hd_str}")
+    await event.reply(f"{hd_str}")
 
 
 print("Bot is running...")

@@ -8,7 +8,7 @@ bot_token = os.getenv('BOT_TOKEN')
 
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-# تحديد تواريخ الأشهر الهجرية (يجب تحديثها سنويًا)
+# تخزين تواريخ الأشهر الهجرية (يجب تحديثها سنويًا)
 dates = {
     "رجب": datetime.date(2025, 12, 21),
     "شعبان": datetime.date(2026, 2, 2),
@@ -16,29 +16,23 @@ dates = {
     "محرم": datetime.date(2025, 6, 26)
 }
 
+# **متغير واحد يحتوي على الأزرار لتسهيل التعديل**
+buttons_list = [
+    [Button.inline("محرم", b"m"), Button.inline("رمضان", b"rm")],
+    [Button.inline("شعبان", b"sh"), Button.inline("رجب", b"r")]
+]
+
 @ABH.on(events.NewMessage(pattern='^/dates$'))
 async def show_months(event):
-    buttons = [
-        [Button.inline("محرم", b"m"), Button.inline("رمضان", b"rm")],
-        [Button.inline("شعبان", b"sh"), Button.inline("رجب", b"r")]
-    ]
-    await event.respond("اختر الشهر المناسب 👇", buttons=buttons)
+    await event.respond("اختر الشهر المناسب 👇", buttons=buttons_list)
 
-@ABH.on(events.CallbackQuery(data=b"r"))
-async def handle_r(event):
-    await calculate_days(event, "رجب")
-
-@ABH.on(events.CallbackQuery(data=b"sh"))
-async def handle_sh(event):
-    await calculate_days(event, "شعبان")
-
-@ABH.on(events.CallbackQuery(data=b"rm"))
-async def handle_rm(event):
-    await calculate_days(event, "رمضان")
-
-@ABH.on(events.CallbackQuery(data=b"m"))
-async def handle_m(event):
-    await calculate_days(event, "محرم")
+@ABH.on(events.CallbackQuery)
+async def handle_callback(event):
+    data = event.data.decode("utf-8")  # تحويل البيانات من bytes إلى string
+    month_map = {"m": "محرم", "rm": "رمضان", "sh": "شعبان", "r": "رجب"}
+    
+    if data in month_map:
+        await calculate_days(event, month_map[data])
 
 async def calculate_days(event, month):
     today = datetime.date.today()

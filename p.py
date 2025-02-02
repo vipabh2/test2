@@ -7,12 +7,12 @@ api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', int(api_id), api_hash).start(bot_token=bot_token)
 
-@ABH.on(events.NewMessage(pattern=r'\bاحس\b'))
+@ABH.on(events.NewMessage(pattern='^/start$'))
 async def start_handler(event):
     t = datetime.datetime.now().date()
     hd = Gregorian(t.year, t.month, t.day).to_hijri()
     hd_str = f"{hd.day} {hd.month_name('ar')} {hd.year} هـ"    
-    await event.reply(f"{hd_str}")
+    await event.respond(f"📅 التاريخ الهجري اليوم:\n{hd_str} \n {t}")
 
 
 print("Bot is running...")

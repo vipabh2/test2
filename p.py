@@ -1,37 +1,48 @@
-import sqlite3
+import os
 import datetime
 from telethon import TelegramClient, events, Button
-import os
+from sqlalchemy import create_engine, Column, Integer, String
+from sqlalchemy.ext.declarative import declarative_base
+from sqlalchemy.orm import sessionmaker
 
+# إعداد SQLAlchemy
+DATABASE_URL = "sqlite:///user_dates.db"  # تحديد قاعدة البيانات (SQLite)
+Base = declarative_base()
+engine = create_engine(DATABASE_URL)
+Session = sessionmaker(bind=engine)
+session = Session()
+
+# تعريف الجدول
+class UserDates(Base):
+    __tablename__ = 'user_dates'
+
+    user_id = Column(Integer, primary_key=True)
+    saved_date = Column(String, nullable=False)
+
+# إنشاء الجدول في قاعدة البيانات
+Base.metadata.create_all(engine)
+
+# إعداد البوت
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-# الاتصال بقاعدة البيانات أو إنشائها إذا كانت غير موجودة
-conn = sqlite3.connect('user_dates.db')
-c = conn.cursor()
-
-# إنشاء جدول المستخدمين إذا لم يكن موجودًا
-c.execute('''
-CREATE TABLE IF NOT EXISTS user_dates (
-    user_id INTEGER PRIMARY KEY,
-    saved_date TEXT NOT NULL
-)
-''')
-conn.commit()
-
-# دالة لحفظ التاريخ في قاعدة البيانات
+# دالة لحفظ التاريخ في قاعدة البيانات باستخدام SQLAlchemy
 def save_date(user_id, date):
-    c.execute("INSERT OR REPLACE INTO user_dates (user_id, saved_date) VALUES (?, ?)", (user_id, date))
-    conn.commit()
+    existing_date = session.query(UserDates).filter_by(user_id=user_id).first()
+    if existing_date:
+        existing_date.saved_date = date  # تحديث التاريخ إذا كان موجودًا
+    else:
+        new_date = UserDates(user_id=user_id, saved_date=date)
+        session.add(new_date)  # إضافة التاريخ الجديد
+    session.commit()
 
 # دالة لقراءة التاريخ من قاعدة البيانات
 def get_saved_date(user_id):
-    c.execute("SELECT saved_date FROM user_dates WHERE user_id = ?", (user_id,))
-    row = c.fetchone()
-    return row[0] if row else None
+    user_date = session.query(UserDates).filter_by(user_id=user_id).first()
+    return user_date.saved_date if user_date else None
 
 # عندما يرسل المستخدم الأمر '/dates'
 @ABH.on(events.NewMessage(pattern='^/dates$'))
@@ -80,6 +91,38 @@ async def cunt_m(event):
             await event.reply(f"باقي {days_difference} ايام")
     else:
         await event.reply("لم تحدد تاريخًا بعد، يرجى تحديد تاريخ أولاً.")
+
+# دالة لاختيار التاريخ وحفظه (مثال لشهر "رجب")
+@ABH.on(events.NewMessage(pattern='^رجب$'))
+async def cunt_r(event):
+    user_id = event.sender_id
+    saved_date = '2025-06-26'  # تاريخ شهر رجب
+    save_date(user_id, saved_date)  # حفظ التاريخ في قاعدة البيانات
+    await event.reply(f"تم تحديد شهر رجب، وسيتم حساب الأيام المتبقية بالنسبة لهذا التاريخ.")
+
+# دالة لاختيار تاريخ شهر شعبان
+@ABH.on(events.NewMessage(pattern='^شعبان$'))
+async def cunt_sh(event):
+    user_id = event.sender_id
+    saved_date = '2026-02-02'  # تاريخ شهر شعبان
+    save_date(user_id, saved_date)
+    await event.reply(f"تم تحديد شهر شعبان، وسيتم حساب الأيام المتبقية بالنسبة لهذا التاريخ.")
+
+# دالة لاختيار تاريخ شهر رمضان
+@ABH.on(events.NewMessage(pattern='^رمضان$'))
+async def cunt_rm(event):
+    user_id = event.sender_id
+    saved_date = '2025-03-01'  # تاريخ شهر رمضان
+    save_date(user_id, saved_date)
+    await event.reply(f"تم تحديد شهر رمضان، وسيتم حساب الأيام المتبقية بالنسبة لهذا التاريخ.")
+
+# دالة لاختيار تاريخ شهر محرم
+@ABH.on(events.NewMessage(pattern='^محرم$'))
+async def cunt_m(event):
+    user_id = event.sender_id
+    saved_date = '2025-09-01'  # تاريخ شهر محرم
+    save_date(user_id, saved_date)
+    await event.reply(f"تم تحديد شهر محرم، وسيتم حساب الأيام المتبقية بالنسبة لهذا التاريخ.")
 
 print("Bot is running...")
 ABH.run_until_disconnected()

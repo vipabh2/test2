@@ -1,5 +1,5 @@
+from telethon import events, TelegramClient, Button
 import datetime
-from telethon import events, TelegramClient
 import os
 
 api_id = os.getenv('API_ID')
@@ -8,15 +8,11 @@ bot_token = os.getenv('BOT_TOKEN')
 
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-@ABH.on(events.NewMessage(pattern='^رمضان$'))
+@ABH.on(events.NewMessage(pattern='^/dates$'))
 async def cunt(event):
-    t = datetime.datetime.today()
-    t2 = datetime.date(2025, 3, 1)
-    days_difference = (t2 - t.date()).days
-    if days_difference < 0:
-        await event.reply("الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1")
-    else:
-        await event.reply(f"باقي {days_difference} ايام")
+    button = [[Button.inline("رجب", b"r"), Button.inline("شعبان", b"sh"), Button.inline("رمضان", b"rm"), Button.inline("محرم", b"m")]]
+    await event.reply("اختر الشهر المناسب 👇", button)
+    
 @ABH.on(events.NewMessage(pattern='^رجب$'))
 async def cunt(event):
     t = datetime.datetime.today()

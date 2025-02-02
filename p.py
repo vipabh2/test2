@@ -15,7 +15,7 @@ async def cunt(event):
         Button.inline("رمضان", b"rm"),
         Button.inline("شعبان", b"sh"),
         Button.inline("رجب", b"r")]]
-    await event.reply("اختر الشهر المناسب 👇", buttons=btton)
+    await event.respond("اختر الشهر المناسب 👇", buttons=btton)
 @ABH.on(events.CallbackQuery(data=b"r"))
 async def handle_r(event):
     await event.answer()
@@ -38,7 +38,7 @@ async def cunt_r(event):
     t2 = datetime.date(2025, 12, 21)
     days_difference = (t2 - t.date()).days
     if days_difference < 0:
-        await event.reply("الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1")
+        await event.edit("الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1")
     else:
         await event.reply(f"باقي {days_difference} ايام ل شهر رجب")
 @ABH.on(events.NewMessage(pattern='^شعبان$'))

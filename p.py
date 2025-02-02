@@ -11,7 +11,7 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 @ABH.on(events.NewMessage(pattern='^/dates$'))
 async def cunt(event):
     btton = [[Button.inline("رجب", b"r"), Button.inline("شعبان", b"sh"), Button.inline("رمضان", b"rm"), Button.inline("محرم", b"m")]]
-    await event.reply("اختر الشهر المناسب 👇", btton)
+    await event.reply("اختر الشهر المناسب 👇", buttons=btton)
     
 @ABH.on(events.NewMessage(pattern='^رجب$'))
 async def cunt(event):

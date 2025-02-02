@@ -1,19 +1,23 @@
-from telethon import TelegramClient, events
-from hijri_converter import Gregorian
-import os, datetime, time
+import datetime
+from telethon import events, TelegramClient
+import os
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
-ABH = TelegramClient('c', int(api_id), api_hash).start(bot_token=bot_token)
 
-@ABH.on(events.NewMessage(pattern='^/start$'))
-async def start_handler(event):
-    t = datetime.datetime.now().date()
-    hd = Gregorian(t.year, t.month, t.day).to_hijri()
-    hd_str = f"{hd.day} {hd.month_name('ar')} {hd.year} هـ"    
-    await event.reply(f" الهجري: \n {hd_str} \n التاريخ الميلادي: \n {t}")
+ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-
+@ABH.on(events.NewMessage(pattern='^/satrt$'))
+async def cunt(event):
+    t = datetime.datetime.today()
+    t2 = datetime.date(2025, 3, 1)
+    days_difference = (t2 - t.date()).days
+    
+    if days_difference < 0:
+        await event.reply("The date has passed!")
+    else:
+        await event.reply(f"Days remaining: {days_difference} days")
+        
 print("Bot is running...")
 ABH.run_until_disconnected()

@@ -7,7 +7,7 @@ api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', int(api_id), api_hash).start(bot_token=bot_token)
 
-@ABH.on(events.NewMessage(pattern=r'.*احس.*'))
+@ABH.on(events.NewMessage(pattern=r'^\s*احس\s*$'))
 async def start_handler(event):
     t = datetime.datetime.now().date()
     hd = Gregorian(t.year, t.month, t.day).to_hijri()

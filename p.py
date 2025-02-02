@@ -36,7 +36,7 @@ async def cunt_r(event):
     if days_difference < 0:
         await event.reply("الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1")
     else:
-        await event.reply(f"باقي {days_difference} ايام")
+        await event.reply(f"باقي {days_difference} ايام ل شهر رجب")
 @ABH.on(events.NewMessage(pattern='^شعبان$'))
 async def cunt_sh(event):
     t = datetime.datetime.today()
@@ -45,7 +45,7 @@ async def cunt_sh(event):
     if days_difference < 0:
         await event.reply("الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1")
     else:
-        await event.reply(f"باقي {days_difference} ايام")
+        await event.reply(f"باقي {days_difference} ايام ل شهر شعبان")
 @ABH.on(events.NewMessage(pattern='^رمضان$'))
 async def cunt_rm(event):
     t = datetime.datetime.today()
@@ -54,7 +54,7 @@ async def cunt_rm(event):
     if days_difference < 0:
         await event.reply("الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1")
     else:
-        await event.reply(f"باقي {days_difference} ايام")
+        await event.reply(f"باقي {days_difference} ايام ل شهر رمضان")
 @ABH.on(events.NewMessage(pattern='^محرم$'))
 async def cunt_m(event):
     t = datetime.datetime.today()
@@ -63,7 +63,7 @@ async def cunt_m(event):
     if days_difference < 0:
         await event.reply("الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1")
     else:
-        await event.reply(f"باقي {days_difference} ايام")
+        await event.reply(f"باقي {days_difference} ايام ل شهر محرم")
         
 print("Bot is running...")
 ABH.run_until_disconnected()

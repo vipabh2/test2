@@ -16,6 +16,18 @@ async def cunt(event):
 async def handle_r(event):
     await event.answer()
     await cunt_r(event) 
+@ABH.on(events.CallbackQuery(data=b"sh"))
+async def handle_r(event):
+    await event.answer()
+    await cunt_sh(event) 
+@ABH.on(events.CallbackQuery(data=b"rm"))
+async def handle_r(event):
+    await event.answer()
+    await cunt_rm(event) 
+@ABH.on(events.CallbackQuery(data=b"m"))
+async def handle_r(event):
+    await event.answer()
+    await cunt_m(event)
 @ABH.on(events.NewMessage(pattern='^رجب$'))
 async def cunt_r(event):
     t = datetime.datetime.today()

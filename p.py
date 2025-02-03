@@ -25,14 +25,14 @@ async def inline_query_handler(event):
 
             try:
                 reciver = await ABH.get_entity(username)  # جلب معلومات المستلم
-                reciver_id = reciver.id  # ID المستخدم
+                reciver_id = reciver.id  # ID المستخدم المستلم
 
                 result = builder.article(
                     title='📩 إرسال رسالة سرية',
                     description=f'اضغط لإرسال رسالة إلى {username}',
                     text=f"🔹 اضغط على الزر لإرسال رسالة سرية إلى {username} 👇",
                     buttons=[
-                        Button.inline(f"📩 إرسال إلى {username}", data=f'send|{reciver_id}|{message}')
+                        Button.inline(f"📩 إرسال إلى {username}", data=f'send|{event.query.user_id}|{reciver_id}|{message}')
                     ]
                 )
 
@@ -51,12 +51,15 @@ async def callback_handler(event):
     data = event.data.decode().split('|')
 
     if data[0] == 'send':
-        reciver_id = int(data[1])  # ID المستلم
-        secret_message = data[2]  # محتوى الرسالة
+        sender_id = int(data[1])  # معرف المرسل
+        reciver_id = int(data[2])  # معرف المستلم
+        secret_message = data[3]  # محتوى الرسالة
 
-        sender_id = event.query.user_id  # معرف المرسل
+        if event.query.user_id != sender_id:
+            await event.answer("❌ ليس لديك صلاحية لإرسال هذه الرسالة!", alert=True)
+            return
 
-        # إرسال الرسالة في محادثة البوت
+        # إرسال الرسالة في محادثة البوت للمرسل
         await ABH.send_message(
             sender_id,
             f"✅ **تم إرسال الرسالة إلى المستخدم المطلوب!**\n"

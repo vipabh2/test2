@@ -43,7 +43,7 @@ async def inline_query_handler(event):
                 )
         else:
             return
-        await event.answer([result])
+        # await event.answer([result])
 
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):

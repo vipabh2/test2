@@ -43,7 +43,9 @@ async def inline_query_handler(event):
                 )
         else:
             return
-        # await event.answer([result])
+        
+        # ✅ تصحيح الخطأ بإعادة تفعيل إرسال الرد على الإنلاين
+        await event.answer([result])
 
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):

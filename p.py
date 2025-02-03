@@ -1,5 +1,5 @@
 import os
-from telethon import TelegramClient, events, Button
+from telethon import TelegramClient, events
 
 # جلب القيم من المتغيرات البيئية
 api_id = os.getenv('API_ID')
@@ -28,15 +28,15 @@ async def inline_query_handler(event):
                 reciver_id = reciver.id  # ID المستخدم المستلم
                 sender_id = event.query.user_id  # معرف المرسل
 
-                # إعداد النتيجة بحيث يظهر الزر مباشرة
+                # إنشاء الاستجابة بدون زر
                 result = builder.article(
                     title='📩 إرسال رسالة سرية',
-                    description=f'اضغط لإرسال رسالة إلى {username}',
-                    text=f"🔹 اضغط على [**{username}**](https://t.me/{username.replace('@', '')}) لإرسال رسالة سرية 👇",
+                    description=f'تم إرسال الرسالة إلى {username}',
+                    text=f"🔹 الرسالة التي سيتم إرسالها إلى {username} هي:\n\n{message}",
                     link_preview=False
                 )
 
-                # عند الضغط على اسم المستخدم في الرسالة، يتم إرسال الرسالة فورًا.
+                # إرسال الرسالة إلى المستخدم المستهدف مباشرة عند الضغط
                 await ABH.send_message(
                     reciver_id,
                     f"📩 **لديك رسالة سرية من شخص مجهول!**\n"

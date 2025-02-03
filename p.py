@@ -59,9 +59,7 @@ async def show_dates(event):
 async def handle_callback(event):
     data = event.data.decode("utf-8")
 
-    if data == "set_date":
-        await event.edit("من فضلك أدخل التاريخ بصيغة YYYY-MM-DD مثال: 2025-06-15", buttons=None)
-    elif data == "m":
+    if data == "m":
         await cunt_m(event)
     elif data == "rm":
         await cunt_rm(event)
@@ -70,6 +68,9 @@ async def handle_callback(event):
     elif data == "r":
         await cunt_r(event)
 
+@ABH.on(events.CallbackQuery(data=b"set_date"))
+async def ask_for_date(event):
+    await event.respond("من فضلك أدخل التاريخ بصيغة YYYY-MM-DD مثال")
 @ABH.on(events.NewMessage(pattern=r'^\d{4}-\d{2}-\d{2}$'))
 async def set_user_date(event):
     user_id = event.sender_id

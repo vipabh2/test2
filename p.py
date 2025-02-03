@@ -39,12 +39,12 @@ async def inline_query_handler(event):
                     link_preview=False
                 )
 
-                # إرسال تأكيد للمرسل في محادثة البوت
-                await ABH.send_message(
-                    sender_id,
-                    f"✅ **تم إنشاء الرسالة إلى {username}!**\n"
-                    f"💬 **الرسالة:** {message}"
-                )
+                # # إرسال تأكيد للمرسل في محادثة البوت
+                # await ABH.send_message(
+                #     sender_id,
+                #     f"✅ **تم إنشاء الرسالة إلى {username}!**\n"
+                #     f"💬 **الرسالة:** {message}"
+                # )
 
             except Exception as e:
                 result = builder.article(
@@ -72,12 +72,12 @@ async def callback_query_handler(event):
             f"💬 **الرسالة:** {message}"
         )
 
-        # # إرسال تأكيد للمرسل في محادثة البوت
-        # await ABH.send_message(
-        #     sender_id,
-        #     f"✅ **تم إرسال الرسالة إلى المستخدم بنجاح!**\n"
-        #     f"💬 **الرسالة:** {message}"
-        # )
+        # إرسال تأكيد للمرسل في محادثة البوت
+        await ABH.send_message(
+            sender_id,
+            f"✅ **تم إرسال الرسالة إلى المستخدم بنجاح!**\n"
+            f"💬 **الرسالة:** {message}"
+        )
 
 print("✅ Bot is running...")
 ABH.run_until_disconnected()

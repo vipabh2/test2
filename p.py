@@ -1,5 +1,5 @@
 import os
-from telethon import TelegramClient, events, Button
+from telethon import TelegramClient, events
 
 # جلب القيم من المتغيرات البيئية
 api_id = os.getenv('API_ID')
@@ -9,67 +9,44 @@ bot_token = os.getenv('BOT_TOKEN')
 # إنشاء جلسة للبوت
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
-@ABH.on(events.InlineQuery)
-async def inline_query_handler(event):
-    builder = event.builder
+@ABH.on(events.NewMessage(pattern="ارسل"))
+async def send_message_to_user(event):
+    # استخراج النص بعد كلمة "ارسل"
     query = event.text.strip()
+    parts = query.split(' ', 2)  # نقوم بتقسيم النص إلى 3 أجزاء: الامر، النص، واسم المستخدم
 
-    if query:
-        parts = query.split(' ')
-        if parts[0] == 'تيل' and len(parts) >= 3:
-            message = ' '.join(parts[1:-1])  # استخراج الرسالة
-            username = parts[-1]  # استخراج اسم المستخدم
+    if len(parts) >= 3:
+        message = parts[1]  # النص المرسل
+        username = parts[2]  # اسم المستخدم
 
-            if not username.startswith('@'):
-                username = f'@{username}'
+        # التأكد من أن اسم المستخدم يبدأ بـ @، وإذا لم يكن يبدأ بـ @، نضيفه
+        if not username.startswith('@'):
+            username = f'@{username}'
 
-            try:
-                reciver = await ABH.get_entity(username)  # جلب معلومات المستلم
-                reciver_id = reciver.id  # ID المستخدم المستلم
-                sender_id = event.query.user_id  # معرف المرسل
+        try:
+            # جلب معلومات المستلم
+            reciver = await ABH.get_entity(username)
+            reciver_id = reciver.id  # ID المستخدم المستلم
+            sender_id = event.sender_id  # معرف المرسل
 
-                # إنشاء الاستجابة مع زر لإرسال الرسالة مباشرة
-                result = builder.article(
-                    title='📩 إرسال رسالة سرية',
-                    description=f'تم إرسال الرسالة إلى {username}',
-                    text=f"🔹 سيتم إرسال الرسالة إلى {username}: \n{message}",
-                    buttons=[
-                        [Button.inline("إرسال الرسالة", data=f"send:{reciver_id}:{message}")]
-                    ],
-                    link_preview=False
-                )
-            except Exception as e:
-                result = builder.article(
-                    title='❌ خطأ في الإرسال',
-                    description="حدث خطأ أثناء معالجة طلبك.",
-                    text="حدث خطأ أثناء معالجة طلبك، الرجاء المحاولة مرة أخرى."
-                )
-        else:
-            return
+            # إرسال الرسالة إلى المستخدم المستهدف
+            await ABH.send_message(
+                reciver_id,
+                f"📩 **لديك رسالة سرية من شخص مجهول!**\n"
+                f"💬 **الرسالة:** {message}"
+            )
 
-        await event.answer([result])
+            # إرسال تأكيد للمرسل في محادثة البوت
+            await ABH.send_message(
+                sender_id,
+                f"✅ **تم إرسال الرسالة إلى {username} بنجاح!**\n"
+                f"💬 **الرسالة:** {message}"
+            )
 
-@ABH.on(events.CallbackQuery)
-async def callback_query_handler(event):
-    data = event.data.decode('utf-8')
-    if data.startswith('send:'):
-        # استخراج reciver_id والرسالة من البيانات المرسلة عبر الزر
-        _, reciver_id, message = data.split(':')
-
-        reciver_id = int(reciver_id)
-        sender_id = event.query.user_id
-
-        # إرسال الرسالة إلى المستخدم المستهدف مباشرة عند الضغط على الزر
-        await ABH.send_message(
-            reciver_id,
-            f"📩 لديك رسالة سرية: \n{message}"
-        )
-
-        # إرسال تأكيد للمرسل في محادثة البوت
-        await ABH.send_message(
-            sender_id,
-            f"✅ تم إرسال الرسالة إلى {username} بنجاح!"
-        )
+        except Exception as e:
+            await event.reply("❌ **حدث خطأ أثناء محاولة إرسال الرسالة. تأكد من صحة اسم المستخدم.**")
+    else:
+        await event.reply("❌ **الصيغة غير صحيحة. يرجى استخدام الصيغة: ارسل [نص الرسالة] @username**")
 
 print("✅ Bot is running...")
 ABH.run_until_disconnected()

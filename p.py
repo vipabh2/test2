@@ -43,8 +43,6 @@ def save_date(user_id, date):
 def get_saved_date(user_id):
     user_date = session.query(UserDates).filter_by(user_id=user_id).first()
     return user_date.saved_date if user_date else None
-
-# عندما يرسل المستخدم الأمر '/dates'
 @ABH.on(events.NewMessage(pattern='^/dates$'))
 async def show_dates(event):
     btton = [[
@@ -56,73 +54,76 @@ async def show_dates(event):
     ]]
     await event.respond("اختر الشهر المناسب أو حدد تاريخ خاص 👇", buttons=btton)
 
-# عندما يرسل المستخدم الأمر "حدد تاريخ"
-@ABH.on(events.CallbackQuery(data=b"set_date"))
-async def ask_for_date(event):
-    await event.respond("من فضلك أدخل التاريخ بصيغة YYYY-MM-DD (مثال: 2025-06-26)")
-    
-# عندما يرسل المستخدم تاريخًا جديدًا
+@ABH.on(events.CallbackQuery)
+async def handle_callback(event):
+    data = event.data.decode("utf-8")
+
+    if data == "set_date":
+        await event.edit("من فضلك أدخل التاريخ بصيغة YYYY-MM-DD مثال: 2025-06-15", buttons=None)
+    elif data == "m":
+        await cunt_m(event, edit=True)
+    elif data == "rm":
+        await cunt_rm(event, edit=True)
+    elif data == "sh":
+        await cunt_sh(event, edit=True)
+    elif data == "r":
+        await cunt_r(event, edit=True)
+
 @ABH.on(events.NewMessage(pattern=r'^\d{4}-\d{2}-\d{2}$'))
 async def set_user_date(event):
     user_id = event.sender_id
     date = event.text
 
     try:
-        # التحقق من صحة التاريخ
         datetime.datetime.strptime(date, "%Y-%m-%d")
         save_date(user_id, date)
-        await event.reply(f"تم حفظ التاريخ {date}. يمكنك الآن معرفة كم باقي.")
+        await event.edit(f"تم حفظ التاريخ {date}. يمكنك الآن معرفة كم باقي.")
     except ValueError:
-        await event.reply("التاريخ المدخل غير صالح، يرجى إدخاله بصيغة YYYY-MM-DD.")
+        await event.edit("التاريخ المدخل غير صالح، يرجى إدخاله بصيغة YYYY-MM-DD.")
 
-# عندما يرسل المستخدم الأمر "كم باقي"
 @ABH.on(events.NewMessage(pattern='^كم باقي$'))
 async def cunt_m(event):
     user_id = event.sender_id
-    saved_date = get_saved_date(user_id)  # الحصول على التاريخ المحفوظ من قاعدة البيانات
+    saved_date = get_saved_date(user_id)
 
     if saved_date:
         t = datetime.datetime.today()
         saved_date_obj = datetime.datetime.strptime(saved_date, "%Y-%m-%d").date()
         days_difference = (saved_date_obj - t.date()).days
         if days_difference < 0:
-            await event.reply(f"التاريخ قد مضى منذ {abs(days_difference)} يوم")
+            await event.edit(f"التاريخ قد مضى منذ {abs(days_difference)} يوم")
         else:
-            await event.reply(f"باقي {days_difference} ايام")
+            await event.edit(f"باقي {days_difference} ايام")
     else:
-        await event.reply("لم تحدد تاريخًا بعد، يرجى تحديد تاريخ أولاً.")
+        await event.edit("لم تحدد تاريخًا بعد، يرجى تحديد تاريخ أولاً.")
 
-# دالة لاختيار التاريخ وحفظه (مثال لشهر "رجب")
-@ABH.on(events.NewMessage(pattern='^رجب$'))
-async def cunt_r(event):
-    user_id = event.sender_id
-    saved_date = '2025-06-26'  # تاريخ شهر رجب
-    save_date(user_id, saved_date)  # حفظ التاريخ في قاعدة البيانات
-    await event.reply(f"تم تحديد شهر رجب، وسيتم حساب الأيام المتبقية بالنسبة لهذا التاريخ.")
+async def cunt_r(event, edit=False):
+    t = datetime.datetime.today()
+    t2 = datetime.date(2025, 12, 22)
+    days_difference = (t2 - t.date()).days
+    msg = f"باقي {days_difference} ايام" if days_difference >= 0 else "الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1"
+    await event.edit(msg)
 
-# دالة لاختيار تاريخ شهر شعبان
-@ABH.on(events.NewMessage(pattern='^شعبان$'))
-async def cunt_sh(event):
-    user_id = event.sender_id
-    saved_date = '2026-02-02'  # تاريخ شهر شعبان
-    save_date(user_id, saved_date)
-    await event.reply(f"تم تحديد شهر شعبان، وسيتم حساب الأيام المتبقية بالنسبة لهذا التاريخ.")
+async def cunt_sh(event, edit=False):
+    t = datetime.datetime.today()
+    t2 = datetime.date(2026, 1, 20)
+    days_difference = (t2 - t.date()).days
+    msg = f"باقي {days_difference} ايام" if days_difference >= 0 else "الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1"
+    await event.edit(msg)
 
-# دالة لاختيار تاريخ شهر رمضان
-@ABH.on(events.NewMessage(pattern='^رمضان$'))
-async def cunt_rm(event):
-    user_id = event.sender_id
-    saved_date = '2025-03-01'  # تاريخ شهر رمضان
-    save_date(user_id, saved_date)
-    await event.reply(f"تم تحديد شهر رمضان، وسيتم حساب الأيام المتبقية بالنسبة لهذا التاريخ.")
+async def cunt_rm(event, edit=False):
+    t = datetime.datetime.today()
+    t2 = datetime.date(2025, 3, 1)
+    days_difference = (t2 - t.date()).days
+    msg = f"باقي {days_difference} ايام" if days_difference >= 0 else "الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1"
+    await event.edit(msg)
 
-# دالة لاختيار تاريخ شهر محرم
-@ABH.on(events.NewMessage(pattern='^محرم$'))
-async def cunt_m(event):
-    user_id = event.sender_id
-    saved_date = '2025-09-01'  # تاريخ شهر محرم
-    save_date(user_id, saved_date)
-    await event.reply(f"تم تحديد شهر محرم، وسيتم حساب الأيام المتبقية بالنسبة لهذا التاريخ.")
+async def cunt_m(event, edit=False):
+    t = datetime.datetime.today()
+    t2 = datetime.date(2025, 6, 26)
+    days_difference = (t2 - t.date()).days
+    msg = f"باقي {days_difference} ايام" if days_difference >= 0 else "الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1"
+    await event.edit(msg)
 
 print("Bot is running...")
 ABH.run_until_disconnected()

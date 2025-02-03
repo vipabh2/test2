@@ -11,6 +11,7 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
 @ABH.on(events.InlineQuery)
 async def inline_query_handler(event):
+    global username
     builder = event.builder
     query = event.text.strip()
 
@@ -38,14 +39,6 @@ async def inline_query_handler(event):
                     ],
                     link_preview=False
                 )
-
-                # # إرسال تأكيد للمرسل في محادثة البوت
-                # await ABH.send_message(
-                #     sender_id,
-                #     f"✅ **تم إنشاء الرسالة إلى {username}!**\n"
-                #     f"💬 **الرسالة:** {message}"
-                # )
-
             except Exception as e:
                 result = builder.article(
                     title='❌ خطأ في الإرسال',
@@ -77,6 +70,7 @@ async def callback_query_handler(event):
             sender_id,
             f"✅ **تم إرسال الرسالة إلى المستخدم بنجاح!**\n"
             f"💬 **الرسالة:** {message}"
+            f"💬 **المستخدم:** {username}"
         )
 
 print("✅ Bot is running...")

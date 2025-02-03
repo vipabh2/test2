@@ -33,7 +33,6 @@ async def inline_query_handler(event):
                 result = builder.article(
                     title='📩 إرسال رسالة سرية',
                     description=f'تم إرسال الرسالة إلى {username}',
-                    text=f"🔹 الرسالة التي سيتم إرسالها إلى {username} هي:\n\n{message}",
                     buttons=[
                         [Button.inline("إرسال الرسالة", data=f"send:{reciver_id}")]
                     ],

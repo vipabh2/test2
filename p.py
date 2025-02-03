@@ -55,9 +55,22 @@ async def show_dates(event):
     ]]
     await event.respond("اختر الشهر المناسب أو حدد تاريخ خاص 👇", buttons=btton)
 
+@ABH.on(events.CallbackQuery)
+async def handle_callback(event):
+    data = event.data.decode("utf-8")
+
+    if data == "m":
+        await cunt_m(event)
+    elif data == "rm":
+        await cunt_rm(event)
+    elif data == "sh":
+        await cunt_sh(event)
+    elif data == "r":
+        await cunt_r(event)
 @ABH.on(events.CallbackQuery(data=b"set_date"))
 async def ask_for_date(event):
     await event.respond("من فضلك أدخل التاريخ بصيغة YYYY-MM-DD مثال")
+    
 @ABH.on(events.NewMessage(pattern=r'^\d{4}-\d{2}-\d{2}$'))
 async def set_user_date(event):
     user_id = event.sender_id
@@ -71,7 +84,7 @@ async def set_user_date(event):
         await event.reply("التاريخ المدخل غير صالح، يرجى إدخاله بصيغة YYYY-MM-DD.")
 
 @ABH.on(events.NewMessage(pattern='^كم باقي$'))
-async def check_remaining_days(event):
+async def cunt_m(event):
     user_id = event.sender_id
     saved_date = get_saved_date(user_id)
 
@@ -79,10 +92,12 @@ async def check_remaining_days(event):
         t = datetime.datetime.today()
         saved_date_obj = datetime.datetime.strptime(saved_date, "%Y-%m-%d").date()
         days_difference = (saved_date_obj - t.date()).days
-        msg = f"باقي {days_difference} ايام" if days_difference >= 0 else f"التاريخ قد مضى منذ {abs(days_difference)} يوم"
-        await event.edit(msg)
+        if days_difference < 0:
+            await event.reply(f"التاريخ قد مضى منذ {abs(days_difference)} يوم")
+        else:
+            await event.reply(f"باقي {days_difference} ايام")
     else:
-        await event.edit("لم تحدد تاريخًا بعد، يرجى تحديد تاريخ أولاً.")
+        await event.reply("لم تحدد تاريخًا بعد، يرجى تحديد تاريخ أولاً.")
 
 async def cunt_r(event):
     await calculate_days(event, datetime.date(2025, 12, 22))
@@ -101,19 +116,6 @@ async def calculate_days(event, target_date):
     days_difference = (target_date - t.date()).days
     msg = f"باقي {days_difference} ايام" if days_difference >= 0 else "الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1"
     await event.edit(msg)
-
-@ABH.on(events.CallbackQuery)
-async def handle_callback(event):
-    data = event.data.decode("utf-8")
-
-    if data == "m":
-        await cunt_m(event)
-    elif data == "rm":
-        await cunt_rm(event)
-    elif data == "sh":
-        await cunt_sh(event)
-    elif data == "r":
-        await cunt_r(event)
 
 print("Bot is running...")
 ABH.run_until_disconnected()

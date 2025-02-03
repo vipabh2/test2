@@ -11,7 +11,6 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
 @ABH.on(events.InlineQuery)
 async def inline_query_handler(event):
-    global username
     builder = event.builder
     query = event.text.strip()
 
@@ -33,8 +32,9 @@ async def inline_query_handler(event):
                 result = builder.article(
                     title='📩 إرسال رسالة سرية',
                     description=f'تم إرسال الرسالة إلى {username}',
+                    text=f"🔹 سيتم إرسال الرسالة إلى {username}: \n{message}",
                     buttons=[
-                        [Button.inline("إرسال الرسالة", data=f"send:{reciver_id}")]
+                        [Button.inline("إرسال الرسالة", data=f"send:{reciver_id}:{message}")]
                     ],
                     link_preview=False
                 )
@@ -53,7 +53,9 @@ async def inline_query_handler(event):
 async def callback_query_handler(event):
     data = event.data.decode('utf-8')
     if data.startswith('send:'):
+        # استخراج reciver_id والرسالة من البيانات المرسلة عبر الزر
         _, reciver_id, message = data.split(':')
+
         reciver_id = int(reciver_id)
         sender_id = event.query.user_id
 
@@ -61,7 +63,7 @@ async def callback_query_handler(event):
         await ABH.send_message(
             reciver_id,
             f"📩 **لديك رسالة سرية من شخص مجهول!**\n"
-            f"💬 **الرسالة:**  \n {message}"
+            f"💬 **الرسالة:** \n{message}"
         )
 
         # إرسال تأكيد للمرسل في محادثة البوت
@@ -69,7 +71,7 @@ async def callback_query_handler(event):
             sender_id,
             f"✅ **تم إرسال الرسالة إلى المستخدم بنجاح!**\n"
             f"💬 **الرسالة:** {message}"
-            f"\n 💬 **المستخدم:** {username}"
+            f"\n💬 **المستخدم:** {event.query.user_id}"
         )
 
 print("✅ Bot is running...")

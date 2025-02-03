@@ -18,7 +18,7 @@ async def inline_query_handler(event):
         parts = query.split(' ')
         if parts[0] == 'تيل' and len(parts) >= 3:
             message = ' '.join(parts[1:-1])  # استخراج الرسالة
-            username = parts[-1]  # استخراج اسم المستلم
+            username = parts[-1]  # استخراج اسم المستخدم
 
             if not username.startswith('@'):
                 username = f'@{username}'
@@ -27,26 +27,13 @@ async def inline_query_handler(event):
                 reciver = await ABH.get_entity(username)  # جلب معلومات المستلم
                 reciver_id = reciver.id  # ID المستخدم
 
-                # إرسال الرسالة في محادثة البوت
-                bot_message = await event.client.send_message(
-                    event.query.user_id,  # يتم إرسالها للشخص الذي استدعى الإنلاين
-                    f"📩 **تم إرسال رسالة سرية إلى {username}!**\n"
-                    f"💬 **الرسالة:** {message}"
-                )
-
-                # إرسال الرسالة إلى المستخدم المستهدف @k_4x1
-                await event.client.send_message(
-                    reciver, 
-                    f"📩 **لديك رسالة سرية من شخص مجهول!**\n"
-                    f"💬 **الرسالة:** {message}"
-                )
-
-                # إرسال زر تأكيد داخل الإنلاين
                 result = builder.article(
-                    title='📩 تم إرسال الرسالة السرية!',
-                    description=f'تم إرسال رسالة إلى {username}',
-                    text=f"✅ **تم إرسال الرسالة إلى {username} بنجاح!**",
-                    buttons=[Button.inline("🗑 حذف الرسالة", data=f'delete|{bot_message.id}')]
+                    title='📩 إرسال رسالة سرية',
+                    description=f'اضغط لإرسال رسالة إلى {username}',
+                    text=f"🔹 اضغط على الزر لإرسال رسالة سرية إلى {username} 👇",
+                    buttons=[
+                        Button.inline(f"📩 إرسال إلى {username}", data=f'send|{reciver_id}|{message}')
+                    ]
                 )
 
             except Exception as e:
@@ -60,16 +47,30 @@ async def inline_query_handler(event):
 
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):
-    """ معالجة الضغط على زر حذف الرسالة """
+    """ عند الضغط على زر إرسال الرسالة """
     data = event.data.decode().split('|')
 
-    if data[0] == 'delete':
-        message_id = int(data[1])  # ID الرسالة في محادثة البوت
-        try:
-            await event.client.delete_messages(event.query.user_id, message_id)
-            await event.answer("✅ تم حذف الرسالة!", alert=True)
-        except:
-            await event.answer("❌ لا يمكن حذف الرسالة!", alert=True)
+    if data[0] == 'send':
+        reciver_id = int(data[1])  # ID المستلم
+        secret_message = data[2]  # محتوى الرسالة
+
+        sender_id = event.query.user_id  # معرف المرسل
+
+        # إرسال الرسالة في محادثة البوت
+        await ABH.send_message(
+            sender_id,
+            f"✅ **تم إرسال الرسالة إلى المستخدم المطلوب!**\n"
+            f"💬 **الرسالة:** {secret_message}"
+        )
+
+        # إرسال الرسالة إلى المستخدم المستهدف
+        await ABH.send_message(
+            reciver_id,
+            f"📩 **لديك رسالة سرية من شخص مجهول!**\n"
+            f"💬 **الرسالة:** {secret_message}"
+        )
+
+        await event.answer("✅ تم إرسال الرسالة!", alert=True)
 
 print("✅ Bot is running...")
 ABH.run_until_disconnected()

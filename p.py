@@ -1,5 +1,5 @@
 import os
-from telethon import TelegramClient, events, Button
+from telethon import TelegramClient, events
 
 # جلب القيم من المتغيرات البيئية
 api_id = os.getenv('API_ID')
@@ -26,15 +26,18 @@ async def inline_query_handler(event):
             try:
                 reciver = await ABH.get_entity(username)  # جلب معلومات المستلم
                 reciver_id = reciver.id  # ID المستخدم المستلم
+                sender_id = event.query.user_id  # معرف المرسل
 
+                # إعداد النتيجة بحيث يكون اسم المستخدم هو الزر الذي يضغط عليه المستخدم لإرسال الرسالة
                 result = builder.article(
                     title='📩 إرسال رسالة سرية',
-                    description=f'اضغط لإرسال رسالة إلى {username}',
-                    text=f"🔹 اضغط على الزر لإرسال رسالة سرية إلى {username} 👇",
-                    buttons=[
-                        Button.inline("📩 إرسال الآن", data=f'send|{event.query.user_id}|{reciver_id}|{message}')
-                    ]
+                    description=f'اضغط على {username} لإرسال الرسالة',
+                    text=f"🔹 اضغط على [**{username}**](https://t.me/{username.replace('@', '')}) لإرسال رسالة سرية 👇",
+                    link_preview=False
                 )
+
+                # حفظ البيانات في كود مخفي ليتم إرسالها عند الضغط
+                result.button = f'send|{sender_id}|{reciver_id}|{message}'
 
             except Exception as e:
                 result = builder.article(
@@ -48,7 +51,7 @@ async def inline_query_handler(event):
 
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):
-    """ عند الضغط على زر إرسال الرسالة """
+    """ عند الضغط على رابط اسم المستخدم """
     data = event.data.decode().split('|')
 
     if data[0] == 'send':

@@ -55,19 +55,6 @@ async def show_dates(event):
     ]]
     await event.respond("اختر الشهر المناسب أو حدد تاريخ خاص 👇", buttons=btton)
 
-@ABH.on(events.CallbackQuery)
-async def handle_callback(event):
-    data = event.data.decode("utf-8")
-
-    if data == "m":
-        await cunt_m(event)
-    elif data == "rm":
-        await cunt_rm(event)
-    elif data == "sh":
-        await cunt_sh(event)
-    elif data == "r":
-        await cunt_r(event)
-
 @ABH.on(events.CallbackQuery(data=b"set_date"))
 async def ask_for_date(event):
     await event.respond("من فضلك أدخل التاريخ بصيغة YYYY-MM-DD مثال")
@@ -114,6 +101,19 @@ async def calculate_days(event, target_date):
     days_difference = (target_date - t.date()).days
     msg = f"باقي {days_difference} ايام" if days_difference >= 0 else "الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1"
     await event.edit(msg)
+
+@ABH.on(events.CallbackQuery)
+async def handle_callback(event):
+    data = event.data.decode("utf-8")
+
+    if data == "m":
+        await cunt_m(event)
+    elif data == "rm":
+        await cunt_rm(event)
+    elif data == "sh":
+        await cunt_sh(event)
+    elif data == "r":
+        await cunt_r(event)
 
 print("Bot is running...")
 ABH.run_until_disconnected()

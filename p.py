@@ -1,5 +1,5 @@
 import os
-from telethon import TelegramClient, events
+from telethon import TelegramClient, events, Button
 
 # جلب القيم من المتغيرات البيئية
 api_id = os.getenv('API_ID')
@@ -33,16 +33,16 @@ async def inline_query_handler(event):
                     title='📩 إرسال رسالة سرية',
                     description=f'اضغط على {username} لإرسال الرسالة',
                     text=f"🔹 اضغط على [**{username}**](https://t.me/{username.replace('@', '')}) لإرسال رسالة سرية 👇",
-                    link_preview=False
+                    buttons=[
+                        Button.inline("📩 إرسال الآن", data=f'send|{sender_id}|{reciver_id}|{message}')
+                    ]
                 )
-
-                # حفظ البيانات في كود مخفي ليتم إرسالها عند الضغط
-                result.button = f'send|{sender_id}|{reciver_id}|{message}'
 
             except Exception as e:
                 result = builder.article(
                     title='❌ خطأ في الإرسال',
                     description="حدث خطأ أثناء معالجة طلبك.",
+                    text="حدث خطأ أثناء معالجة طلبك، الرجاء المحاولة مرة أخرى."
                 )
         else:
             return
@@ -51,7 +51,7 @@ async def inline_query_handler(event):
 
 @ABH.on(events.CallbackQuery)
 async def callback_handler(event):
-    """ عند الضغط على رابط اسم المستخدم """
+    """ عند الضغط على زر إرسال الرسالة """
     data = event.data.decode().split('|')
 
     if data[0] == 'send':

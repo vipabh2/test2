@@ -1,5 +1,5 @@
 import os
-from telethon import TelegramClient, events
+from telethon import TelegramClient, events, Button
 
 # جلب القيم من المتغيرات البيئية
 api_id = os.getenv('API_ID')
@@ -28,25 +28,21 @@ async def inline_query_handler(event):
                 reciver_id = reciver.id  # ID المستخدم المستلم
                 sender_id = event.query.user_id  # معرف المرسل
 
-                # إنشاء الاستجابة بدون زر
+                # إنشاء الاستجابة مع زر
                 result = builder.article(
                     title='📩 إرسال رسالة سرية',
                     description=f'تم إرسال الرسالة إلى {username}',
                     text=f"🔹 الرسالة التي سيتم إرسالها إلى {username} هي:\n\n{message}",
+                    buttons=[
+                        [Button.inline("إرسال الرسالة", data=f"send:{reciver_id}:{message}")]
+                    ],
                     link_preview=False
-                )
-
-                # إرسال الرسالة إلى المستخدم المستهدف مباشرة عند الضغط
-                await ABH.send_message(
-                    reciver_id,
-                    f"📩 **لديك رسالة سرية من شخص مجهول!**\n"
-                    f"💬 **الرسالة:** {message}"
                 )
 
                 # إرسال تأكيد للمرسل في محادثة البوت
                 await ABH.send_message(
                     sender_id,
-                    f"✅ **تم إرسال الرسالة إلى {username}!**\n"
+                    f"✅ **تم إنشاء الرسالة إلى {username}!**\n"
                     f"💬 **الرسالة:** {message}"
                 )
 
@@ -60,6 +56,28 @@ async def inline_query_handler(event):
             return
 
         await event.answer([result])
+
+@ABH.on(events.CallbackQuery)
+async def callback_query_handler(event):
+    data = event.data.decode('utf-8')
+    if data.startswith('send:'):
+        _, reciver_id, message = data.split(':')
+        reciver_id = int(reciver_id)
+        sender_id = event.query.user_id
+
+        # إرسال الرسالة إلى المستخدم المستهدف مباشرة عند الضغط
+        await ABH.send_message(
+            reciver_id,
+            f"📩 **لديك رسالة سرية من شخص مجهول!**\n"
+            f"💬 **الرسالة:** {message}"
+        )
+
+        # إرسال تأكيد للمرسل في محادثة البوت
+        await ABH.send_message(
+            sender_id,
+            f"✅ **تم إرسال الرسالة إلى المستخدم بنجاح!**\n"
+            f"💬 **الرسالة:** {message}"
+        )
 
 print("✅ Bot is running...")
 ABH.run_until_disconnected()

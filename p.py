@@ -35,7 +35,7 @@ async def inline_query_handler(event):
                     description=f'تم إرسال الرسالة إلى {username}',
                     text=f"🔹 الرسالة التي سيتم إرسالها إلى {username} هي:\n\n{message}",
                     buttons=[
-                        [Button.inline("إرسال الرسالة", data=f"send:{reciver_id}:{message}")]
+                        [Button.inline("إرسال الرسالة", data=f"send:{reciver_id}")]
                     ],
                     link_preview=False
                 )
@@ -62,7 +62,7 @@ async def callback_query_handler(event):
         await ABH.send_message(
             reciver_id,
             f"📩 **لديك رسالة سرية من شخص مجهول!**\n"
-            f"💬 **الرسالة:** {message}"
+            f"💬 **الرسالة:**  \n {message}"
         )
 
         # إرسال تأكيد للمرسل في محادثة البوت
@@ -70,7 +70,7 @@ async def callback_query_handler(event):
             sender_id,
             f"✅ **تم إرسال الرسالة إلى المستخدم بنجاح!**\n"
             f"💬 **الرسالة:** {message}"
-            f"💬 **المستخدم:** {username}"
+            f"\n 💬 **المستخدم:** {username}"
         )
 
 print("✅ Bot is running...")

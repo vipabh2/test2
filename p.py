@@ -31,19 +31,22 @@ async def send_message_to_user(event):
         await ABH.send_message(
             sender_id,
             f"رسالتك وصلت بنجاح إلى {username}."
-        )    
+        )
+    
     except (UsernameInvalidError, UsernameNotOccupiedError, PeerIdInvalidError):
         await ABH.send_message(sender_id, "❌ اليوزرنيم اللي دخلته غير صحيح أو الحساب خاص وما أكدر أوصله.")
     except Exception as e:
         await ABH.send_message(sender_id, f"❌ صار خطأ غير متوقع: {str(e)}")
+
 @ABH.on(events.NewMessage(incoming=True))
 async def handle_reply(event):
     if event.reply_to and event.reply_to.reply_to_msg_id in message_links:
         original_sender = message_links[event.reply_to.reply_to_msg_id]
-        sender_name = (await event.get_sender()).first_nametthhtty        
+        
         await ABH.send_message(
             original_sender,
             f" رد مجهول\n{event.text}"
         )
+
 print("\u2705 Bot is running...")
 ABH.run_until_disconnected()

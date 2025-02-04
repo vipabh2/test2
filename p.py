@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events, Button
-import os, time, random
+import os
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
@@ -9,9 +9,9 @@ async def rp(event):
     sender = event.sender_id
     sender = await event.get_sender()
     name = sender.first_name
-    Button = Button.inline("العب", b"join")
+    button = Button.inline("العب", b"join")
     await event.reply(f"عزيزي {name} تم تسجيلك في اللعبة \n انتظر الاعب الاخر",
-                      Button=Button)
+                      buttons=button)
     
 print("Bot is running...")
 ABH.run_until_disconnected()

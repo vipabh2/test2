@@ -54,4 +54,4 @@ async def random_selection(event):
             game_active = False
             players = {}
 print("Bot is running...")
-time.run(time.sleep(5))
+asyncio.run(asyncio.sleep(5))

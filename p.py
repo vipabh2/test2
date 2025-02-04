@@ -10,6 +10,7 @@ ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 
 @ABH.on(events.NewMessage(pattern=r"^ارسل\s+(.+?)\s+(@\w+)$"))
 async def send_message_to_user(event):
+    await event.delete()
     message = event.pattern_match.group(1)
     username = event.pattern_match.group(2)
     sender_id = event.sender_id

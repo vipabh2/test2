@@ -41,12 +41,10 @@ async def send_message_to_user(event):
 @ABH.on(events.NewMessage(incoming=True))
 async def handle_reply(event):
     if event.reply_to and event.reply_to.reply_to_msg_id in message_links:
-        original_sender = message_links[event.reply_to.reply_to_msg_id]
-        sender_name = (await event.get_sender()).first_name
-        
+        original_sender = message_links[event.reply_to.reply_to_msg_id]        
         await ABH.send_message(
             original_sender,
-            f"💬 رد من {sender_name}: \n{event.text}"
+            f"رد مرسل من شخص مجهول \n{event.text}"
         )
 
 print("\u2705 Bot is running...")

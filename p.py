@@ -1,17 +1,18 @@
 from telethon import TelegramClient, events, Button
-import os
+import os, random
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
-@ABH.on(events.NewMessage(pattern='حجرة'))
-async def rp(event):
-    sender = event.sender_id
-    sender = await event.get_sender()
-    name = sender.first_name
-    button = Button.inline("العب", b"join")
-    await event.reply(f"عزيزي {name} تم تسجيلك في اللعبة \n انتظر الاعب الاخر",
-                      buttons=button)
-    
-print("Bot is running...")
+@ABH.on(events.NewMessage(pattern='ابن هاشم'))
+async def reply_abh(event):
+    if event.chat_id == -1001968219024:
+        rl = random.randint(1222, 1241)
+        url = f"https://t.me/VIPABH/{rl}"
+        caption = "ابن هاشم (رض) مرات متواضع ،🌚 @K_4x1"
+        button = Button.inline("الking", "https://t.me/K_4x1")
+        await event.client.send_file(event.chat_id, url, caption=caption, reply_to=event.message.id,
+                                     Button=button)    
+    else:
+        return
 ABH.run_until_disconnected()

@@ -53,4 +53,4 @@ async def run_random_selection(event):
             game_active = False
             players = {}
 print("Bot is running...")
-asyncio.run(asyncio.sleep(5))
+ABH.run_until_disconnected()

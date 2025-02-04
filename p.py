@@ -6,8 +6,8 @@ bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
 @ABH.on(events.NewMessage(pattern='حجرة'))
 async def rp(event):
-    sender = sender.id
-    name = sender.fullname
+    sender = event.sender_id
+    name = event.sender_fullname
     Button = Button.inline("العب", b"join")
     await event.reply(f"عزيزي {name} تم تسجيلك في اللعبة \n انتظر الاعب الاخر",
                       Button=Button)

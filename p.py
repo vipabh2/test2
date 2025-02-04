@@ -28,6 +28,7 @@ async def join_game(event):
     else:
         await event.reply("أنت مسجل بالفعل في اللعبة.")
         await time.sleep(8)
+@ABH.on(events.NewMessage(pattern='^ابدا$'))
 async def run_random_selection(event):
     global game_active, players
     while game_active:

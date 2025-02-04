@@ -18,8 +18,8 @@ async def reply_abh(event):
         caption = "ابن هاشم (رض) مرات متواضع ،🌚 @K_4x1"
         button = [Button.url(text="king", url="https://t.me/K_4x1")]
         await event.client.send_file(event.chat_id, url, caption=caption, reply_to=event.message.id, buttons=button)
-    else:
-        return
+    # else:
+    #     return
 
 print("Bot is running...")
 ABH.run_until_disconnected()

@@ -1,48 +1,57 @@
-import os
 from telethon import TelegramClient, events
-from telethon.errors import UsernameInvalidError, UsernameNotOccupiedError, PeerIdInvalidError
-
-api_id = os.getenv('API_ID')
-api_hash = os.getenv('API_HASH')
-bot_token = os.getenv('BOT_TOKEN')
-
-ABH = TelegramClient('bot_session', api_id, api_hash).start(bot_token=bot_token)
-
-message_links = {}
-
-@ABH.on(events.NewMessage(pattern=r"^ارسل\s+(.+?)\s+(@\w+)$"))
-async def send_message_to_user(event):
-    await event.delete()
-    message = event.pattern_match.group(1)
-    username = event.pattern_match.group(2)
-    sender_id = event.sender_id
-    try:
-        receiver = await ABH.get_entity(username)
-        receiver_id = receiver.id
-        
-        sent_message = await ABH.send_message(
-            receiver_id,
-            f"واحد شخصيتة ضعيفة دزه رسالة مخفية \n الرسالة 👇 \n {message}\n\nرد على هذه الرسالة للرد على المرسل."
-        )
-        
-        message_links[sent_message.id] = sender_id
-        
-        await ABH.send_message(
-            sender_id,
-            f"رسالتك وصلت بنجاح إلى {username}."
-        )
-    
-    except (UsernameInvalidError, UsernameNotOccupiedError, PeerIdInvalidError):
-        await ABH.send_message(sender_id, "اليوزر اللي دخلته غير صحيح أو ما عنده شات وياي.")
-    except Exception as e:
-        await ABH.send_message(sender_id, f"صار خطأ غير متوقع")
-@ABH.on(events.NewMessage(incoming=True))
-async def handle_reply(event):    
-    if event.reply_to and event.reply_to.reply_to_msg_id in message_links:
-        original_sender = message_links[event.reply_to.reply_to_msg_id]
-        await ABH.send_message(
-            original_sender,
-            f" رد مجهول\n \n {event.text}"
-        )
-print("\u2705 Bot is running...")
-ABH.run_until_disconnected()
+import os, time, random
+api_id = os.getenv('API_ID')      
+api_hash = os.getenv('API_HASH')  
+bot_token = os.getenv('BOT_TOKEN') 
+ABH = TelegramClient('c', api_id, api_hash).start(bot_token=bot_token)
+players = {}
+game_active = False
+@ABH.on(events.NewMessage(pattern='^الافاعي$'))
+async def start_game(event):
+    global game_active, players
+    if game_active:
+        await event.reply("اللعبة جارية بالفعل!")
+    else:
+        game_active = True
+        await event.reply("تم بدء لعبة الافاعي 🐍\nأرسل `انا` لدخول اللعبة.")
+        time.create_task(random_selection(event))
+@ABH.on(events.NewMessage(pattern='^انا$'))
+async def join_game(event):
+    global game_active
+    if not game_active:
+        await event.reply("لا توجد لعبة جارية حاليًا. ابدأ لعبة جديدة بكتابة `الافاعي`.")
+        return
+    user_id = event.sender_id
+    if user_id not in players:
+        players[user_id] = {'name': event.sender.first_name}
+        await event.reply(f"تم تسجيلك في اللعبة، {event.sender.first_name}!")
+    else:
+        await event.reply("أنت مسجل بالفعل في اللعبة.")
+        await time.sleep(8)
+@ABH.on(events.NewMessage(pattern='ابدا'))
+async def random_selection(event):
+    global game_active, players
+    while game_active:
+        await time.sleep(7)
+        if not players:
+            game_active = False
+            return
+        if len(players) == 1:
+            winner_id = list(players.keys())[0]
+            winner_name = players[winner_id]['name']
+            await event.reply(f"تهانينا! اللاعب {winner_name} هو الفائز 🎉🐍!")
+            game_active = False
+            players = {}
+            return
+        random_player_id = random.choice(list(players.keys()))
+        random_player_name = players[random_player_id]['name']
+        await event.reply(f"انتقل اللاعب {random_player_name} إلى رحمة الله 🪦\nسبب الوفاة: عضته حية 🐍")
+        del players[random_player_id]
+        if len(players) == 1:
+            winner_id = list(players.keys())[0]
+            winner_name = players[winner_id]['name']
+            await event.reply(f"الاعب {winner_name} نجى من الموت ب اعجوبة \n شكد فكر")
+            game_active = False
+            players = {}
+print("Bot is running...")
+time.run(time.sleep(5))

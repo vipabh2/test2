@@ -46,7 +46,7 @@ async def handle_reply(event):
         
         await ABH.send_message(
             original_sender,
-            f" رد مجهول\n{event.text}"
+            f" رد مجهول من {sender_name}\n{event.text}"
         )
 
 print("\u2705 Bot is running...")

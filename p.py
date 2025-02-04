@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-import os, asyncio, random
+import os, time, random
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
@@ -14,7 +14,7 @@ async def start_game(event):
     else:
         game_active = True
         await event.reply("تم بدء لعبة الافاعي 🐍\nأرسل `انا` لدخول اللعبة.")
-        asyncio.create_task(run_random_selection(event))
+        time.create_task(run_random_selection(event))
 @ABH.on(events.NewMessage(pattern='^انا$'))
 async def join_game(event):
     global game_active
@@ -27,11 +27,11 @@ async def join_game(event):
         await event.reply(f"تم تسجيلك في اللعبة، {event.sender.first_name}!")
     else:
         await event.reply("أنت مسجل بالفعل في اللعبة.")
-        await asyncio.sleep(8)
+        await time.sleep(8)
 async def run_random_selection(event):
     global game_active, players
     while game_active:
-        await asyncio.sleep(7)
+        await time.sleep(7)
         if not players:
             game_active = False
             return

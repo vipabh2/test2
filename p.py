@@ -16,14 +16,13 @@ async def send_message_to_user(event):
     message = event.pattern_match.group(1)
     username = event.pattern_match.group(2)
     sender_id = event.sender_id
-    
     try:
         receiver = await ABH.get_entity(username)
         receiver_id = receiver.id
         
         sent_message = await ABH.send_message(
             receiver_id,
-            f"اكو فد واحد دزلك رسالة بس شخصيتة ضعيفة دزها مخفية \n الرسالة 👇 \n {message}\n\nرد على هذه الرسالة للرد على المرسل."
+            f"واحد شخصيتة ضعيفة دزه رسالة مخفية \n الرسالة 👇 \n {message}\n\nرد على هذه الرسالة للرد على المرسل."
         )
         
         message_links[sent_message.id] = sender_id
@@ -34,19 +33,16 @@ async def send_message_to_user(event):
         )
     
     except (UsernameInvalidError, UsernameNotOccupiedError, PeerIdInvalidError):
-        await ABH.send_message(sender_id, "❌ اليوزرنيم اللي دخلته غير صحيح أو الحساب خاص وما أكدر أوصله.")
+        await ABH.send_message(sender_id, "اليوزر اللي دخلته غير صحيح أو ما عنده شات وياي.")
     except Exception as e:
-        await ABH.send_message(sender_id, f"❌ صار خطأ غير متوقع: {str(e)}")
-
+        await ABH.send_message(sender_id, f"صار خطأ غير متوقع")
 @ABH.on(events.NewMessage(incoming=True))
-async def handle_reply(event):
+async def handle_reply(event):    
     if event.reply_to and event.reply_to.reply_to_msg_id in message_links:
         original_sender = message_links[event.reply_to.reply_to_msg_id]
-        
         await ABH.send_message(
             original_sender,
-            f" رد مجهول\n{event.text}"
+            f" رد مجهول\n \n {event.text}"
         )
-
 print("\u2705 Bot is running...")
 ABH.run_until_disconnected()

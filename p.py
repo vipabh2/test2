@@ -9,8 +9,8 @@ client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 @client.on(events.NewMessage(pattern='/react'))
 async def handler(event):
-    # إضافة رد فعل (emoji) إلى الرسالة
-    await event.message.add_reaction('😎')  # إضافة رد الفعل باستخدام add_reaction
+    # إضافة رد فعل (emoji) إلى الرسالة باستخدام send_reaction
+    await client.send_reaction(event.chat_id, event.message.id, '😎')
 
     # الرد على المستخدم
     await event.reply("تم إضافة رد فعل 😎!")

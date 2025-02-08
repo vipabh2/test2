@@ -1,7 +1,7 @@
-
 from telethon import TelegramClient, events
 from playwright.sync_api import sync_playwright
-api_id = os.getenv('API_ID')      
+import os
+api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN')
 client = TelegramClient("session_name", api_id, api_hash)

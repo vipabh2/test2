@@ -1,27 +1,30 @@
 from telethon import TelegramClient, events
-from playwright.sync_api import sync_playwright
+from playwright.async_api import async_playwright
 import os
+
+# إعدادات البوت
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN')
-client = TelegramClient("session_name", api_id, api_hash)
+
+# إنشاء العميل
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# وظيفة لالتقاط لقطة شاشة باستخدام Playwright
+# وظيفة لالتقاط لقطة شاشة باستخدام Playwright Async API
 async def take_screenshot(url):
-    with sync_playwright() as p:
-        browser = p.chromium.launch(headless=True)  # تشغيل بدون واجهة رسومية
-        page = browser.new_page()
+    async with async_playwright() as p:
+        browser = await p.chromium.launch(headless=True)  # تشغيل بدون واجهة رسومية
+        page = await browser.new_page()
 
         # فتح الرابط
-        page.goto(url)
+        await page.goto(url)
 
         # التقاط لقطة شاشة
         screenshot_path = "screenshot.png"
-        page.screenshot(path=screenshot_path)
+        await page.screenshot(path=screenshot_path)
 
         # إغلاق المتصفح
-        browser.close()
+        await browser.close()
 
     return screenshot_path
 

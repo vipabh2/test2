@@ -1,14 +1,12 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.types import ChatBannedRights
-import asyncio, os
+import asyncio
 from datetime import datetime
-
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
-# تهيئة العميل
 client = TelegramClient('bot_session', api_id, api_hash).start(bot_token=bot_token)
 
 # صلاحيات التقييد (منع الكتابة)
@@ -29,7 +27,7 @@ restricted_users = {}
 # حدث لمراقبة التقييدات
 @client.on(events.ChatAction)
 async def track_restrictions(event):
-    if event.is_group:
+    if event.is_group or event.is_channel:
         # التحقق من أن الحدث هو تقييد مستخدم
         if event.restricted:
             user_id = event.user_id
@@ -70,21 +68,38 @@ async def track_restrictions(event):
 # حدث لعرض قائمة المستخدمين المقيدين
 @client.on(events.NewMessage(pattern='/restricted_list'))
 async def show_restricted_list(event):
-    if event.is_group and event.sender_id == (await event.get_chat()).creator_id:
-        if restricted_users:
-            message = "المستخدمون المقيدون حاليًا:\n"
-            for user_id, details in restricted_users.items():
-                user = await client.get_entity(user_id)
-                admin = await client.get_entity(details['restricted_by'])
-                message += (
-                    f"- {user.first_name} (ID: {user_id}) "
-                    f"تم تقييده بواسطة {admin.first_name} (ID: {details['restricted_by']}) "
-                    f"في {details['restricted_at']}\n"
-                )
-            await event.reply(message)
-        else:
-            await event.reply("لا يوجد مستخدمون مقيدون حاليًا.")
-    else:
-        await event.reply("فقط مدير المجموعة يمكنه استخدام هذا الأمر.")
+    if event.is_group or event.is_channel:
+        # التحقق من أن المرسل هو مشرف
+        chat = await event.get_chat()
+        sender = await event.get_sender()
+        is_admin = False
 
+        if hasattr(chat, 'participants'):
+            participants = await client.get_participants(chat)
+            for participant in participants:
+                if participant.id == sender.id and participant.is_admin:
+                    is_admin = True
+                    break
+
+        if is_admin:
+            if restricted_users:
+                message = "المستخدمون المقيدون حاليًا:\n"
+                for user_id, details in restricted_users.items():
+                    user = await client.get_entity(user_id)
+                    admin = await client.get_entity(details['restricted_by'])
+                    message += (
+                        f"- {user.first_name} (ID: {user_id}) "
+                        f"تم تقييده بواسطة {admin.first_name} (ID: {details['restricted_by']}) "
+                        f"في {details['restricted_at']}\n"
+                    )
+                await event.reply(message)
+            else:
+                await event.reply("لا يوجد مستخدمون مقيدون حاليًا.")
+        else:
+            await event.reply("فقط المشرفون يمكنهم استخدام هذا الأمر.")
+    else:
+        await event.reply("هذا الأمر يعمل فقط في المجموعات والقنوات.")
+
+# بدء تشغيل البوت
+print("Bot is running...")
 client.run_until_disconnected()

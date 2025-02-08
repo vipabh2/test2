@@ -7,15 +7,13 @@ import time
 import asyncio
 
 async def extract_time(cat, time_val):
-    if any(time_val.endswith(unit) for unit in ("s", "m", "h", "d", "w")):
+    if any(time_val.endswith(unit) for unit in ("m", "h", "d", "w")):
         unit = time_val[-1]
         time_num = time_val[:-1]  # type: str
         if not time_num.isdigit():
             await cat.edit("الوقت الذي تم تحديده غير صحيح")
             return None
-        if unit == "s":
-            bantime = int(time.time() + int(time_num) * 1)
-        elif unit == "m":
+        if unit == "m":
             bantime = int(time.time() + int(time_num) * 60)
         elif unit == "h":
             bantime = int(time.time() + int(time_num) * 60 * 60)
@@ -30,7 +28,7 @@ async def extract_time(cat, time_val):
             return None
         return bantime
     await cat.edit(
-        f"خطأ في تحديد الوقت. اكتب من الأسفل:\n s, m, h, d, أو w: {time_val[-1]}"
+        f"خطأ في تحديد الوقت. اكتب من الأسفل:\n m, h, d, أو w: {time_val[-1]}"
     )
     return None
 
@@ -90,7 +88,6 @@ async def tmuter(event):
             )
         )
 
-        # إرسال رسالة التأكيد
         caption = (
             f"᯽︙ تم تقييد المستخدم {replied_message.sender.first_name} "
             f"[@{replied_message.sender.username or 'N/A'}] بنجاح ✅\n"
@@ -103,10 +100,8 @@ async def tmuter(event):
             caption=caption,
         )
 
-        # انتظار انتهاء المدة
         await asyncio.sleep(ctime - int(time.time()))
 
-        # إرسال رسالة عند انتهاء التقييد
         await event.client.send_file(
             event.chat_id,
             joker_unt8ed,
@@ -125,7 +120,6 @@ async def tmuter(event):
 @ABH.on(events.NewMessage(pattern="الغاء_تقييد"))
 async def cancel_t8ed(event):
     await event.delete()
-    # الحصول على المستخدم الذي تم الرد عليه
     replied_message = await event.get_reply_message()
     if not replied_message:
         return await event.client.send_message(event.chat_id, "⚠️ يرجى الرد على رسالة المستخدم الذي تريد إلغاء تقييده.")
@@ -134,12 +128,10 @@ async def cancel_t8ed(event):
     if not user:
         return await event.client.send_message(event.chat_id, "❌ لم أتمكن من العثور على المستخدم.")
 
-    # التحقق من أن المستخدم لا يحاول إلغاء تقييد نفسه
     if user == (await event.client.get_me()).id:
         return await event.client.send_message(event.chat_id, "عذرًا، لا يمكنك إلغاء تقييد نفسك.")
 
     try:
-        # إلغاء التقييد
         await event.client(
             EditBannedRequest(
                 event.chat_id,
@@ -159,6 +151,5 @@ async def cancel_t8ed(event):
     except Exception as e:
         return await event.client.send_message(event.chat_id, f"`{str(e)}`")
 
-# بدء تشغيل البوت
 print("✅ البوت يعمل... انتظر الأوامر!")
 ABH.run_until_disconnected()

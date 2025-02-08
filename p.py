@@ -29,9 +29,9 @@ async def take_screenshot(url, device="pc"):
 
         if device in DEVICES:
             if isinstance(DEVICES[device], str):
-                device_preset = p.devices[DEVICES[device]]
+                device_preset = p.devices[DEVICES[device]]  # استخدام جهاز من مكتبة Playwright
                 await page.set_viewport_size(device_preset["viewport"])
-                await page.set_user_agent(device_preset["user_agent"])
+                await page.emulate(device_preset)  # محاكاة الجهاز بالكامل
             else:
                 await page.set_viewport_size({"width": DEVICES[device]["width"], "height": DEVICES[device]["height"]})
                 await page.set_user_agent(DEVICES[device]["user_agent"])
@@ -51,20 +51,26 @@ async def take_screenshot(url, device="pc"):
 
     return screenshot_path
 
-@client.on(events.NewMessage(pattern='/دز (.+) (pc|iphone|android)?'))
+@client.on(events.NewMessage(pattern='/دز (.+)'))
 async def handler(event):
-    match = event.pattern_match.groups()
-    url = match[0]
-    device = match[1] if match[1] else "pc"
+    url = event.pattern_match.group(1)
 
     if not is_safe_url(url):
         await event.reply("🚫 هذا الموقع محظور! جرب تتواصل مع المطور @k_4x1")
         return
 
-    screenshot_path = await take_screenshot(url, device)
+    # التقاط لقطات شاشة لجميع الأجهزة
+    devices = ['pc', 'iphone', 'android']
+    screenshot_paths = []
 
-    if screenshot_path:
-        await event.reply(f'📸 تم التقاط لقطة الشاشة لجهاز **{device}**:', file=screenshot_path)
+    for device in devices:
+        screenshot_path = await take_screenshot(url, device)
+        if screenshot_path:
+            screenshot_paths.append(screenshot_path)
+
+    if screenshot_paths:
+        # إرسال جميع لقطات الشاشة في نفس الوقت
+        await event.reply(f'📸 تم التقاط لقطات الشاشة للأجهزة التالية: **PC، iPhone، Android**:', file=screenshot_paths)
     else:
         await event.reply("❌ هنالك خطأ أثناء التقاط لقطة الشاشة، تأكد من صحة الرابط أو جرب مجددًا.")
 

@@ -1,8 +1,9 @@
 from telethon import TelegramClient, events
-from telethon.tl.types import ChatAdminRights, ChatBannedRights
-from telethon.tl.functions.channels import EditBannedRequest, EditAdminRequest
+from telethon.tl.types import ChatBannedRights
+from telethon.tl.functions.channels import EditBannedRequest
 from telethon.errors.rpcerrorlist import UserIdInvalidError, UserAdminInvalidError
-import os, time
+import os
+import time
 
 async def extract_time(cat, time_val):
     if any(time_val.endswith(unit) for unit in ("s", "m", "h", "d", "w")):
@@ -50,6 +51,9 @@ async def tmuter(event):
 
     # التحقق من أن المستخدم لديه صلاحية تقييد الأعضاء
     sender = await event.get_sender()
+    if not sender.admin_rights or not sender.admin_rights.ban_users:
+        return await event.edit("❌ ليس لديك صلاحية لتقييد الأعضاء.")
+
     # الحصول على المستخدم الذي تم الرد عليه
     replied_message = await event.get_reply_message()
     if not replied_message:
@@ -74,7 +78,7 @@ async def tmuter(event):
         return
 
     # التحقق من أن المستخدم لا يحاول تقييد نفسه
-    if user == event.client.uid:
+    if user == (await event.client.get_me()).id:
         return await event.edit("᯽︙ عـذرا لا يمـكننـي حـظر نفـسي")
 
     try:
@@ -88,18 +92,17 @@ async def tmuter(event):
         )
 
         # إرسال رسالة التأكيد
-        if reason:
-            await event.client.send_file(
-                event.chat_id,
-                joker_t8ed,
-                caption=f"᯽︙ تم تقييد المستخدم {replied_message.sender.first_name} [@{replied_message.sender.username or 'N/A'}] بنجاح ✅\n ᯽︙ السبب: {reason}\n ** ᯽︙ مدة التقييد: **`{cattime}`",
-            )
-        else:
-            await event.client.send_file(
-                event.chat_id,
-                joker_t8ed,
-                caption=f"**᯽︙ تم تقييد المستخدم {replied_message.sender.first_name} [@{replied_message.sender.username or 'N/A'}] بنجاح ✓** \n** ᯽︙ مدة التقييد: **`{cattime}`",
-            )
+        caption = (
+            f"᯽︙ تم تقييد المستخدم {replied_message.sender.first_name} "
+            f"[@{replied_message.sender.username or 'N/A'}] بنجاح ✅\n"
+            f"᯽︙ السبب: {reason}\n" if reason else ""
+            f"** ᯽︙ مدة التقييد: **`{cattime}`"
+        )
+        await event.client.send_file(
+            event.chat_id,
+            joker_t8ed,
+            caption=caption,
+        )
 
     except UserIdInvalidError:
         return await event.edit("**يبدو ان كتم الشخص تم الغائه**")

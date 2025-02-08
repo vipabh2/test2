@@ -25,15 +25,23 @@ def is_safe_url(url):
 async def take_screenshot(url, device="pc"):
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        page = await browser.new_page()
-
+        
         if device in DEVICES:
+            # إنشاء سياق جديد مع المحاكاة
+            context = await browser.new_context()
+
+            # إذا كان الجهاز هو iPhone أو Android
             if isinstance(DEVICES[device], str):
                 device_preset = p.devices[DEVICES[device]]
-                await page.emulate(device_preset)
+                await context.set_user_agent(device_preset["user_agent"])
+                await context.set_viewport_size(device_preset["viewport"])
             else:
-                await page.set_viewport_size({"width": DEVICES[device]["width"], "height": DEVICES[device]["height"]})
-                await page.emulate({"userAgent": DEVICES[device]["user_agent"], "viewport": {"width": DEVICES[device]["width"], "height": DEVICES[device]["height"]}})
+                await context.set_user_agent(DEVICES[device]["user_agent"])
+                await context.set_viewport_size({"width": DEVICES[device]["width"], "height": DEVICES[device]["height"]})
+
+            page = await context.new_page()
+        else:
+            page = await browser.new_page()
 
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=60000)

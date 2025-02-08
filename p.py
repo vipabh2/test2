@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-from playwright.async_api import async_playwright
+from playwright.async_api import async_playwright  # type: ignore
 import os
 
 api_id = os.getenv('API_ID')
@@ -25,20 +25,17 @@ def is_safe_url(url):
 async def take_screenshot(url, device="pc"):
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
-        
+
         if device in DEVICES:
-            # إنشاء سياق جديد مع المحاكاة
-            context = await browser.new_context()
-
-            # إذا كان الجهاز هو iPhone أو Android
-            if isinstance(DEVICES[device], str):
+            # إعدادات الجهاز
+            if isinstance(DEVICES[device], str):  # إذا كان جهازًا مثل iPhone أو Android
                 device_preset = p.devices[DEVICES[device]]
-                await context.set_user_agent(device_preset["user_agent"])
-                await context.set_viewport_size(device_preset["viewport"])
+                context = await browser.new_context(**device_preset)
             else:
-                await context.set_user_agent(DEVICES[device]["user_agent"])
-                await context.set_viewport_size({"width": DEVICES[device]["width"], "height": DEVICES[device]["height"]})
-
+                context = await browser.new_context(
+                    user_agent=DEVICES[device]["user_agent"],
+                    viewport={"width": DEVICES[device]["width"], "height": DEVICES[device]["height"]}
+                )
             page = await context.new_page()
         else:
             page = await browser.new_page()

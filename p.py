@@ -8,14 +8,15 @@ bot_token = os.getenv('BOT_TOKEN')
 
 client = TelegramClient('session_name', api_id, api_hash)
 
-@client.on(events.ChatAction)
+# الاستماع إلى تغييرات صلاحيات المسؤولين
+@client.on(events.ChatAdmin)
 async def handler(event):
     if event.user_added:
         print(f"عضو جديد انضم: {event.user_id}")
     
     if event.user_left:
         print(f"عضو غادر: {event.user_id}")
-    
+
     # التحقق من صلاحيات المسؤولين
     if event.admin_rights:
         rights = event.admin_rights

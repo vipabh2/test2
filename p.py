@@ -1,6 +1,7 @@
 from telethon import TelegramClient, events
 from playwright.async_api import async_playwright  # type: ignore
 import os
+import asyncio
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')  
@@ -16,7 +17,7 @@ DEVICES = {
     "android": "Galaxy S5"
 }
 
-client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 def is_safe_url(url):
     return not any(banned in url.lower() for banned in BANNED_SITES)
@@ -26,8 +27,7 @@ async def take_screenshot(url, device="pc"):
         browser = await p.chromium.launch(headless=True)
 
         if device in DEVICES:
-            # إعدادات الجهاز
-            if isinstance(DEVICES[device], str):  # إذا كان جهازًا مثل iPhone أو Android
+            if isinstance(DEVICES[device], str):
                 device_preset = p.devices[DEVICES[device]]
                 context = await browser.new_context(**device_preset)
             else:
@@ -41,7 +41,7 @@ async def take_screenshot(url, device="pc"):
 
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            await page.wait_for_timeout(5000)
+            await asyncio.sleep(3)  # تأخير 3 ثواني
             screenshot_path = f"screenshot_{device}.png"
             await page.screenshot(path=screenshot_path)
         
@@ -54,7 +54,7 @@ async def take_screenshot(url, device="pc"):
 
     return screenshot_path
 
-@client.on(events.NewMessage(pattern='/دز (.+)'))
+@ABH.on(events.NewMessage(pattern='/دز (.+)'))
 async def handler(event):
     url = event.pattern_match.group(1)
 
@@ -76,4 +76,4 @@ async def handler(event):
         await event.reply("❌ هنالك خطأ أثناء التقاط لقطة الشاشة، تأكد من صحة الرابط أو جرب مجددًا.")
 
 print("✅ البوت يعمل... انتظر الأوامر!")
-client.run_until_disconnected()
+ABH.run_until_disconnected()

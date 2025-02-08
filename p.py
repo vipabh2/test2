@@ -2,7 +2,7 @@ from telethon import TelegramClient, events
 from playwright.async_api import async_playwright  # type: ignore
 import os
 import asyncio
-from deep_translator import GoogleTranslator
+from googletrans import Translator
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')  
@@ -78,6 +78,7 @@ async def handler(event):
 
 @ABH.on(events.NewMessage(pattern=r'(ترجمة|ترجمه)'))
 async def handle_message(event):
+    translator = Translator()
     if event.is_reply:
         replied_message = await event.get_reply_message()
         original_text = replied_message.text 
@@ -90,9 +91,9 @@ async def handle_message(event):
         return
 
     try:
-        detected_language = GoogleTranslator().detect(original_text)
+        detected_language = translator.detect(original_text).lang
         target_lang = "en" if detected_language == "ar" else "ar"
-        translated_text = GoogleTranslator(source='auto', target=target_lang).translate(original_text)
+        translated_text = translator.translate(original_text, dest=target_lang).text
 
         response = (
             f"اللغة المكتشفة: {detected_language}\n"

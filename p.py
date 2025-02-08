@@ -1,9 +1,8 @@
-from telethon.errors.rpcerrorlist import UserAdminInvalidError, UserIdInvalidError
-from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.types import ChatBannedRights
 from telethon import TelegramClient, events
-import os
-import time
+from telethon.tl.types import ChatAdminRights, ChatBannedRights
+from telethon.tl.functions.channels import EditBannedRequest, EditAdminRequest
+from telethon.errors.rpcerrorlist import UserIdInvalidError, UserAdminInvalidError
+import os, time
 
 async def extract_time(cat, time_val):
     if any(time_val.endswith(unit) for unit in ("s", "m", "h", "d", "w")):

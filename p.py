@@ -16,15 +16,24 @@ async def take_screenshot(url):
         browser = await p.chromium.launch(headless=True)  # تشغيل بدون واجهة رسومية
         page = await browser.new_page()
 
-        # فتح الرابط
-        await page.goto(url)
+        try:
+            # فتح الرابط بمهلة تحميل أطول
+            await page.goto(url, wait_until="domcontentloaded", timeout=60000)
 
-        # التقاط لقطة شاشة
-        screenshot_path = "screenshot.png"
-        await page.screenshot(path=screenshot_path)
+            # تأخير قبل التقاط الشاشة
+            await page.wait_for_timeout(5000)  # انتظار 5 ثوانٍ
 
-        # إغلاق المتصفح
-        await browser.close()
+            # التقاط لقطة شاشة
+            screenshot_path = "screenshot.png"
+            await page.screenshot(path=screenshot_path)
+        
+        except Exception as e:
+            print(f"❌ خطأ أثناء تحميل الصفحة: {e}")
+            screenshot_path = None
+        
+        finally:
+            # إغلاق المتصفح
+            await browser.close()
 
     return screenshot_path
 
@@ -34,8 +43,10 @@ async def handler(event):
     url = event.pattern_match.group(1)  # استخراج الرابط من الرسالة
     screenshot_path = await take_screenshot(url)
 
-    # إرسال الصورة للمستخدم
-    await event.reply('تم التقاط لقطة الشاشة:', file=screenshot_path)
+    if screenshot_path:
+        await event.reply('تم التقاط لقطة الشاشة:', file=screenshot_path)
+    else:
+        await event.reply("❌ فشل التقاط لقطة الشاشة. قد يكون الرابط غير صالح أو الموقع بطيئًا جدًا.")
 
 # تشغيل البوت
 print("✅ البوت يعمل... انتظر الأوامر!")

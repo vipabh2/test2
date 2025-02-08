@@ -1,10 +1,23 @@
 from telethon import TelegramClient, events
 from playwright.async_api import async_playwright
 import os
+
+# إعدادات البوت
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN')
-ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+
+# قائمة المواقع الإباحية المحظورة
+BANNED_SITES = [
+    "porn", "xvideos", "xnxx", "redtube", "xhamster",
+    "brazzers", "youjizz", "spankbang", "erotic", "sex"
+]
+
+# إنشاء العميل
+client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
+def is_safe_url(url):
+    """ يتحقق مما إذا كان الرابط يحتوي على كلمات محظورة. """
+    return not any(banned in url.lower() for banned in BANNED_SITES)
 async def take_screenshot(url):
     async with async_playwright() as p:
         browser = await p.chromium.launch(headless=True)
@@ -20,13 +33,15 @@ async def take_screenshot(url):
         finally:
             await browser.close()
     return screenshot_path
-@ABH.on(events.NewMessage(pattern='سكرين|دز (.+)'))
+@client.on(events.NewMessage(pattern='/دز (.+)'))
 async def handler(event):
     url = event.pattern_match.group(1)
+    if not is_safe_url(url):
+        await event.reply("هذا الموقع محظور جرب تتواصل وي المطور @k_4x1")
+        return
     screenshot_path = await take_screenshot(url)
     if screenshot_path:
         await event.reply('تم التقاط لقطة الشاشة:', file=screenshot_path)
     else:
-        await event.reply("هنالك خطأ في الرابط او الموقع \n دز شيء اخر")
-print("✅ البوت يعمل... انتظر الأوامر!")
-ABH.run_until_disconnected()
+        await event.reply("هنالك خطأ معين \n غير قادر علئ التقاط صوره")
+client.run_until_disconnected()

@@ -33,8 +33,7 @@ async def take_screenshot(url, device="pc"):
                 await page.emulate(device_preset)
             else:
                 await page.set_viewport_size({"width": DEVICES[device]["width"], "height": DEVICES[device]["height"]})
-                # محاكاة جهاز باستخدام مجموعة الخصائص
-                await page.set_user_agent(DEVICES[device]["user_agent"])
+                await page.emulate({"userAgent": DEVICES[device]["user_agent"], "viewport": {"width": DEVICES[device]["width"], "height": DEVICES[device]["height"]}})
 
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=60000)

@@ -1,3 +1,4 @@
+
 from telethon import TelegramClient, events
 from telethon.tl.types import ChatBannedRights
 from telethon.tl.functions.channels import EditBannedRequest
@@ -36,7 +37,6 @@ api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
-
 joker_t8ed = "https://forkgraph.zaid.pro/file/ya744KD7Km3q"
 joker_unt8ed = "https://forkgraph.zaid.pro/file/YMTcYN1GaXQy"
 
@@ -151,5 +151,4 @@ async def cancel_t8ed(event):
     except Exception as e:
         return await event.client.send_message(event.chat_id, f"`{str(e)}`")
 
-print("✅ البوت يعمل... انتظر الأوامر!")
 ABH.run_until_disconnected()

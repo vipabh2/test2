@@ -51,9 +51,7 @@ async def tmuter(event):
         return await event.edit("⚠️ هذا الأمر يعمل فقط في المجموعات.")
 
     # التحقق من أن المستخدم لديه صلاحية تقييد الأعضاء
-    sender = await event.get_sender()
-    if not sender.admin_rights or not sender.admin_rights.ban_users:
-        return await event.edit("❌ ليس لديك صلاحية لتقييد الأعضاء.")
+
 
     # الحصول على المستخدم الذي تم الرد عليه
     replied_message = await event.get_reply_message()

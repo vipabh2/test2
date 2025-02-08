@@ -1,7 +1,7 @@
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.types import ChatBannedRights
-import asyncio
+import asyncio, os
 from datetime import datetime
 
 api_id = os.getenv('API_ID')

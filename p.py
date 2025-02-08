@@ -29,11 +29,11 @@ async def take_screenshot(url, device="pc"):
 
         if device in DEVICES:
             if isinstance(DEVICES[device], str):
-                device_preset = p.devices[DEVICES[device]]  # استخدام جهاز من مكتبة Playwright
-                await page.set_viewport_size(device_preset["viewport"])
-                await page.emulate(device_preset)  # محاكاة الجهاز بالكامل
+                device_preset = p.devices[DEVICES[device]]
+                await page.emulate(device_preset)
             else:
                 await page.set_viewport_size({"width": DEVICES[device]["width"], "height": DEVICES[device]["height"]})
+                # محاكاة جهاز باستخدام مجموعة الخصائص
                 await page.set_user_agent(DEVICES[device]["user_agent"])
 
         try:
@@ -59,7 +59,6 @@ async def handler(event):
         await event.reply("🚫 هذا الموقع محظور! جرب تتواصل مع المطور @k_4x1")
         return
 
-    # التقاط لقطات شاشة لجميع الأجهزة
     devices = ['pc', 'iphone', 'android']
     screenshot_paths = []
 
@@ -69,7 +68,6 @@ async def handler(event):
             screenshot_paths.append(screenshot_path)
 
     if screenshot_paths:
-        # إرسال جميع لقطات الشاشة في نفس الوقت
         await event.reply(f'📸 تم التقاط لقطات الشاشة للأجهزة التالية: **PC، iPhone، Android**:', file=screenshot_paths)
     else:
         await event.reply("❌ هنالك خطأ أثناء التقاط لقطة الشاشة، تأكد من صحة الرابط أو جرب مجددًا.")

@@ -1,4 +1,4 @@
-from telethon import TelegramClient
+from telethon import TelegramClient, events
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
 import time, os

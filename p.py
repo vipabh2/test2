@@ -11,14 +11,27 @@ bot_token = os.getenv('BOT_TOKEN')
 # بدء عميل التليجرام
 ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-@ABH.on(events.NewMessage(pattern=r'^(مخفي طكة زيج|زيج)$'))
-async def reply_abh(event):
-    replied_message = await event.get_reply_message()
-    if replied_message and replied_message.sender_id == 1910015590:
-        await event.reply("عزيزي الغبي ... \n تريدني اعفط للمطور شكلت لربك؟")
-        return
-    if replied_message:
-        await event.client.send_file(replied_message.peer_id, "https://t.me/VIPABH/1171", reply_to=replied_message.id)
+@ABH.on(events.NewMessage(pattern=r'(ترجمة|ترجمه)'))
+async def handle_message(event):
+    translator = Translator()
+    if event.is_reply:
+        replied_message = await event.get_reply_message()
+        original_text = replied_message.text 
     else:
-        await event.reply("عزيزي الفاهي ... \n الامر يعمل بالرد , اذا عدتها وما سويت رد اعفطلك")
+        command_parts = event.message.text.split(' ', 1)
+        original_text = command_parts[1] if len(command_parts) > 1 else None
+    if not original_text:
+        await event.reply("يرجى الرد على رسالة تحتوي على النص المراد ترجمته أو كتابة النص بجانب الأمر.")
+        return
+    detected_language = translator.detect(original_text)
+    if detected_language.lang == "ar": 
+        translated = translator.translate(original_text, dest="en")
+    else: 
+        translated = translator.translate(original_text, dest="ar")
+    response = (
+        f"اللغة المكتشفة: {detected_language.lang}\n"
+        f"النص المترجم: `{translated.text}`"
+    )
+    await event.reply(response)
+
 ABH.run_until_disconnected()

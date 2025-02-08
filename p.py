@@ -13,7 +13,6 @@ BANNED_SITES = [
 
 DEVICES = {
     "pc": {"width": 1920, "height": 1080, "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
-    "iphone": "iPhone 13",
     "android": "Galaxy S5"
 }
 
@@ -63,7 +62,7 @@ async def handler(event):
         await event.reply("🚫 هذا الموقع محظور! جرب تتواصل مع المطور @k_4x1")
         return
 
-    devices = ['pc', 'iphone', 'android']
+    devices = ['pc', 'android']
     screenshot_paths = []
 
     for device in devices:
@@ -72,7 +71,7 @@ async def handler(event):
             screenshot_paths.append(screenshot_path)
 
     if screenshot_paths:
-        await event.reply(f'📸 تم التقاط لقطات الشاشة للأجهزة التالية: **PC، iPhone، Android**:', file=screenshot_paths)
+        await event.reply(f'📸 تم التقاط لقطات الشاشة للأجهزة التالية: **PC، Android**:', file=screenshot_paths)
     else:
         await event.reply("❌ هنالك خطأ أثناء التقاط لقطة الشاشة، تأكد من صحة الرابط أو جرب مجددًا.")
 

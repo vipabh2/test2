@@ -108,5 +108,30 @@ async def tmuter(event):
         return await event.edit(f"`{str(e)}`")
 
 # بدء تشغيل البوت
-print("✅ البوت يعمل... انتظر الأوامر!")
-ABH.run_until_disconnected()
+
+async def cancel_t8ed(event):
+    await event.delete()
+    user, _ = await get_user_from_event(event)
+    if not user:
+        return
+    if user.id == event.client.uid:
+        return await event.client.send_message(event.chat_id, "عذرًا، لا يمكنك إلغاء تقييد نفسك.")
+    try:
+        await event.client(
+            EditBannedRequest(
+                event.chat_id,
+                user.id,
+                ChatBannedRights(until_date=None, send_messages=False),
+            )
+        )
+        await event.client.send_file(
+            event.chat_id,
+            joker_unt8ed,
+            caption=f"**᯽︙ تم الغاء تقييد المستخدم {_format.mentionuser(user.first_name, user.id)} بنجاح ✅.**"
+        )
+    except UserIdInvalidError:
+        return await event.client.send_message(event.chat_id, "يبدو أن التقييد على هذا المستخدم تم إلغاؤه بالفعل.")
+    except UserAdminInvalidError:
+        return await event.client.send_message(event.chat_id, "يبدو أنك لست مشرفًا في المجموعة أو تحاول إلغاء تقييد مشرف هنا.")
+    except Exception as e:
+        return await event.client.send_message(event.chat_id, f"`{str(e)}`")ABH.run_until_disconnected()

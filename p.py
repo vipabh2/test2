@@ -2,6 +2,7 @@ from telethon import TelegramClient, events
 from playwright.async_api import async_playwright  # type: ignore
 import os
 import asyncio
+from googletrans import Translator
 
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')  
@@ -40,8 +41,8 @@ async def take_screenshot(url, device="pc"):
             page = await browser.new_page()
 
         try:
-            await page.goto(url, wait_until="domcontentloaded", timeout=30000)
-            # await asyncio.sleep(3)  # تأخير 3 ثواني
+            await page.goto(url, wait_until="domcontentloaded", timeout=60000)
+            await asyncio.sleep(3)  # تأخير 3 ثواني
             screenshot_path = f"screenshot_{device}.png"
             await page.screenshot(path=screenshot_path)
         
@@ -74,6 +75,29 @@ async def handler(event):
         await event.reply(f'📸 تم التقاط لقطات الشاشة للأجهزة التالية: **PC، Android**:', file=screenshot_paths)
     else:
         await event.reply("❌ هنالك خطأ أثناء التقاط لقطة الشاشة، تأكد من صحة الرابط أو جرب مجددًا.")
+
+@ABH.on(events.NewMessage(pattern=r'(ترجمة|ترجمه)'))
+async def handle_message(event):
+    translator = Translator()
+    if event.is_reply:
+        replied_message = await event.get_reply_message()
+        original_text = replied_message.text 
+    else:
+        command_parts = event.message.text.split(' ', 1)
+        original_text = command_parts[1] if len(command_parts) > 1 else None
+    if not original_text:
+        await event.reply("يرجى الرد على رسالة تحتوي على النص المراد ترجمته أو كتابة النص بجانب الأمر.")
+        return
+    detected_language = translator.detect(original_text)
+    if detected_language.lang == "ar": 
+        translated = translator.translate(original_text, dest="en")
+    else: 
+        translated = translator.translate(original_text, dest="ar")
+    response = (
+        f"اللغة المكتشفة: {detected_language.lang}\n"
+        f"النص المترجم: `{translated.text}`"
+    )
+    await event.reply(response)
 
 print("✅ البوت يعمل... انتظر الأوامر!")
 ABH.run_until_disconnected()

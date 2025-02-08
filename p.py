@@ -1,5 +1,4 @@
 from telethon import TelegramClient, events
-from telethon.tl.types import ChatAdminRights
 import os
 
 api_id = os.getenv('API_ID')
@@ -8,26 +7,21 @@ bot_token = os.getenv('BOT_TOKEN')
 
 client = TelegramClient('session_name', api_id, api_hash)
 
-# الاستماع إلى تغييرات صلاحيات المسؤولين
-@client.on(events.ChatAdmin)
+@client.on(events.ChatMemberUpdated)
 async def handler(event):
-    if event.user_added:
-        print(f"عضو جديد انضم: {event.user_id}")
+    # عندما ينضم عضو جديد
+    if event.new_user:
+        print(f"عضو جديد انضم: {event.new_user.id}")
     
-    if event.user_left:
-        print(f"عضو غادر: {event.user_id}")
-
-    # التحقق من صلاحيات المسؤولين
-    if event.admin_rights:
-        rights = event.admin_rights
-        if rights.add_admins:
-            print(f"تم تعيين عضو كمسؤول: {event.user_id}")
-        if rights.change_info:
-            print(f"تم منح صلاحية تعديل معلومات المجموعة: {event.user_id}")
-        if rights.invite_to_chat:
-            print(f"تم منح صلاحية دعوة أعضاء جدد: {event.user_id}")
-        if rights.ban_users:
-            print(f"تم منح صلاحية حظر الأعضاء: {event.user_id}")
+    # عندما يغادر عضو
+    if event.left:
+        print(f"عضو غادر: {event.old_user.id}")
+    
+    # التحقق من التغييرات في صلاحيات الأعضاء
+    if event.new_admin:
+        print(f"تم تعيين عضو كمسؤول: {event.new_user.id}")
+    elif event.old_admin and not event.new_admin:
+        print(f"تم سحب صلاحيات المسؤول عن العضو: {event.old_user.id}")
 
 client.start()
 client.run_until_disconnected()

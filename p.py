@@ -27,78 +27,88 @@ restricted_users = {}
 # حدث لمراقبة التقييدات
 @client.on(events.ChatAction)
 async def track_restrictions(event):
-    if event.is_group or event.is_channel:
-        # التحقق من أن الحدث هو تقييد مستخدم
-        if event.restricted:
-            user_id = event.user_id
-            chat_id = event.chat_id
-            admin_id = event.action_message.from_id
+    try:
+        if event.is_group or event.is_channel:
+            # التحقق من أن الحدث هو تقييد مستخدم
+            if event.restricted:
+                user_id = event.user_id
+                chat_id = event.chat_id
+                admin_id = event.action_message.from_id
 
-            # تسجيل التقييد
-            restricted_users[user_id] = {
-                'chat_id': chat_id,
-                'restricted_at': datetime.now(),
-                'restricted_by': admin_id
-            }
+                # تسجيل التقييد
+                restricted_users[user_id] = {
+                    'chat_id': chat_id,
+                    'restricted_at': datetime.now(),
+                    'restricted_by': admin_id
+                }
 
-            # إعلام المشرفين
-            admin = await client.get_entity(admin_id)
-            user = await client.get_entity(user_id)
-            await event.reply(
-                f"تم تقييد المستخدم {user.first_name} (ID: {user_id}) بواسطة {admin.first_name} (ID: {admin_id})."
-            )
+                # إعلام المشرفين
+                admin = await client.get_entity(admin_id)
+                user = await client.get_entity(user_id)
+                await event.reply(
+                    f"تم تقييد المستخدم {user.first_name} (ID: {user_id}) بواسطة {admin.first_name} (ID: {admin_id})."
+                )
 
-            # جدولة إعادة الصلاحية بعد 30 دقيقة
-            await asyncio.sleep(30 * 60)
+                # جدولة إعادة الصلاحية بعد 30 دقيقة
+                await asyncio.sleep(30 * 60)
 
-            # إعادة الصلاحية
-            await client(EditBannedRequest(
-                chat_id=chat_id,
-                user_id=user_id,
-                banned_rights=restore_permissions
-            ))
+                # إعادة الصلاحية
+                await client(EditBannedRequest(
+                    chat_id=chat_id,
+                    user_id=user_id,
+                    banned_rights=restore_permissions
+                ))
 
-            # إعلام المشرفين بإعادة الصلاحية
-            await event.reply(f"تم إعادة صلاحية الكتابة للمستخدم {user.first_name} (ID: {user_id}).")
+                # إعلام المشرفين بإعادة الصلاحية
+                await event.reply(f"تم إعادة صلاحية الكتابة للمستخدم {user.first_name} (ID: {user_id}).")
 
-            # إزالة المستخدم من القائمة
-            if user_id in restricted_users:
-                del restricted_users[user_id]
+                # إزالة المستخدم من القائمة
+                if user_id in restricted_users:
+                    del restricted_users[user_id]
+    except Exception as e:
+        print(f"حدث خطأ: {e}")
 
 # حدث لعرض قائمة المستخدمين المقيدين
 @client.on(events.NewMessage(pattern='/restricted_list'))
 async def show_restricted_list(event):
-    if event.is_group or event.is_channel:
-        # التحقق من أن المرسل هو مشرف
-        chat = await event.get_chat()
-        sender = await event.get_sender()
-        is_admin = False
+    try:
+        if event.is_group or event.is_channel:
+            # التحقق من أن المرسل هو مشرف
+            chat = await event.get_chat()
+            sender = await event.get_sender()
+            is_admin = False
 
-        if hasattr(chat, 'participants'):
-            participants = await client.get_participants(chat)
-            for participant in participants:
-                if participant.id == sender.id and participant.is_admin:
+            # التحقق من صلاحيات المستخدم
+            if hasattr(chat, 'admin_rights'):
+                if chat.admin_rights:
                     is_admin = True
-                    break
+            elif hasattr(chat, 'participants'):
+                participants = await client.get_participants(chat)
+                for participant in participants:
+                    if participant.id == sender.id and participant.is_admin:
+                        is_admin = True
+                        break
 
-        if is_admin:
-            if restricted_users:
-                message = "المستخدمون المقيدون حاليًا:\n"
-                for user_id, details in restricted_users.items():
-                    user = await client.get_entity(user_id)
-                    admin = await client.get_entity(details['restricted_by'])
-                    message += (
-                        f"- {user.first_name} (ID: {user_id}) "
-                        f"تم تقييده بواسطة {admin.first_name} (ID: {details['restricted_by']}) "
-                        f"في {details['restricted_at']}\n"
-                    )
-                await event.reply(message)
+            if is_admin:
+                if restricted_users:
+                    message = "المستخدمون المقيدون حاليًا:\n"
+                    for user_id, details in restricted_users.items():
+                        user = await client.get_entity(user_id)
+                        admin = await client.get_entity(details['restricted_by'])
+                        message += (
+                            f"- {user.first_name} (ID: {user_id}) "
+                            f"تم تقييده بواسطة {admin.first_name} (ID: {details['restricted_by']}) "
+                            f"في {details['restricted_at']}\n"
+                        )
+                    await event.reply(message)
+                else:
+                    await event.reply("لا يوجد مستخدمون مقيدون حاليًا.")
             else:
-                await event.reply("لا يوجد مستخدمون مقيدون حاليًا.")
+                await event.reply("فقط المشرفون يمكنهم استخدام هذا الأمر.")
         else:
-            await event.reply("فقط المشرفون يمكنهم استخدام هذا الأمر.")
-    else:
-        await event.reply("هذا الأمر يعمل فقط في المجموعات والقنوات.")
+            await event.reply("هذا الأمر يعمل فقط في المجموعات والقنوات.")
+    except Exception as e:
+        print(f"حدث خطأ: {e}")
 
 # بدء تشغيل البوت
 print("Bot is running...")

@@ -134,4 +134,5 @@ async def cancel_t8ed(event):
     except UserAdminInvalidError:
         return await event.client.send_message(event.chat_id, "يبدو أنك لست مشرفًا في المجموعة أو تحاول إلغاء تقييد مشرف هنا.")
     except Exception as e:
-        return await event.client.send_message(event.chat_id, f"`{str(e)}`")ABH.run_until_disconnected()
+        return await event.client.send_message(event.chat_id, f"`{str(e)}`")
+ABH.run_until_disconnected()

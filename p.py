@@ -1,5 +1,4 @@
 from telethon import TelegramClient, events
-from playwright.async_api import async_playwright  # type: ignore
 import os
 import asyncio
 from googletrans import Translator
@@ -34,11 +33,21 @@ async def handle_message(event):
         # الكشف عن اللغة الأصلية
         detected_language = translator.detect(original_text).lang
         
+        # التحقق من أن اللغة المكتشفة ليست None
+        if not detected_language:
+            await event.reply("❌ تعذر الكشف عن اللغة الأصلية.")
+            return
+        
         # تحديد اللغة الهدف
         target_lang = "en" if detected_language == "ar" else "ar"
         
         # ترجمة النص
         translated_text = translator.translate(original_text, dest=target_lang).text
+
+        # التحقق من أن النص المترجم ليس None
+        if not translated_text:
+            await event.reply("❌ تعذر ترجمة النص.")
+            return
 
         # إعداد الرد
         response = (
@@ -50,7 +59,7 @@ async def handle_message(event):
         await event.reply(response)
     except Exception as e:
         # إرسال رسالة خطأ في حالة فشل الترجمة
-        await event.reply(f"❌ حدث خطأ أثناء الترجمة: {e}")
+        await event.reply(f"❌ حدث خطأ أثناء الترجمة: {str(e)}")
 
 # بدء البوت
 print("✅ البوت يعمل... انتظر الأوامر!")

@@ -48,6 +48,7 @@ async def tmuter(event):
     # التحقق من أن الأمر تم إرساله في مجموعة
     if not event.is_group:
         return await event.edit("⚠️ هذا الأمر يعمل فقط في المجموعات.")
+
     # الحصول على المستخدم الذي تم الرد عليه
     replied_message = await event.get_reply_message()
     if not replied_message:
@@ -107,27 +108,35 @@ async def tmuter(event):
     except Exception as e:
         return await event.edit(f"`{str(e)}`")
 
-# بدء تشغيل البوت
-
+@ABH.on(events.NewMessage(pattern="الغاء_تقييد"))
 async def cancel_t8ed(event):
     await event.delete()
-    user, _ = await get_user_from_event(event)
+    # الحصول على المستخدم الذي تم الرد عليه
+    replied_message = await event.get_reply_message()
+    if not replied_message:
+        return await event.client.send_message(event.chat_id, "⚠️ يرجى الرد على رسالة المستخدم الذي تريد إلغاء تقييده.")
+
+    user = replied_message.sender_id
     if not user:
-        return
-    if user.id == event.client.uid:
+        return await event.client.send_message(event.chat_id, "❌ لم أتمكن من العثور على المستخدم.")
+
+    # التحقق من أن المستخدم لا يحاول إلغاء تقييد نفسه
+    if user == (await event.client.get_me()).id:
         return await event.client.send_message(event.chat_id, "عذرًا، لا يمكنك إلغاء تقييد نفسك.")
+
     try:
+        # إلغاء التقييد
         await event.client(
             EditBannedRequest(
                 event.chat_id,
-                user.id,
+                user,
                 ChatBannedRights(until_date=None, send_messages=False),
             )
         )
         await event.client.send_file(
             event.chat_id,
             joker_unt8ed,
-            caption=f"**᯽︙ تم الغاء تقييد المستخدم {_format.mentionuser(user.first_name, user.id)} بنجاح ✅.**"
+            caption=f"**᯽︙ تم إلغاء تقييد المستخدم {replied_message.sender.first_name} [@{replied_message.sender.username or 'N/A'}] بنجاح ✅.**"
         )
     except UserIdInvalidError:
         return await event.client.send_message(event.chat_id, "يبدو أن التقييد على هذا المستخدم تم إلغاؤه بالفعل.")
@@ -135,4 +144,7 @@ async def cancel_t8ed(event):
         return await event.client.send_message(event.chat_id, "يبدو أنك لست مشرفًا في المجموعة أو تحاول إلغاء تقييد مشرف هنا.")
     except Exception as e:
         return await event.client.send_message(event.chat_id, f"`{str(e)}`")
+
+# بدء تشغيل البوت
+print("✅ البوت يعمل... انتظر الأوامر!")
 ABH.run_until_disconnected()

@@ -22,6 +22,12 @@ async def handler(event):
         print(f"تم تعيين عضو كمسؤول: {event.new_user.id}")
     elif event.old_admin and not event.new_admin:
         print(f"تم سحب صلاحيات المسؤول عن العضو: {event.old_user.id}")
+    
+    # مراقبة الحظر أو رفع الحظر
+    if event.is_banned:
+        print(f"تم حظر عضو: {event.new_user.id}")
+    elif event.is_unbanned:
+        print(f"تم رفع الحظر عن عضو: {event.new_user.id}")
 
 client.start()
 client.run_until_disconnected()

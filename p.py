@@ -50,7 +50,7 @@ async def track_restrictions(event):
                 )
 
                 # جدولة إعادة الصلاحية بعد 30 دقيقة
-                await asyncio.sleep(30 * 60)
+                await asyncio.sleep(2 * 1)
 
                 # إعادة الصلاحية
                 await client(EditBannedRequest(

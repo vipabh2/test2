@@ -30,7 +30,7 @@ async def track_restrictions(event):
     try:
         if event.is_group or event.is_channel:
             # التحقق من أن الحدث هو تقييد مستخدم
-            if hasattr(event.action, 'banned_rights') and event.action.banned_rights.send_messages:
+            if hasattr(event, 'new_participant_banned_rights') and event.new_participant_banned_rights.send_messages:
                 user_id = event.user_id
                 chat_id = event.chat_id
                 admin_id = event.action_message.from_id
@@ -50,7 +50,7 @@ async def track_restrictions(event):
                 )
 
                 # جدولة إعادة الصلاحية بعد 30 دقيقة
-                await asyncio.sleep(2 * 1)
+                await asyncio.sleep(3 * 1)
 
                 # إعادة الصلاحية
                 await client(EditBannedRequest(

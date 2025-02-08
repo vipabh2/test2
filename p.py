@@ -41,7 +41,7 @@ async def take_screenshot(url, device="pc"):
 
         try:
             await page.goto(url, wait_until="domcontentloaded", timeout=60000)
-            await asyncio.sleep(3)  # تأخير 3 ثواني
+            # await asyncio.sleep(3)  # تأخير 3 ثواني
             screenshot_path = f"screenshot_{device}.png"
             await page.screenshot(path=screenshot_path)
         

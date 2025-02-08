@@ -10,7 +10,7 @@ client = TelegramClient('session_name', api_id, api_hash)
 @client.on(events.NewMessage(pattern=r'كشف ايدي (\d+)'))
 async def permalink(mention):
     """Generates a link to the user's PM with a custom text."""
-    user, custom = mention.pattern_match.group(0)
+    user, custom = mention.pattern_match.group(1)
     if not user:
         return
     if custom:

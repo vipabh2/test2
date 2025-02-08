@@ -14,7 +14,7 @@ BANNED_SITES = [
 DEVICES = {
     "pc": {"width": 1920, "height": 1080, "user_agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64)"},
     "iphone": "iPhone 13",
-    "android": "Samsung Galaxy S21"
+    "android": "Galaxy S5"
 }
 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)

@@ -1,81 +1,50 @@
-from telethon import TelegramClient, events
-import os
-from database import add_user_to_db, is_user_allowed, delete_user_from_db, get_allowed_users
-from models import Base, engine
+from sqlalchemy.orm import Session
+from models import SessionLocal, AllowedUser
 from datetime import datetime
 
-# تهيئة البوت
-api_id = os.getenv('API_ID')
-api_hash = os.getenv('API_HASH')
-bot_token = os.getenv('BOT_TOKEN')
-
-client = TelegramClient('session_name', api_id, api_hash)
-
-# إنشاء الجداول في قاعدة البيانات (إذا لم تكن موجودة)
-Base.metadata.create_all(bind=engine)
-
-@client.on(events.NewMessage(pattern='/start'))
-async def start(event):
-    user_id = event.sender_id
-
-    # التحقق من أن المستخدم مسموح له باستخدام البوت
-    if not is_user_allowed(user_id):
-        await event.respond("⚠️ عذرًا، أنت غير مسموح لك باستخدام هذا البوت.")
-        return
-
-    await event.respond("مرحبًا! أنت مسموح لك باستخدام هذا البوت.")
-
-@client.on(events.NewMessage(pattern='/addme'))
-async def add_me(event):
-    user_id = event.sender_id
-
-    # إضافة المستخدم إلى قاعدة البيانات
+# إضافة مستخدم إلى قاعدة البيانات
+def add_user_to_db(user_id: int):
+    db = SessionLocal()
     try:
-        add_user_to_db(user_id)
-        t1 = datetime.now()
-        formatted_time = t1.strftime("%Y-%m-%d %I:%M:%S %p")
-        await event.respond(f"تمت إضافتك إلى قائمة المستخدمين المسموح لهم في: {formatted_time}.")
+        user = AllowedUser(user_id=user_id)
+        db.add(user)
+        db.commit()
     except Exception as e:
-        await event.respond(f"⚠️ حدث خطأ أثناء إضافتك: {e}")
+        db.rollback()
+        raise e
+    finally:
+        db.close()
 
-@client.on(events.NewMessage(pattern='/delme'))
-async def del_me(event):
-    user_id = event.sender_id
-
-    # حذف المستخدم من قاعدة البيانات
+# التحقق من وجود مستخدم في قاعدة البيانات
+def is_user_allowed(user_id: int) -> bool:
+    db = SessionLocal()
     try:
-        if delete_user_from_db(user_id):
-            await event.respond("تم حذفك من قائمة المستخدمين المسموح لهم.")
-        else:
-            await event.respond("⚠️ لم يتم العثور عليك في قائمة المستخدمين المسموح لهم.")
-    except Exception as e:
-        await event.respond(f"⚠️ حدث خطأ أثناء حذفك: {e}")
+        user = db.query(AllowedUser).filter(AllowedUser.user_id == user_id).first()
+        return user is not None
+    finally:
+        db.close()
 
-@client.on(events.NewMessage(pattern='/list'))
-async def list_users(event):
-    # عرض قائمة المستخدمين المسموح لهم مع الوقت
+# حذف مستخدم من قاعدة البيانات
+def delete_user_from_db(user_id: int):
+    db = SessionLocal()
     try:
-        users = get_allowed_users()
-        if users:
-            user_list = "\n".join([f"👤 {user.user_id} - 🕒 {user.added_at.strftime('%Y-%m-%d %I:%M:%S %p')}" for user in users])
-            await event.respond(f"قائمة المستخدمين المسموح لهم:\n{user_list}")
-        else:
-            await event.respond("⚠️ لا يوجد مستخدمين مسموح لهم حاليًا.")
+        user = db.query(AllowedUser).filter(AllowedUser.user_id == user_id).first()
+        if user:
+            db.delete(user)
+            db.commit()
+            return True
+        return False
     except Exception as e:
-        await event.respond(f"⚠️ حدث خطأ أثناء جلب القائمة: {e}")
+        db.rollback()
+        raise e
+    finally:
+        db.close()
 
-@client.on(events.NewMessage(pattern='/help'))
-async def help_command(event):
-    # عرض جميع الأوامر المتاحة
-    help_text = """
-    🛠️ الأوامر المتاحة:
-    /start - بدء استخدام البوت.
-    /addme - إضافتك إلى قائمة المستخدمين المسموح لهم.
-    /delme - حذفك من قائمة المستخدمين المسموح لهم.
-    /list - عرض قائمة المستخدمين المسموح لهم.
-    /help - عرض هذه الرسالة.
-    """
-    await event.respond(help_text)
-
-client.start(bot_token=bot_token)
-client.run_until_disconnected()
+# جلب جميع المستخدمين المسموح لهم مع الوقت
+def get_allowed_users():
+    db = SessionLocal()
+    try:
+        users = db.query(AllowedUser).all()
+        return users
+    finally:
+        db.close()

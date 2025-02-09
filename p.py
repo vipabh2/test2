@@ -1,6 +1,6 @@
 from telethon import TelegramClient, events
 import os
-from database import add_user_to_db, is_user_allowed, delete_user_from_db
+from database import add_user_to_db, is_user_allowed, delete_user_from_db, get_allowed_users
 from models import Base, engine
 
 # تهيئة البوت
@@ -29,18 +29,50 @@ async def add_me(event):
     user_id = event.sender_id
 
     # إضافة المستخدم إلى قاعدة البيانات
-    add_user_to_db(user_id)
-    await event.respond("تمت إضافتك إلى قائمة المستخدمين المسموح لهم.")
+    try:
+        add_user_to_db(user_id)
+        await event.respond("تمت إضافتك إلى قائمة المستخدمين المسموح لهم.")
+    except Exception as e:
+        await event.respond(f"⚠️ حدث خطأ أثناء إضافتك: {e}")
 
 @client.on(events.NewMessage(pattern='/delme'))
 async def del_me(event):
     user_id = event.sender_id
 
     # حذف المستخدم من قاعدة البيانات
-    if delete_user_from_db(user_id):
-        await event.respond("تم حذفك من قائمة المستخدمين المسموح لهم.")
-    else:
-        await event.respond("⚠️ لم يتم العثور عليك في قائمة المستخدمين المسموح لهم.")
+    try:
+        if delete_user_from_db(user_id):
+            await event.respond("تم حذفك من قائمة المستخدمين المسموح لهم.")
+        else:
+            await event.respond("⚠️ لم يتم العثور عليك في قائمة المستخدمين المسموح لهم.")
+    except Exception as e:
+        await event.respond(f"⚠️ حدث خطأ أثناء حذفك: {e}")
+
+@client.on(events.NewMessage(pattern='/list'))
+async def list_users(event):
+    # عرض قائمة المستخدمين المسموح لهم
+    try:
+        users = get_allowed_users()
+        if users:
+            user_list = "\n".join([f"👤 {user.user_id}" for user in users])
+            await event.respond(f"قائمة المستخدمين المسموح لهم:\n{user_list}")
+        else:
+            await event.respond("⚠️ لا يوجد مستخدمين مسموح لهم حاليًا.")
+    except Exception as e:
+        await event.respond(f"⚠️ حدث خطأ أثناء جلب القائمة: {e}")
+
+@client.on(events.NewMessage(pattern='/help'))
+async def help_command(event):
+    # عرض جميع الأوامر المتاحة
+    help_text = """
+    🛠️ الأوامر المتاحة:
+    /start - بدء استخدام البوت.
+    /addme - إضافتك إلى قائمة المستخدمين المسموح لهم.
+    /delme - حذفك من قائمة المستخدمين المسموح لهم.
+    /list - عرض قائمة المستخدمين المسموح لهم.
+    /help - عرض هذه الرسالة.
+    """
+    await event.respond(help_text)
 
 client.start(bot_token=bot_token)
 client.run_until_disconnected()

@@ -1,6 +1,7 @@
-from sqlalchemy import create_engine, Column, Integer
+from sqlalchemy import create_engine, Column, Integer, DateTime
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
+from datetime import datetime
 
 # تهيئة قاعدة البيانات
 DATABASE_URL = "sqlite:///allowed_users.db"  # يمكن تغييرها إلى MySQL أو PostgreSQL
@@ -13,6 +14,7 @@ Base = declarative_base()
 class AllowedUser(Base):
     __tablename__ = "allowed_users"
     user_id = Column(Integer, primary_key=True)
+    added_at = Column(DateTime, default=datetime.now)  # إضافة الوقت التلقائي
 
 # إنشاء الجداول في قاعدة البيانات
 Base.metadata.create_all(bind=engine)

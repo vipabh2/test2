@@ -16,10 +16,9 @@ user_states = {}
 
 def create_email_message(subject, body, recipient):
     return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
-@client.on(events.NewMessage(pattern='/start'))
-async def start(event):
     if not event.is_private:
-        await event.respond("عزيزي الشادود... \n البوت يعمل في الخاص فقط لتحاول تشغلة بمكان اخر")
+        await event.respond("عزيزي الشادود... \n البوت يعمل في الخاص فقط لتحاول تشغلة بمكان اخر")        
+        await event.client.delete_dialog(event.chat_id)
         return
     user_id = event.sender_id
     if user_id in user_states and all(key in user_states[user_id] for key in ['subject', 'body', 'recipient', 'sender_email', 'password']):

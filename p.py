@@ -12,6 +12,8 @@ ABH = TelegramClient('session_name', api_id, api_hash)
 async def permalink(event):
     global user
     user_id = event.pattern_match.group(1)
+    if not user_id:
+        await event.reply("استخدم الامر ك `كشف ايدي 1910015590`")
     user = await event.client.get_entity(int(user_id))
     if not user:
         return await event.reply(f"لا يوجد حساب بالايدي هذا...")

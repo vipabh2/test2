@@ -13,7 +13,7 @@ async def permalink(mention):
     user_id = mention.pattern_match.group(1)  # استخراج رقم الـ ID من الرسالة
     try:
         # إرسال رابط الحساب مباشرة باستخدام الـ ID
-        await mention.reply(f"⌔︙[رابط الحساب](tg://user?id={user_id})", parse_mode='markdown')
+        await mention.reply(f"⌔︙tg://user?id={user_id}")
     except Exception as e:
         await mention.reply("حدث خطأ أثناء محاولة العثور على المستخدم.")  # في حال حدوث مشكلة
 

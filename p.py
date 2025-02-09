@@ -10,7 +10,8 @@ ABH = TelegramClient('session_name', api_id, api_hash)
 
 @ABH.on(events.NewMessage(pattern=r'كشف ايدي (\d+)'))
 async def permalink(event):
-    global user
+    global user, uid
+    uid = event.sender_id
     user_id = event.pattern_match.group(1)
     if not user_id:
         await event.reply("استخدم الامر ك `كشف ايدي 1910015590`")
@@ -23,8 +24,9 @@ async def permalink(event):
 
 @ABH.on(events.CallbackQuery(data=b"recgange"))
 async def chang(event):
-    tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
+    sender_id = event.sender_id
+    if sender_id != uid:
+        tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
     await event.edit(f"⌔︙(tg://user?id={user.id})")
-
 ABH.start(bot_token=bot_token)
 ABH.run_until_disconnected()

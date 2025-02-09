@@ -41,9 +41,8 @@ async def chang(event):
         await event.answer("⚠️ أنت لست المستخدم الذي أرسل الأمر!", alert=True)
         return
     
-    # إذا كان المستخدم هو نفسه، قم بتغيير الرسالة
-    tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
-    await event.edit(f"⌔︙[{tag}](tg://user?id={user.id})")
+    # إذا كان المستخدم هو نفسه، قم بتعديل الرسالة وإرسال الرابط فقط
+    await event.edit(f"⌔︙رابط المستخدم: tg://user?id={user.id}")
 
 ABH.start(bot_token=bot_token)
 ABH.run_until_disconnected()

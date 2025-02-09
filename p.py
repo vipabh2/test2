@@ -10,24 +10,19 @@ ABH = TelegramClient('session_name', api_id, api_hash)
 
 @ABH.on(events.NewMessage(pattern=r'كشف ايدي (\d+)'))
 async def permalink(event):
+    global user
     user_id = event.pattern_match.group(1)
-    try:
-        user = await event.client.get_entity(int(user_id))
-    except ValueError:
-        return await event.reply("User not found.")
+    user = await event.client.get_entity(int(user_id))
     if not user:
-        return await event.reply(f"User not found.")
+        return await event.reply(f"لا يوجد حساب بالايدي هذا...")
     tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
     button = KeyboardButtonCallback("تغيير الئ رابط", b"recgange")
     await event.reply(f"⌔︙[{tag}](tg://user?id={user.id})", buttons=[button])
 
 @ABH.on(events.CallbackQuery(data=b"recgange"))
 async def chang(event):
-    user_id = event.pattern_match.group(1)
-    user = await event.client.get_entity(int(user_id))
     tag = user.first_name.replace("\u2060", "") if user.first_name else user.username
-    button = KeyboardButtonCallback("تغيير الئ رابط", b"recgange")
-    await event.edit(f"⌔︙[{tag}](tg://user?id={user.id})", buttons=[button])
+    await event.edit(f"⌔︙(tg://user?id={user.id})")
 
 ABH.start(bot_token=bot_token)
 ABH.run_until_disconnected()

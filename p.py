@@ -2,6 +2,7 @@ from telethon import TelegramClient, events
 import os
 from database import add_user_to_db, is_user_allowed, delete_user_from_db, get_allowed_users
 from models import Base, engine
+from datetime import datetime
 
 # تهيئة البوت
 api_id = os.getenv('API_ID')
@@ -31,7 +32,9 @@ async def add_me(event):
     # إضافة المستخدم إلى قاعدة البيانات
     try:
         add_user_to_db(user_id)
-        await event.respond("تمت إضافتك إلى قائمة المستخدمين المسموح لهم.")
+        t1 = datetime.now()
+        formatted_time = t1.strftime("%Y-%m-%d %I:%M:%S %p")
+        await event.respond(f"تمت إضافتك إلى قائمة المستخدمين المسموح لهم في: {formatted_time}.")
     except Exception as e:
         await event.respond(f"⚠️ حدث خطأ أثناء إضافتك: {e}")
 
@@ -50,11 +53,11 @@ async def del_me(event):
 
 @client.on(events.NewMessage(pattern='/list'))
 async def list_users(event):
-    # عرض قائمة المستخدمين المسموح لهم
+    # عرض قائمة المستخدمين المسموح لهم مع الوقت
     try:
         users = get_allowed_users()
         if users:
-            user_list = "\n".join([f"👤 {user.user_id}" for user in users])
+            user_list = "\n".join([f"👤 {user.user_id} - 🕒 {user.added_at.strftime('%Y-%m-%d %I:%M:%S %p')}" for user in users])
             await event.respond(f"قائمة المستخدمين المسموح لهم:\n{user_list}")
         else:
             await event.respond("⚠️ لا يوجد مستخدمين مسموح لهم حاليًا.")

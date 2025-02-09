@@ -1,6 +1,5 @@
 from sqlalchemy.orm import Session
 from models import SessionLocal, AllowedUser
-from datetime import datetime
 
 # إضافة مستخدم إلى قاعدة البيانات
 def add_user_to_db(user_id: int):

@@ -10,7 +10,7 @@ ABH = TelegramClient('session_name', api_id, api_hash)
 
 @ABH.on(events.NewMessage(pattern=r'كشف ايدي (\d+)'))
 async def permalink(event):
-    user_id = event.data.decode('utf-8')
+    user_id = event.pattern_match.group(1)
     try:
         user = await event.client.get_entity(int(user_id))
     except ValueError:

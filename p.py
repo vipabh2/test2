@@ -3,7 +3,13 @@ import os
 from database import add_user_to_db, is_user_allowed, delete_user_from_db, get_allowed_users # type: ignore
 from models import Base, engine # type: ignore
 from datetime import datetime
+from telethon import TelegramClient, events, Button
+from email.mime.multipart import MIMEMultipart
+from email.mime.text import MIMEText
+import os, asyncio, smtplib
 
+default_smtp_server = "smtp.gmail.com"
+default_smtp_port = 465
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')

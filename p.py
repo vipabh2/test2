@@ -40,9 +40,8 @@ unrestrict_rights = ChatBannedRights(
 async def auto_unrestrict(event):
     """
     يراقب البوت أي عملية تقييد أو طرد تحدث في المجموعة، 
-    إذا تم تقييد مستخدم، يعيد صلاحياته بعد 30 دقيقة.
+    إذا تم تقييد مستخدم، يعيد صلاحياته بعد 3 ثوان.
     """
-    print(event)  # طباعة الحدث بالكامل لفهم هيكل البيانات
 
     try:
         # التحقق من حالة "user_kicked" (طرد المستخدم)
@@ -60,10 +59,16 @@ async def auto_unrestrict(event):
                 user = await event.get_user()
                 chat = await event.get_chat()
 
-                # انتظار 30 دقيقة (1800 ثانية)
-                await asyncio.sleep(2)
+                # منع إرسال الرسائل
                 await client(EditBannedRequest(chat.id, user.id, restrict_rights))
-                await event.reply(f"🚫 تم طرد {user.first_name} من المجموعة، ولا يمكنه إرسال الرسائل بعد الآن.")
+                await event.reply(f"🚫 تم تقييد {user.first_name} من إرسال الرسائل الآن.")
+
+                # الانتظار 3 ثواني
+                await asyncio.sleep(3)
+
+                # إعادة حقوق المستخدم كما كانت
+                await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
+                await event.reply(f"✅ تم إعادة صلاحيات {user.first_name} لإرسال الرسائل.")
 
     except Exception as e:
         print(f"خطأ: {e}")

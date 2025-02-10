@@ -44,22 +44,21 @@ async def auto_unrestrict(event):
     """
     try:
         # التحقق من حالة "user_kicked" (طرد المستخدم)
-        if event.user_kicked:
+        if event.user_restricted:
             user = await event.get_user()
             chat = await event.get_chat()
 
             # إيقاف إرسال الرسائل عند الطرد
-            await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
+            await client(EditBannedRequest(chat.id, user.id, restrict_rights))
             await event.reply(f"🚫 تم طرد {user.first_name} من المجموعة، ولا يمكنه إرسال الرسائل بعد الآن.")
 
-        # التحقق من حالة "user_restricted" (تقييد المستخدم)
         if hasattr(event.original_update, 'banned_rights'):
             if event.original_update.banned_rights:
                 user = await event.get_user()
                 chat = await event.get_chat()
 
                 # منع إرسال الرسائل
-                await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
+                await client(EditBannedRequest(chat.id, user.id, restrict_rights))
                 await event.reply(f"🚫 تم تقييد {user.first_name} من إرسال الرسائل الآن.")
 
                 # الانتظار 3 ثواني

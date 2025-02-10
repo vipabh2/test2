@@ -12,11 +12,11 @@ bot_token = os.getenv('BOT_TOKEN')
 # إنشاء عميل Telethon
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# الحقوق عند التقييد (منع الإرسال والكتابة لمدة 30 دقيقة)
+# حقوق التقييد: إيقاف إرسال الرسائل بشكل دائم
 restrict_rights = ChatBannedRights(
-    until_date=None,  
-    send_messages=True,  
-    send_media=True,  
+    until_date=None,  # لا يوجد تاريخ انتهاء
+    send_messages=True,  # منع إرسال الرسائل
+    send_media=True,
     send_stickers=True,
     send_gifs=True,
     send_games=True,
@@ -24,11 +24,11 @@ restrict_rights = ChatBannedRights(
     embed_links=True
 )
 
-# الحقوق عند رفع التقييد (إعادة الصلاحيات للمستخدم بعد 30 دقيقة)
+# حقوق الرفع: السماح بإرسال الرسائل والوسائط
 unrestrict_rights = ChatBannedRights(
-    until_date=None,  
-    send_messages=False,  
-    send_media=False,  
+    until_date=None,  # لا يوجد تاريخ انتهاء
+    send_messages=False,  # السماح بإرسال الرسائل
+    send_media=False,
     send_stickers=False,
     send_gifs=False,
     send_games=False,
@@ -38,46 +38,7 @@ unrestrict_rights = ChatBannedRights(
 
 @client.on(events.ChatAction)
 async def auto_unrestrict(event):
-    """
-    يراقب البوت أي عملية تقييد أو طرد تحدث في المجموعة، 
-    إذا تم تقييد مستخدم، يعيد صلاحياته بعد 30 دقيقة.
-    """
-    print(event)  # طباعة الحدث بالكامل لفهم هيكل البيانات
-
-    try:
-        # التحقق من حالة "user_kicked" (طرد المستخدم)
-        if event.user_kicked:
-            user = await event.get_user()
-            chat = await event.get_chat()
-
-            # التحقق من صلاحيات البوت في المجموعة
-            permissions = await client.get_permissions(chat.id, bot_token)
-            if permissions.send_messages:
-                await event.reply(f"🚫 تم طرد {user.first_name} من المجموعة.")
-            else:
-                print("البوت ليس لديه صلاحية إرسال الرسائل في هذه المجموعة.")
-
-        # التحقق من حالة "user_restricted" (تقييد المستخدم)
-        if hasattr(event.original_update, 'banned_rights'):
-            if event.original_update.banned_rights:
-                user = await event.get_user()
-                chat = await event.get_chat()
-
-                # التحقق من صلاحيات البوت في المجموعة
-                permissions = await client.get_permissions(chat.id, bot_token)
-                if permissions.send_messages:
-                    await event.reply(f"🚫 تم تقييد {user.first_name} لمدة 30 دقيقة.")
-
-                    # انتظار 30 دقيقة (1800 ثانية)
-                    # await asyncio.sleep(1800)
-
-                    # رفع التقييد تلقائيًا
-                    await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
-                    await event.reply(f"✅ تم رفع التقييد عن {user.first_name} بعد 30 دقيقة.")
-                else:
-                    print("البوت ليس لديه صلاحية إرسال الرسائل في هذه المجموعة.")
-    except Exception as e:
-        print(f"خطأ: {e}")
-
+    await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
+    await event.reply(f"✅ تم رفع التقييد عن {user.first_name} بعد 30 دقيقة.")
 client.start()
 client.run_until_disconnected()

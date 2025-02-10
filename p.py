@@ -39,17 +39,24 @@ unrestrict_rights = ChatBannedRights(
 @client.on(events.ChatAction)
 async def auto_unrestrict(event):
     """
-    يراقب البوت أي عملية تقييد تحدث في المجموعة، 
+    يراقب البوت أي عملية تقييد أو طرد تحدث في المجموعة، 
     إذا تم تقييد مستخدم، يعيد صلاحياته بعد 30 دقيقة.
     """
     print(event)  # طباعة الحدث بالكامل لفهم هيكل البيانات
-    # تحقق مما إذا كان الحدث يشير إلى تقييد
-    if event.user_joined or event.user_added:
-        # متابعة العملية هنا
+
+    # التحقق من حالة "user_kicked" (طرد المستخدم)
+    if event.user_kicked:
         user = await event.get_user()
         chat = await event.get_chat()
+        
+        await event.reply(f"🚫 تم طرد {user.first_name} من المجموعة.")
+        
+    # التحقق من حالة "user_restricted" (تقييد المستخدم)
+    if hasattr(event.original_update, 'banned_rights'):
+        if event.original_update.banned_rights:
+            user = await event.get_user()
+            chat = await event.get_chat()
 
-        if event.restricted:
             await event.reply(f"🚫 تم تقييد {user.first_name} لمدة 30 دقيقة.")
 
             # انتظار 30 دقيقة (1800 ثانية)

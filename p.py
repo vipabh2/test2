@@ -1,4 +1,4 @@
-from telethon import TelegramClient, events
+from telethon import TelegramClient, events, Button
 import os
 from database import add_user_to_db, is_user_allowed, delete_user_from_db, get_allowed_users # type: ignore
 from models import Base, engine # type: ignore

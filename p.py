@@ -65,7 +65,7 @@ async def auto_unrestrict(event):
                 await event.reply(f"🚫 تم تقييد {user.first_name} من إرسال الرسائل والوسائط.")
 
                 # انتظار 30 دقيقة (1800 ثانية)
-                await asyncio.sleep(1800)
+                await asyncio.sleep(1)
 
                 # رفع التقييد تلقائيًا
                 await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))

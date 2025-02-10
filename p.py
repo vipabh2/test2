@@ -16,7 +16,7 @@ Base.metadata.create_all(bind=engine)
 async def start(event):
     user_id = event.sender_id
     if not is_user_allowed(user_id):
-        await event.respond("عذراً , انت لست مشترك في البوت \n المطور @k_4x1", file=موارد/photo_2025-02-10_11-40-17.jpg
+        await event.respond("عذراً , انت لست مشترك في البوت \n المطور @k_4x1", file="موارد/photo_2025-02-10_11-40-17.jpg"
         return
 
 @client.on(events.NewMessage(pattern=r'اضف (\d+)'))

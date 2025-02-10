@@ -16,16 +16,14 @@ Base.metadata.create_all(bind=engine)
 async def start(event):
     user_id = event.sender_id
     if not is_user_allowed(user_id):
-        await event.respond("⚠️ عذرًا، أنت غير مسموح لك باستخدام هذا البوت.")
+        await event.respond("عذراً , انت لست مشترك في البوت \n المطور @k_4x1", file= "https://t.me/VIPABH/1242")
         return
 
 @client.on(events.NewMessage(pattern=r'اضف (\d+)'))
 async def add_me(event):
     sender_id = event.sender_id
-    
-    # السماح فقط للمستخدم 1910015590
     if sender_id != 1910015590:
-        return  # لا يتم تنفيذ أي شيء
+        return
 
     user_id = int(event.pattern_match.group(1))  # استخراج ID المستخدم المُراد إضافته
     add_user_to_db(user_id)

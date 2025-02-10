@@ -60,16 +60,11 @@ async def auto_unrestrict(event):
                 user = await event.get_user()
                 chat = await event.get_chat()
 
-                # إيقاف إرسال الرسائل عند التقييد
-                await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
-                await event.reply(f"🚫 تم تقييد {user.first_name} من إرسال الرسائل والوسائط.")
-
                 # انتظار 30 دقيقة (1800 ثانية)
-                await asyncio.sleep(1)
+                await asyncio.sleep(2)
+                await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
+                await event.reply(f"🚫 تم طرد {user.first_name} من المجموعة، ولا يمكنه إرسال الرسائل بعد الآن.")
 
-                # رفع التقييد تلقائيًا
-                await client(EditBannedRequest(chat.id, user.id, restrict_rights))
-                await event.reply(f"✅ تم رفع التقييد عن {user.first_name} بعد 30 دقيقة.")
     except Exception as e:
         print(f"خطأ: {e}")
 

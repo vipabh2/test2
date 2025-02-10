@@ -22,8 +22,8 @@ async def promote_simp(event):
     target_user = await repmsg.get_sender() 
     target_name = target_user.first_name
     if target_user.id == 1910015590:
-        await event.respond(f"من -> {sender_name}\nتم رفع {target_name} سمب\n🚨 جا قابل المطور سمب؟ 😂")
+        await event.respond(f"ها ابن هاشم سالمين؟؟")
     else:
-        await event.respond(f"من -> {sender_name}\nتم رفع {target_name} سمب ✅")
+        await event.respond(f"لعيونك تم رفع {target_name} سمب\n جا قابل المطور سمب؟ 😂")
 
 client.run_until_disconnected()

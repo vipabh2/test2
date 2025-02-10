@@ -10,7 +10,8 @@ bot_token = os.getenv('BOT_TOKEN')
 
 user_states = {}
 def create_email_message(subject, body, recipient):
-    return f"Subject: {subject}\nTo: {recipient}\n\n{body}"client = TelegramClient('session_name', api_id, api_hash)
+    return f"Subject: {subject}\nTo: {recipient}\n\n{body}"
+client = TelegramClient('session_name', api_id, api_hash)
 Base.metadata.create_all(bind=engine)
 @client.on(events.NewMessage(pattern='/start'))
 async def start(event):

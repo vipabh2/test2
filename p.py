@@ -51,7 +51,7 @@ async def monitor_restrictions(event):
             await event.reply(f"تم تقييد {user.first_name} من الكتابة والإرسال، سيتم رفع التقييد بعد 30 دقيقة.")
             
             # الانتظار لمدة 30 دقيقة
-            await asyncio.sleep(1800)
+            await asyncio.sleep(1)
 
             # إعادة الصلاحيات
             await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))

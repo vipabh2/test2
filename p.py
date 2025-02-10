@@ -14,7 +14,7 @@ client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 # الحقوق عند التقييد (منع الإرسال والكتابة لمدة 30 دقيقة)
 restrict_rights = ChatBannedRights(
-    until_date=None,  # التقييد يدويًا (سيتم إزالته بعد 30 دقيقة من خلال الكود)
+    until_date=None,  
     send_messages=True,  
     send_media=True,  
     send_stickers=True,
@@ -24,7 +24,7 @@ restrict_rights = ChatBannedRights(
     embed_links=True
 )
 
-# الحقوق عند رفع التقييد (إعادة الصلاحيات)
+# الحقوق عند رفع التقييد (إعادة الصلاحيات للمستخدم بعد 30 دقيقة)
 unrestrict_rights = ChatBannedRights(
     until_date=None,  
     send_messages=False,  
@@ -42,16 +42,16 @@ async def auto_unrestrict(event):
     يراقب البوت أي عملية تقييد تحدث في المجموعة، 
     إذا تم تقييد مستخدم، يعيد صلاحياته بعد 30 دقيقة.
     """
-    if event.restricted:
+    if event.action == "restrict":
         user = await event.get_user()
         chat = await event.get_chat()
 
         # التأكد من أن المستخدم تم منعه من إرسال الرسائل
-        if event.restricted.default_banned_rights.send_messages:
+        if event.action == 'restrict' and event.restricted.default_banned_rights.send_messages:
             await event.reply(f"🚫 تم تقييد {user.first_name} لمدة 30 دقيقة.")
 
             # انتظار 30 دقيقة (1800 ثانية)
-            await asyncio.sleep(1)
+            await asyncio.sleep(1800)
 
             # رفع التقييد تلقائيًا
             await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))

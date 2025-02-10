@@ -12,10 +12,10 @@ bot_token = os.getenv('BOT_TOKEN')
 # إنشاء عميل Telethon
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# حقوق التقييد: إيقاف إرسال الرسائل بشكل دائم
+# حقوق التقييد: منع المستخدم من إرسال الرسائل والوسائط
 restrict_rights = ChatBannedRights(
-    until_date=None,  # لا يوجد تاريخ انتهاء
-    send_messages=True,  # منع إرسال الرسائل
+    until_date=None,  
+    send_messages=True,
     send_media=True,
     send_stickers=True,
     send_gifs=True,
@@ -24,10 +24,10 @@ restrict_rights = ChatBannedRights(
     embed_links=True
 )
 
-# حقوق الرفع: السماح بإرسال الرسائل والوسائط
+# حقوق الرفع: السماح بإرسال كل شيء
 unrestrict_rights = ChatBannedRights(
-    until_date=None,  # لا يوجد تاريخ انتهاء
-    send_messages=False,  # السماح بإرسال الرسائل
+    until_date=None,
+    send_messages=False,
     send_media=False,
     send_stickers=False,
     send_gifs=False,
@@ -39,40 +39,27 @@ unrestrict_rights = ChatBannedRights(
 @client.on(events.ChatAction)
 async def auto_unrestrict(event):
     """
-    يراقب البوت أي عملية تقييد أو طرد تحدث في المجموعة، 
-    إذا تم تقييد مستخدم، يعيد صلاحياته بعد 3 ثوان.
+    يراقب البوت أي عملية تقييد تحدث في المجموعة، 
+    إذا تم تقييد مستخدم، يعيد صلاحياته بعد 3 ثوانٍ.
     """
     try:
-        # التحقق من حالة "user_kicked" (طرد المستخدم)
+        # التحقق مما إذا كان المستخدم قد تم تقييده
         if event.user_restricted:
             user = await event.get_user()
             chat = await event.get_chat()
 
-            # إيقاف إرسال الرسائل عند الطرد
-            await client(EditBannedRequest(chat.id, user.id, restrict_rights))
-            await event.reply(f"🚫 تم طرد {user.first_name} من المجموعة، ولا يمكنه إرسال الرسائل بعد الآن.")
+            await event.reply(f"🚫 {user.first_name} تم تقييده في المجموعة!")
 
-        if hasattr(event.original_update, 'banned_rights'):
-            if event.original_update.banned_rights:
-                user = await event.get_user()
-                chat = await event.get_chat()
+            # الانتظار 3 ثواني ثم إعادة الصلاحيات
+            await asyncio.sleep(3)
 
-                # منع إرسال الرسائل
-                await client(EditBannedRequest(chat.id, user.id, restrict_rights))
-                await event.reply(f"🚫 تم تقييد {user.first_name} من إرسال الرسائل الآن.")
-
-                # الانتظار 3 ثواني
-                await asyncio.sleep(3)
-
-                # إعادة حقوق المستخدم كما كانت
-                try:
-                    await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
-                    await event.reply(f"✅ تم إعادة صلاحيات {user.first_name} لإرسال الرسائل.")
-                except Exception as e:
-                    print(f"خطأ أثناء إعادة الحقوق: {e}")
+            try:
+                await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
+                await event.reply(f"✅ تم إعادة صلاحيات {user.first_name} لإرسال الرسائل.")
+            except Exception as e:
+                print(f"خطأ أثناء إعادة الحقوق: {e}")
 
     except Exception as e:
         print(f"خطأ في معالجة الحدث: {e}")
 
-client.start()
 client.run_until_disconnected()

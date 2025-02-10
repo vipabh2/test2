@@ -42,16 +42,18 @@ async def auto_unrestrict(event):
     يراقب البوت أي عملية تقييد تحدث في المجموعة، 
     إذا تم تقييد مستخدم، يعيد صلاحياته بعد 30 دقيقة.
     """
-    if event.action == "restrict":
+    print(event)  # طباعة الحدث بالكامل لفهم هيكل البيانات
+    # تحقق مما إذا كان الحدث يشير إلى تقييد
+    if event.user_joined or event.user_added:
+        # متابعة العملية هنا
         user = await event.get_user()
         chat = await event.get_chat()
 
-        # التأكد من أن المستخدم تم منعه من إرسال الرسائل
-        if event.action == 'restrict' and event.restricted.default_banned_rights.send_messages:
+        if event.restricted:
             await event.reply(f"🚫 تم تقييد {user.first_name} لمدة 30 دقيقة.")
 
             # انتظار 30 دقيقة (1800 ثانية)
-            await asyncio.sleep(1800)
+            await asyncio.sleep(1)
 
             # رفع التقييد تلقائيًا
             await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))

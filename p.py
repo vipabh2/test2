@@ -44,27 +44,40 @@ async def auto_unrestrict(event):
     """
     print(event)  # طباعة الحدث بالكامل لفهم هيكل البيانات
 
-    # التحقق من حالة "user_kicked" (طرد المستخدم)
-    if event.user_kicked:
-        user = await event.get_user()
-        chat = await event.get_chat()
-        
-        await event.reply(f"🚫 تم طرد {user.first_name} من المجموعة.")
-        
-    # التحقق من حالة "user_restricted" (تقييد المستخدم)
-    if hasattr(event.original_update, 'banned_rights'):
-        if event.original_update.banned_rights:
+    try:
+        # التحقق من حالة "user_kicked" (طرد المستخدم)
+        if event.user_kicked:
             user = await event.get_user()
             chat = await event.get_chat()
 
-            await event.reply(f"🚫 تم تقييد {user.first_name} لمدة 30 دقيقة.")
+            # التحقق من صلاحيات البوت في المجموعة
+            permissions = await client.get_permissions(chat.id, bot_token)
+            if permissions.send_messages:
+                await event.reply(f"🚫 تم طرد {user.first_name} من المجموعة.")
+            else:
+                print("البوت ليس لديه صلاحية إرسال الرسائل في هذه المجموعة.")
 
-            # انتظار 30 دقيقة (1800 ثانية)
-            await asyncio.sleep(1)
+        # التحقق من حالة "user_restricted" (تقييد المستخدم)
+        if hasattr(event.original_update, 'banned_rights'):
+            if event.original_update.banned_rights:
+                user = await event.get_user()
+                chat = await event.get_chat()
 
-            # رفع التقييد تلقائيًا
-            await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
-            await event.reply(f"✅ تم رفع التقييد عن {user.first_name} بعد 30 دقيقة.")
+                # التحقق من صلاحيات البوت في المجموعة
+                permissions = await client.get_permissions(chat.id, bot_token)
+                if permissions.send_messages:
+                    await event.reply(f"🚫 تم تقييد {user.first_name} لمدة 30 دقيقة.")
+
+                    # انتظار 30 دقيقة (1800 ثانية)
+                    # await asyncio.sleep(1800)
+
+                    # رفع التقييد تلقائيًا
+                    await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
+                    await event.reply(f"✅ تم رفع التقييد عن {user.first_name} بعد 30 دقيقة.")
+                else:
+                    print("البوت ليس لديه صلاحية إرسال الرسائل في هذه المجموعة.")
+    except Exception as e:
+        print(f"خطأ: {e}")
 
 client.start()
 client.run_until_disconnected()

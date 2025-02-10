@@ -6,7 +6,7 @@ from telethon.tl.types import ChatBannedRights
 
 # الحصول على المتغيرات من البيئة
 api_id = int(os.getenv('API_ID'))
-api_hash = os.getenv('API_HASH')
+api_hash = os.getenv('API_HASH'))
 bot_token = os.getenv('BOT_TOKEN')
 
 # إنشاء عميل Telethon
@@ -42,7 +42,6 @@ async def auto_unrestrict(event):
     يراقب البوت أي عملية تقييد أو طرد تحدث في المجموعة، 
     إذا تم تقييد مستخدم، يعيد صلاحياته بعد 3 ثوان.
     """
-
     try:
         # التحقق من حالة "user_kicked" (طرد المستخدم)
         if event.user_kicked:
@@ -67,11 +66,14 @@ async def auto_unrestrict(event):
                 await asyncio.sleep(3)
 
                 # إعادة حقوق المستخدم كما كانت
-                await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
-                await event.reply(f"✅ تم إعادة صلاحيات {user.first_name} لإرسال الرسائل.")
+                try:
+                    await client(EditBannedRequest(chat.id, user.id, unrestrict_rights))
+                    await event.reply(f"✅ تم إعادة صلاحيات {user.first_name} لإرسال الرسائل.")
+                except Exception as e:
+                    print(f"خطأ أثناء إعادة الحقوق: {e}")
 
     except Exception as e:
-        print(f"خطأ: {e}")
+        print(f"خطأ في معالجة الحدث: {e}")
 
 client.start()
 client.run_until_disconnected()

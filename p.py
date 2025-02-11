@@ -21,6 +21,7 @@ async def handler(event):
     isabh = event.sender_id
     txt = event.pattern_match
     if isabh != 1910015590:
+        await event.delete()
         return
     if txt:
         vote_text = txt.group(1)

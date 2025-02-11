@@ -18,18 +18,13 @@ voted_users = set()
 @client.on(events.NewMessage(pattern=r'^تصويت\s+(.+)$'))
 async def handler(event):
     global vote_text
-    isabh = event.sender_id  # معرف المرسل
+    isabh = event.sender_id
     txt = event.pattern_match
-
-    # إذا كان المرسل هو نفسه (isabh) قم بحذف الرسالة
-    if isabh == event.sender_id:  # تحقق مما إذا كان المرسل هو نفس الشخص
-        await event.delete()
+    if isabh != 1910015590:
+                await event.delete()
         return
-
     if txt:
         vote_text = txt.group(1)
-
-    # إرسال الرسالة مع الأزرار
     await event.respond(
         f'{vote_text} \n `التصويت اما👍 او 👎 لمره واحده`',
         buttons=[
@@ -37,11 +32,10 @@ async def handler(event):
             [Button.inline(f'👎 {votes["button2"]}', data='button2')]
         ]
     )
-
 @client.on(events.CallbackQuery)
 async def callback(event):
     data = event.data.decode('utf-8')
-    user_id = event.sender_id  # الحصول على معرّف المستخدم
+    user_id = event.sender_id 
 
     # التحقق إذا كان المستخدم قد صوت بالفعل
     if user_id in voted_users:
@@ -56,7 +50,6 @@ async def callback(event):
     # إضافة المستخدم إلى قائمة الذين قاموا بالتصويت
     voted_users.add(user_id)
 
-    # تحديث الرسالة بالأزرار مع العد الجديد
     await event.edit(
         f'{vote_text} \n `التصويت اما👍 او 👎 لمره واحده`',
         buttons=[

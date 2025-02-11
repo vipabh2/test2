@@ -38,7 +38,7 @@ async def handler(event):
             [Button.inline(f'👎 {votes["button2"]}', data='button2')]
         ]
     )
-@client.on(events.CallbackQuery(data=b'button1'))
+@ABH.on(events.CallbackQuery(data=b'button1'))
 async def button1_callback(event):
     user_id = event.sender_id  # الحصول على معرّف المستخدم
 
@@ -61,7 +61,7 @@ async def button1_callback(event):
     )
 
 # التعامل مع الزر الثاني (👎)
-@client.on(events.CallbackQuery(data=b'button2'))
+@ABH.on(events.CallbackQuery(data=b'button2'))
 async def button2_callback(event):
     user_id = event.sender_id  # الحصول على معرّف المستخدم
 

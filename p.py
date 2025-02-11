@@ -5,14 +5,13 @@ from telethon.tl.types import KeyboardButtonCallback
 from telethon import TelegramClient, events, Button
 # from db import save_date, get_saved_date
 from hijri_converter import Gregorian
-from telethon.tl.custom import Button
 from googletrans import Translator
 from bs4 import BeautifulSoup
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
 ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
-# تخزين عدد الضغطات لكل زر
+
 votes = {'button1': 0, 'button2': 0}
 
 # تخزين معرّفات المستخدمين الذين قاموا بالتصويت
@@ -24,15 +23,14 @@ async def handler(event):
     isabh = event.sender_id  # معرف المرسل
     txt = event.pattern_match
 
-    # حذف الرسالة إذا كان المرسل هو نفسه (حسب isabh)
-    if isabh == event.sender_id:
-        await event.delete()
+    # حذف الرسالة إذا كان المرسل هو نفسه الذي أرسل الأمر
+    if isabh != event.sender_id:
         return
 
     if txt:
         vote_text = txt.group(1)
 
-    # إرسال الرسالة مع الأزرار
+    await event.delete()
     await event.respond(
         f'{vote_text} \n `التصويت اما👍 او 👎 لمره واحده`',
         buttons=[
@@ -67,8 +65,6 @@ async def callback(event):
             [Button.inline(f'👎 {votes["button2"]}', data='button2')]
         ]
     )
-
-ABH.run_until_disconnected()
 @ABH.on(events.NewMessage(pattern=r'كشف ايدي (\d+)'))
 async def permalink(event):
     global user, uid

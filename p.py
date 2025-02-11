@@ -39,23 +39,28 @@ async def handler(event):
         ]
     )
 
-@ABH.on(events.CallbackQuery)
+@client.on(events.CallbackQuery)
 async def callback(event):
     data = event.data.decode('utf-8')
-    userid = event.sender_id  # الحصول على معرّف المستخدم
+    user_id = event.sender_id  # الحصول على معرّف المستخدم
 
     # التحقق إذا كان المستخدم قد صوت بالفعل
-    if userid in voted_users:
+    if user_id in voted_users:
         await event.answer("الملحة متفيدك كبدي , التصويت لمره واحده🙂", alert=True)
         return
 
+    # التأكد من أن المستخدم يضغط فقط على "button1" أو "button2"
     if data == 'button1':
         votes['button1'] += 1
     elif data == 'button2':
         votes['button2'] += 1
+    else:
+        # في حال الضغط على زر غير "button1" أو "button2" لا يتم تنفيذ أي شيء
+        await event.answer("هذا الزر غير مخصص للتصويت", alert=True)
+        return
 
     # إضافة المستخدم إلى قائمة الذين قاموا بالتصويت
-    voted_users.add(userid)
+    voted_users.add(user_id)
 
     # تحديث الرسالة بالأزرار مع العد الجديد
     await event.edit(

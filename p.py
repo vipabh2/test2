@@ -11,7 +11,7 @@ client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 # تخزين عدد الضغطات لكل زر
 votes = {'button1': 0, 'button2': 0}
 
-@client.on(events.NewMessage(pattern=r'^تصويتs+(.+)$'))
+@client.on(events.NewMessage(pattern=r'^تصويت s+(.+)$'))
 async def handler(event):
     global vote_text
     txt = event.pattern_match

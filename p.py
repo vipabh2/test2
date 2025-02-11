@@ -18,9 +18,8 @@ voted_users = set()
 @client.on(events.NewMessage(pattern=r'^تصويت\s+(.+)$'))
 async def handler(event):
     global vote_text
-    isabh = event.sender_id
     txt = event.pattern_match
-    if txt and isabh != 1910015590:
+    if txt:
         vote_text = txt.group(1)
     await event.respond(
         f'{vote_text}',

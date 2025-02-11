@@ -56,7 +56,6 @@ async def callback(event):
         votes['button2'] += 1
     else:
         # في حال الضغط على زر غير "button1" أو "button2" لا يتم تنفيذ أي شيء
-        await event.answer("هذا الزر غير مخصص للتصويت", alert=True)
         return
 
     # إضافة المستخدم إلى قائمة الذين قاموا بالتصويت

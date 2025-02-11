@@ -1,9 +1,9 @@
 from playwright.async_api import async_playwright # type: ignore
 import requests, os, operator, asyncio, random, uuid, datetime
-from database import store_whisper, get_whisper #type: ignore
+# from database import store_whisper, get_whisper #type: ignore
 from telethon.tl.types import KeyboardButtonCallback
 from telethon import TelegramClient, events, Button
-from db import save_date, get_saved_date
+# from db import save_date, get_saved_date
 from hijri_converter import Gregorian
 from telethon.tl.custom import Button
 from googletrans import Translator

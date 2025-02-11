@@ -20,10 +20,10 @@ async def handler(event):
     global vote_text
     isabh = event.sender_id
     txt = event.pattern_match
-    if txt and isabh != 1910015590:  # تأكد من أنه ليس البوت الذي أرسل الرسالة
+    if txt and isabh != 1910015590:
         vote_text = txt.group(1)
     await event.respond(
-        f'{vote_text}\n`التصويت اما👍 او 👎 لمره واحده`',  # توضيح بأن التصويت مرة واحدة
+        f'{vote_text}',
         buttons=[
             [Button.inline(f'👍 {votes["button1"]}', data='button1')],
             [Button.inline(f'👎 {votes["button2"]}', data='button2')]
@@ -33,7 +33,7 @@ async def handler(event):
 @client.on(events.CallbackQuery)
 async def callback(event):
     data = event.data.decode('utf-8')
-    user_id = event.sender_id  # الحصول على معرّف المستخدم
+    user_id = event.sender_id 
 
     # التحقق إذا كان المستخدم قد صوت بالفعل
     if user_id in voted_users:
@@ -49,7 +49,7 @@ async def callback(event):
     voted_users.add(user_id)
 
     await event.edit(
-        f'{vote_text}\n`التصويت اما👍 او 👎 لمره واحده`',  # نفس الرسالة مع التحديثات
+        f'{vote_text} `التصويت اما👍 او 👎 لمره واحده`',
         buttons=[
             [Button.inline(f'👍 {votes["button1"]}', data='button1')],
             [Button.inline(f'👎 {votes["button2"]}', data='button2')]

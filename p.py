@@ -11,7 +11,7 @@ client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 # قاموس لتخزين بيانات التصويت لكل رسالة
 votes = defaultdict(lambda: {"like": 0, "dislike": 0, "text": "", "voters": set()})
 
-@client.on(events.NewMessage(pattern=r'^تصويت\s+(.+)$'))
+@client.on(events.NewMessage(pattern=r'تصويت\s+(.+)'))
 async def my_event_handler(event):
     match = event.pattern_match
     sender_id = event.sender_id

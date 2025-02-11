@@ -1,5 +1,6 @@
 from telethon import TelegramClient, events, Button
 import os
+from collections import defaultdict
 
 api_id = int(os.getenv('API_ID'))
 api_hash = os.getenv('API_HASH')
@@ -7,8 +8,8 @@ bot_token = os.getenv('BOT_TOKEN')
 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# قاموس لتخزين عدد الإعجابات وعدم الإعجابات لكل رسالة
-votes = {}
+# قاموس لتخزين بيانات التصويت لكل رسالة
+votes = defaultdict(lambda: {"like": 0, "dislike": 0, "text": "", "voters": set()})
 
 @client.on(events.NewMessage(pattern=r'^تصويت\s+(.+)$'))
 async def my_event_handler(event):
@@ -19,8 +20,8 @@ async def my_event_handler(event):
         text = match.group(1)  # استخراج نص التصويت
         message_id = event.message.id  # الحصول على معرف الرسالة
 
-        # تخزين عدد التصويتات لكل رسالة بشكل مستقل
-        votes[message_id] = {"like": 0, "dislike": 0}
+        # تخزين بيانات التصويت
+        votes[message_id] = {"like": 0, "dislike": 0, "text": text, "voters": set()}
 
         # إنشاء الأزرار مع معرف الرسالة
         buttons = [
@@ -33,12 +34,20 @@ async def my_event_handler(event):
 @client.on(events.CallbackQuery)
 async def callback(event):
     data = event.data.decode()
+    user_id = event.sender_id  # الحصول على معرف المستخدم
     
-    # استخراج معرف الرسالة من البيانات
     if data.startswith("yes_") or data.startswith("no_"):
         message_id = int(data.split("_")[1])
 
         if message_id in votes:
+            # منع المستخدم من التصويت أكثر من مرة
+            if user_id in votes[message_id]["voters"]:
+                await event.answer("❌ لقد قمت بالتصويت بالفعل!", alert=False)  # جعل الإشعار عائم
+                return
+
+            # تسجيل تصويت المستخدم
+            votes[message_id]["voters"].add(user_id)
+
             if data.startswith("yes_"):
                 votes[message_id]["like"] += 1
             else:
@@ -49,6 +58,14 @@ async def callback(event):
                 [Button.inline(f"👍 {votes[message_id]['like']}", f"yes_{message_id}".encode())],
                 [Button.inline(f"👎 {votes[message_id]['dislike']}", f"no_{message_id}".encode())]
             ]
-            await event.edit(buttons=buttons)
+
+            # جلب نص التصويت الأصلي المخزن مسبقًا
+            original_text = votes[message_id]["text"]
+
+            # تحديث الرسالة بالأزرار الجديدة
+            try:
+                await event.edit(f"🗳 {original_text}", buttons=buttons)
+            except Exception as e:
+                print(f"خطأ أثناء تحديث التصويت: {e}")
 
 client.run_until_disconnected()

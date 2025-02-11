@@ -11,14 +11,17 @@ client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 # تخزين عدد الضغطات لكل زر
 votes = {'button1': 0, 'button2': 0}
 
-@client.on(events.NewMessage(pattern='/تصويت'))
+@client.on(events.NewMessage(pattern=r'^تصويتs+(.+)$'))
 async def handler(event):
-    # إظهار الأزرار مع النص
+    global vote_text
+    txt = event.pattern_match
+    if txt:
+        vote_text = txt.group(1)
     await event.respond(
-        'اختار واحد من الأزرار:',
+        f'{vote_text}',
         buttons=[
-            [Button.inline(f'زر 1 - {votes["button1"]}', data='button1')],
-            [Button.inline(f'زر 2 - {votes["button2"]}', data='button2')]
+            [Button.inline(f'👍 {votes["button1"]}', data='button1')],
+            [Button.inline(f'👎 {votes["button2"]}', data='button2')]
         ]
     )
 
@@ -31,12 +34,11 @@ async def callback(event):
     elif data == 'button2':
         votes['button2'] += 1
 
-    # إعادة إرسال الأزرار مع تحديث الأعداد
     await event.edit(
-        f'اختار واحد من الأزرار:',
+        f'{vote_text}',
         buttons=[
-            [Button.inline(f'زر 1 - {votes["button1"]}', data='button1')],
-            [Button.inline(f'زر 2 - {votes["button2"]}', data='button2')]
+            [Button.inline(f'👍 {votes["button1"]}', data='button1')],
+            [Button.inline(f'👎 {votes["button2"]}', data='button2')]
         ]
     )
 

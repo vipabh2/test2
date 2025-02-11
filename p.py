@@ -22,7 +22,7 @@ async def handler(event):
     txt = event.pattern_match
 
     # إذا كانت الرسالة من البوت نفسه، قم بحذفها
-    if isabh == 1910015590:  # معرف البوت
+    if isabh != 1910015590:  # معرف البوت
         await event.delete()
         return
 

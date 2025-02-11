@@ -1,5 +1,4 @@
-from telethon import TelegramClient, events
-from telethon.tl.custom import Button
+from telethon import TelegramClient, events, Button
 import asyncio
 import os
 

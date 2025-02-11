@@ -18,11 +18,12 @@ voted_users = set()
 @client.on(events.NewMessage(pattern=r'^تصويت\s+(.+)$'))
 async def handler(event):
     global vote_text
+    isabh = event.sender_id
     txt = event.pattern_match
-    if txt:
+    if txt and isabh != 1910015590:  # تأكد من أنه ليس البوت الذي أرسل الرسالة
         vote_text = txt.group(1)
     await event.respond(
-        f'{vote_text}',
+        f'{vote_text}\n`التصويت اما👍 او 👎 لمره واحده`',  # توضيح بأن التصويت مرة واحدة
         buttons=[
             [Button.inline(f'👍 {votes["button1"]}', data='button1')],
             [Button.inline(f'👎 {votes["button2"]}', data='button2')]
@@ -48,7 +49,7 @@ async def callback(event):
     voted_users.add(user_id)
 
     await event.edit(
-        f'{vote_text}',
+        f'{vote_text}\n`التصويت اما👍 او 👎 لمره واحده`',  # نفس الرسالة مع التحديثات
         buttons=[
             [Button.inline(f'👍 {votes["button1"]}', data='button1')],
             [Button.inline(f'👎 {votes["button2"]}', data='button2')]

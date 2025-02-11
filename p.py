@@ -24,6 +24,7 @@ async def handler(event):
         return
     if txt:
         vote_text = txt.group(1)
+    await event.delete()
     await event.respond(
         f'{vote_text} \n `التصويت اما👍 او 👎 لمره واحده`',
         buttons=[

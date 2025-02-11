@@ -39,7 +39,7 @@ async def handler(event):
         ]
     )
 
-@client.on(events.CallbackQuery)
+@ABH.on(events.CallbackQuery)
 async def callback(event):
     data = event.data.decode('utf-8')
     user_id = event.sender_id  # الحصول على معرّف المستخدم

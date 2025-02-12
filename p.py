@@ -60,6 +60,7 @@ async def handler(event):
                 await event.reply(f"✅ تم إضافة الكلمة '{new_word}' إلى قائمة الكلمات المحظورة!")
         
         elif check_message(event.raw_text):
+            await event.delete()
             user_id = event.sender_id
             warning_msg = "🚨 **تحذير:** لا يمكنك استخدام كلمات محظورة في المحادثة! 🚫"
             await event.reply(warning_msg)

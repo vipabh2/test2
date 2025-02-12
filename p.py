@@ -11,13 +11,14 @@ bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 # قائمة الكلمات المحظورة
-banned_words = ["ممنوع", "كلمةمحظورة", "شتيمة"]
+banned_words = ["ممنوع", "كلمةمحظورة", "شتيمة", "ئ", "الئ"]  # إضافة الكلمات والأحرف المحظورة
 
 def normalize_text(text):
     """إزالة الحركات، علامات الترقيم، وحرف 'ئ' فقط"""
     text = re.sub(r'[\u064B-\u0652ـ]', '', text)  # إزالة الحركات والتطويل
     text = re.sub(r'[~.,!?;:"\'،؛…()\[\]{}<>]', '', text)  # إزالة علامات الترقيم فقط
-    text = text.replace('ئ', '')  # إزالة حرف 'ئ'
+    text = text.replace('ئ', '')  # إزالة حرف 'ئ' من النص
+    text = text.replace('الئ', '')  # إزالة "الئ" من النص
     text = re.sub(r'(.)\1+', r'\1', text)  # إزالة التكرار الزائد لأي حرف متكرر
     return text
 
@@ -35,7 +36,7 @@ def check_message(message):
 async def handler(event):
     """التعامل مع الرسائل"""
     # إضافة كلمات محظورة جديدة باستخدام علامة #
-    if event.raw_text.startswith('#'):
+    if event.raw_text.startswith('!'):
         new_word = event.raw_text[1:].strip()  # إزالة العلامة #
         if new_word not in banned_words:  # إذا لم تكن الكلمة موجودة من قبل
             banned_words.append(new_word)  # إضافتها إلى القائمة

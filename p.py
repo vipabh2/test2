@@ -17,6 +17,7 @@ def normalize_text(text):
     """إزالة كل شيء عدا الأحرف والأرقام"""
     # إزالة أي شيء غير حرف أو رقم
     text = re.sub(r'[^أ-يa-zA-Z0-9]', '', text)
+    text = re.sub(r'(.)\1+', r'\1', text)  # إزالة الحروف المكررة
     return text
 
 def check_message(message):

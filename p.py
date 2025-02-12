@@ -14,8 +14,11 @@ ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 banned_words = ["ممنوع", "كلمةمحظورة", "شتيمة"]
 
 def normalize_text(text):
-    """إزالة التغوييش من النص"""
-    return re.sub(r'[^أ-يa-zA-Z0-9]', '', text)
+    """إزالة الحركات، علامات الترقيم، وحرف 'ئ' فقط"""
+    text = re.sub(r'[\u064B-\u0652ـ]', '', text)  # إزالة الحركات العربية والتطويل
+    text = re.sub(r'[~.,!?;:"\'،؛…()\[\]{}<>]', '', text)  # إزالة علامات الترقيم فقط
+    text = text.replace('ئ', '')  # إزالة حرف 'ئ'
+    return text  # **الإبقاء على باقي الأحرف والرموز كما هي**
 
 def check_message(message):
     """التحقق مما إذا كانت الرسالة تحتوي على كلمات محظورة"""

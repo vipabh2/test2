@@ -1,4 +1,5 @@
 from telethon import TelegramClient, events
+from telethon.tl.functions.messages import EditBannedRequest
 import os
 import re
 
@@ -69,14 +70,12 @@ async def handler(event):
             await event.reply(warning_msg)  # إرسال رسالة تحذير
 
             # تقييد المرسل
-            chat = await event.get_chat()
-            if chat.admin_rights:
-                try:
-                    # تقييد المرسل من إرسال الرسائل في المجموعة لمدة 10 دقائق (يمكن تعديل الوقت)
-                    await event.client.restrict_participant(event.chat_id, user_id, until_date=None, send_messages=False)
-                    await event.reply("🚫 تم تقييدك من إرسال الرسائل في هذه المجموعة بسبب استخدام كلمات محظورة!")
-                except Exception as e:
-                    print(f"Error while restricting user: {e}")
+            try:
+                # تقييد المرسل من إرسال الرسائل في المجموعة لمدة غير محددة
+                await event.client(EditBannedRequest(event.chat_id, user_id, send_messages=False))
+                await event.reply("🚫 تم تقييدك من إرسال الرسائل في هذه المجموعة بسبب استخدام كلمات محظورة!")
+            except Exception as e:
+                print(f"Error while restricting user: {e}")
 
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")

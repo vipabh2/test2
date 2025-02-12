@@ -1,9 +1,14 @@
-from telethon import TelegramClient, events, Button
+from telethon import TelegramClient, events
 import os
-api_id = os.getenv('API_ID')      
+import re
+
+# جلب البيانات من متغيرات البيئة
+api_id = int(os.getenv('API_ID'))      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
-ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token
+
+# تشغيل البوت
+ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 # قائمة الكلمات المحظورة
 banned_words = ["ممنوع", "كلمةمحظورة", "شتيمة"]
@@ -20,17 +25,14 @@ def check_message(message):
             return True
     return False
 
-# تشغيل البوت
-bot = TelegramClient("bot", API_ID, API_HASH).start(bot_token=BOT_TOKEN)
-
-@bot.on(events.NewMessage)
+@ABH.on(events.NewMessage)
 async def handler(event):
     """التعامل مع الرسائل"""
     if check_message(event.raw_text):
         user_id = event.sender_id
         warning_msg = "🚨 **تحذير:** لا يمكنك استخدام كلمات محظورة في المحادثة! 🚫"
-        await bot.send_message(user_id, warning_msg)  # إرسال رسالة خاصة للشخص
+        await ABH.send_message(user_id, warning_msg)  # إرسال رسالة خاصة للشخص
 
-
-
-ABH.run_until_disconnected() 
+# تشغيل البوت
+print("✅ البوت شغال وينتظر الرسائل...")
+ABH.run_until_disconnected()

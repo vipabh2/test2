@@ -21,10 +21,12 @@ def normalize_text(text):
     return text  # **الإبقاء على باقي الأحرف والرموز كما هي**
 
 def check_message(message):
-    """التحقق مما إذا كانت الرسالة تحتوي على كلمات محظورة"""
-    normalized_message = normalize_text(message)
-    for word in banned_words:
-        if normalize_text(word) in normalized_message:
+    """التحقق مما إذا كانت الرسالة تحتوي على كلمة مطابقة 100% من الكلمات المحظورة"""
+    words = message.split()  # تقسيم الرسالة إلى كلمات منفصلة
+    normalized_words = [normalize_text(word) for word in words]  # تنظيف كل كلمة على حدة
+    
+    for banned_word in banned_words:
+        if normalize_text(banned_word) in normalized_words:  # تطابق 100%
             return True
     return False
 

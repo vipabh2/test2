@@ -66,14 +66,15 @@ async def handler(event):
         elif check_message(event.raw_text):
             user_id = event.sender_id
             warning_msg = "🚨 **تحذير:** لا يمكنك استخدام كلمات محظورة في المحادثة! 🚫"
-            await event.reply(warning_msg)  # إرسال رسالة خاصة للشخص
-            
-            # سحب صلاحية الإرسال من المرسل
+            await event.reply(warning_msg)  # إرسال رسالة تحذير
+
+            # تقييد المرسل
             chat = await event.get_chat()
             if chat.admin_rights:
                 try:
-                    await event.reply("🚫 تم تقييدك من الإرسال في هذه المجموعة بسبب استخدام كلمات محظورة!")
-                    await event.client.kick_participant(event.chat_id, user_id)
+                    # تقييد المرسل من إرسال الرسائل في المجموعة لمدة 10 دقائق (يمكن تعديل الوقت)
+                    await event.client.restrict_participant(event.chat_id, user_id, until_date=None, send_messages=False)
+                    await event.reply("🚫 تم تقييدك من إرسال الرسائل في هذه المجموعة بسبب استخدام كلمات محظورة!")
                 except Exception as e:
                     print(f"Error while restricting user: {e}")
 

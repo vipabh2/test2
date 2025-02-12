@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-from telethon.tl.functions.messages import EditBannedRequest
+from telethon.tl import EditBannedRequest
 import os
 import re
 

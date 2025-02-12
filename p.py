@@ -11,11 +11,12 @@ bot_token = os.getenv('BOT_TOKEN')
 ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 # قائمة الكلمات المحظورة
-banned_words = ["سب"]  # إضافة الكلمات والأحرف المحظورة
+banned_words = ["ممنوع", "كلمةمحظورة", "شتيمة", "ئ", "الئ"]  # إضافة الكلمات والأحرف المحظورة
 
 def normalize_text(text):
     """إزالة كل شيء عدا الأحرف والأرقام"""
-    text = re.sub(r'[^أ-يa-zA-Z0-9]', '', text)  # إزالة كل شيء عدا الأحرف والأرقام
+    # إزالة أي شيء غير حرف أو رقم
+    text = re.sub(r'[^أ-يa-zA-Z0-9]', '', text)
     return text
 
 def check_message(message):

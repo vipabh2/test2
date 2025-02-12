@@ -3,13 +3,7 @@ import os
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
-ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
-
-
-# إعدادات Telethon
-API_ID = "YOUR_API_ID"
-API_HASH = "YOUR_API_HASH"
-BOT_TOKEN = "YOUR_BOT_TOKEN"
+ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token
 
 # قائمة الكلمات المحظورة
 banned_words = ["ممنوع", "كلمةمحظورة", "شتيمة"]

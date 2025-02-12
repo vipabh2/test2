@@ -45,7 +45,7 @@ async def handler(event):
     elif check_message(event.raw_text):
         user_id = event.sender_id
         warning_msg = "🚨 **تحذير:** لا يمكنك استخدام كلمات محظورة في المحادثة! 🚫"
-        await ABH.send_message(user_id, warning_msg)  # إرسال رسالة خاصة للشخص
+        await event.reply(warning_msg)  # إرسال رسالة خاصة للشخص
 
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")

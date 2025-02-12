@@ -61,7 +61,7 @@ async def handler(event):
         # إضافة كلمات محظورة جديدة باستخدام علامة #
         if event.raw_text.startswith('#'):
             new_word = event.raw_text[1:].strip()  # إزالة العلامة #
-            if new_word not in banned_words:  # إذا لم تكن الكلمة موجودة من قبل
+            if new_word and new_word not in banned_words:  # إذا لم تكن الكلمة فارغة أو موجودة من قبل
                 banned_words.append(new_word)  # إضافتها إلى القائمة
                 await event.reply(f"✅ تم إضافة الكلمة '{new_word}' إلى قائمة الكلمات المحظورة!")
         

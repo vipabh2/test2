@@ -50,7 +50,9 @@ async def handler(event):
         user_id = event.sender_id
         warning_msg = "🚨 **تحذير:** لا يمكنك استخدام كلمات محظورة في المحادثة! 🚫"
         await event.reply(warning_msg)  # إرسال رسالة خاصة للشخص
-
+@ABH.on(events.NewMessage(pattern='^/s$'))
+async def s(event):
+    await event.reply("/warn")
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")
 ABH.run_until_disconnected()

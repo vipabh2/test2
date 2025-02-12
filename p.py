@@ -64,50 +64,21 @@ async def handler(event):
             warning_msg = "🚨 **تحذير:** لا يمكنك استخدام كلمات محظورة في المحادثة! 🚫"
             await event.reply(warning_msg)
 
-# حقوق التقييد ورفع الحقوق
-restrict_rights = ChatBannedRights(
-    until_date=None, 
-    send_messages=True,  
-    send_media=True,
-    send_stickers=True,
-    send_gifs=True,
-    send_games=True,
-    send_inline=True,
-    embed_links=True
-)
-
-unrestrict_rights = ChatBannedRights(
-    until_date=None,  
-    send_messages=False,  
-    send_media=False,
-    send_stickers=False,
-    send_gifs=False,
-    send_games=False,
-    send_inline=False,
-    embed_links=False
-)
-
-@ABH.on(events.ChatAction)
-async def auto_unrestrict(event):
-    try:
-        if event.user_kicked:
-            user = await event.get_user()
+            # تقييد المستخدم الذي أرسل الكلمة المحظورة
             chat = await event.get_chat()
-            await ABH(EditBannedRequest(chat.id, user.id, unrestrict_rights))
-            await event.reply(f"🚫 تم طرد {user.first_name} من المجموعة.")
-        
-        if hasattr(event.original_update, 'banned_rights'):
-            if event.original_update.banned_rights:
-                user = await event.get_user()
-                chat = await event.get_chat()
-                await ABH(EditBannedRequest(chat.id, user.id, restrict_rights))
-                await event.reply(f"🚫 تم تقييد {user.first_name}.")
-                await asyncio.sleep(3)
-                await ABH(EditBannedRequest(chat.id, user.id, unrestrict_rights))
-                await event.reply(f"✅ تم إعادة صلاحيات {user.first_name}.")
-
-    except Exception as e:
-        print(f"خطأ: {e}")
+            restrict_rights = ChatBannedRights(
+                until_date=None,  # لا يوجد تاريخ انتهاء
+                send_messages=True,  # منع إرسال الرسائل
+                send_media=True,
+                send_stickers=True,
+                send_gifs=True,
+                send_games=True,
+                send_inline=True,
+                embed_links=True
+            )
+            await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
+            await event.reply(f"🚫 تم تقييد {event.sender.first_name} من إرسال الرسائل بسبب استخدام كلمة محظورة.")
+            
 
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")

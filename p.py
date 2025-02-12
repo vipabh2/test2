@@ -36,7 +36,7 @@ async def handler(event):
     if check_message(event.raw_text):
         user_id = event.sender_id
         warning_msg = "شباب لحد يفشر ويانه بنات بالكروب"
-        await ABH.send_message(user_id, warning_msg)  # إرسال رسالة خاصة للشخص
+        await event.reply(warning_msg)  # إرسال رسالة خاصة للشخص
 
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")

@@ -50,7 +50,7 @@ async def handler(event):
             cleaned_text = clean_message(event.raw_text)
             if cleaned_text != event.raw_text:
                 original_message = event.raw_text  # تخزين الرسالة الأصلية في متغير
-                await event.delete()
+                await event.delete(original_message)
                 await event.respond(f"🔹 تم تعديل الرسالة: {cleaned_text}")
 
                 user_id = event.sender_id

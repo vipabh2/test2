@@ -53,7 +53,7 @@ async def handler(event):
                 banned_words.append(new_word)
                 await event.reply(f"✅ تم إضافة الكلمة '{new_word}' إلى قائمة الكلمات المحظورة!")
         elif check_message(event.raw_text):
-            await event.delete()
+            # await event.delete()
             user_id = event.sender_id
             warning_msg = "**🚫**"
             await event.reply(warning_msg)

@@ -62,7 +62,7 @@ async def handler(event):
         elif check_message(event.raw_text):
             await event.delete()
             user_id = event.sender_id
-            warning_msg = "🚨 **تحذير:** لا يمكنك استخدام كلمات محظورة في المحادثة! 🚫"
+            warning_msg = "**🚫"
             await event.reply(warning_msg)
 
             # تقييد المستخدم الذي أرسل الكلمة المحظورة

@@ -79,7 +79,7 @@ async def handler(event):
             )
             await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
             await event.reply(f"↩ المستخدم {event.sender.first_name} \n تم تقييده سس استخدامه لكلمه محظوره ☠ ")
-            
+            return
 
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")

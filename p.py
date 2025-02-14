@@ -1,6 +1,5 @@
 import os
 import re
-import asyncio
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest, GetParticipantRequest
 from telethon.tl.types import ChatBannedRights, ChannelParticipantAdmin, ChannelParticipantCreator
@@ -40,7 +39,7 @@ def clean_message(message):
 
 @ABH.on(events.NewMessage)
 async def handler(event):
-    if event.is_group:
+    if event.is_group and event.sender_id != 1910015590:
         if event.raw_text.startswith('#'):
             new_word = event.raw_text[1:].strip()
             if new_word not in banned_words:
@@ -49,7 +48,7 @@ async def handler(event):
         else:
             cleaned_text = clean_message(event.raw_text)
             if cleaned_text != event.raw_text:
-                await event.respond(f"🔹 تم تعديل الرسالة: {cleaned_text}")
+                # await event.respond(f"🔹 تم تعديل الرسالة: {cleaned_text}")
 
                 user_id = event.sender_id
                 chat = await event.get_chat()
@@ -72,7 +71,7 @@ async def handler(event):
                 )
                 await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
                 await event.delete()
-                await event.reply(f"↩ المستخدم {event.sender.first_name} \n تم تقييده لاستخدامه كلمة محظورة ☠")
+                await event.reply(f"↩ المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) \n تم تقييده لاستخدامه كلمة محظورة ☠")
 
 print("✅ البوت شغال وينتظر الرسائل...")
 ABH.run_until_disconnected()

@@ -71,7 +71,7 @@ async def handler(event):
                 )
                 await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
                 await event.delete()
-                await event.reply(f"↩ المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) \n تم تقييده لاستخدامه كلمة محظورة ☠")
+                await event.reply(f"⤶ المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) \n تم تقييده لاستخدامه كلمة محظورة ☠")
 
 print("✅ البوت شغال وينتظر الرسائل...")
 ABH.run_until_disconnected()

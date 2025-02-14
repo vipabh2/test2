@@ -33,16 +33,10 @@ def normalize_text(text):
     text = re.sub(r'(.)\1+', r'\1', text)
     return text
 
-def check_message(message):
+def clean_message(message):
     words = message.split()
-    normalized_words = [normalize_text(word) for word in words]
-    for word in normalized_words:
-        if "ى" * 3 in word:
-            return True
-    for banned_word in banned_words:
-        if normalize_text(banned_word) in normalized_words:
-            return True
-    return False
+    cleaned_words = [word if normalize_text(word) not in map(normalize_text, banned_words) else "****" for word in words]
+    return " ".join(cleaned_words)
 
 @ABH.on(events.NewMessage)
 async def handler(event):
@@ -52,32 +46,33 @@ async def handler(event):
             if new_word not in banned_words:
                 banned_words.append(new_word)
                 await event.reply(f"✅ تم إضافة الكلمة '{new_word}' إلى قائمة الكلمات المحظورة!")
-        elif check_message(event.raw_text):
-            # await event.delete()
-            user_id = event.sender_id
-            warning_msg = "**🚫**"
-            await event.reply(warning_msg)
+        else:
+            cleaned_text = clean_message(event.raw_text)
+            if cleaned_text != event.raw_text:
+                await event.delete()
+                await event.respond(f"🔹 تم تعديل الرسالة: {cleaned_text}")
 
-            chat = await event.get_chat()
-            try:
-                participant = await ABH(GetParticipantRequest(chat.id, user_id))
-                if isinstance(participant.participant, (ChannelParticipantAdmin, ChannelParticipantCreator)):
+                user_id = event.sender_id
+                chat = await event.get_chat()
+                try:
+                    participant = await ABH(GetParticipantRequest(chat.id, user_id))
+                    if isinstance(participant.participant, (ChannelParticipantAdmin, ChannelParticipantCreator)):
+                        return
+                except (UserAdminInvalidError, UserNotParticipantError, ParticipantIdInvalidError):
                     return
-            except (UserAdminInvalidError, UserNotParticipantError, ParticipantIdInvalidError):
-                return
 
-            restrict_rights = ChatBannedRights(
-                until_date=None,
-                send_messages=True,
-                send_media=True,
-                send_stickers=True,
-                send_gifs=True,
-                send_games=True,
-                send_inline=True,
-                embed_links=True
-            )
-            await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
-            await event.reply(f"↩ المستخدم {event.sender.first_name} \n تم تقييده لاستخدامه كلمة محظورة ☠")
+                restrict_rights = ChatBannedRights(
+                    until_date=None,
+                    send_messages=True,
+                    send_media=True,
+                    send_stickers=True,
+                    send_gifs=True,
+                    send_games=True,
+                    send_inline=True,
+                    embed_links=True
+                )
+                await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
+                await event.reply(f"↩ المستخدم {event.sender.first_name} \n تم تقييده لاستخدامه كلمة محظورة ☠")
 
 print("✅ البوت شغال وينتظر الرسائل...")
 ABH.run_until_disconnected()

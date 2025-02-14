@@ -78,7 +78,7 @@ async def handler(event):
                 embed_links=True
             )
             await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
-            await event.reply(f"🚫 تم تقييد {event.sender.first_name} من إرسال الرسائل بسبب استخدام كلمة محظورة.")
+            await event.reply(f"↩ المستخدم {event.sender.first_name} \n تم تقييده بسبب استخدامه لكلمه محظوره ☠ ")
             
 
 # تشغيل البوت

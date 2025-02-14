@@ -25,11 +25,6 @@ banned_words = [
 
 def normalize_text(text):
     text = re.sub(r'[^أ-يa-zA-Z]', '', text)
-    remove_chars = ['پ', 'ڤ', 'هـ', 'چ', 'گ', 'أ', 'إ', 'آ', 'ئ', 'ژ']
-    for char in remove_chars:
-        text = text.replace(char, '')
-    text = text.replace('ـ', '').replace('ى', '')
-    text = re.sub(r'(.)\1+', r'\1', text)
     return text
 
 def clean_message(message):
@@ -48,8 +43,6 @@ async def handler(event):
         else:
             cleaned_text = clean_message(event.raw_text)
             if cleaned_text != event.raw_text:
-                # await event.respond(f"🔹 تم تعديل الرسالة: {cleaned_text}")
-
                 user_id = event.sender_id
                 chat = await event.get_chat()
                 try:

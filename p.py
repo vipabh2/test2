@@ -4,6 +4,7 @@ import asyncio
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest
 from telethon.tl.types import ChatBannedRights
+from pyarabic.araby import strip_tashkeel  # مكتبة لإزالة الحركات من النصوص
 
 # جلب البيانات من متغيرات البيئة
 api_id = int(os.getenv('API_ID'))      
@@ -27,23 +28,21 @@ banned_words = [
 ]
 
 def normalize_text(text):
-    """إزالة كل شيء عدا الأحرف مع إزالة الأرقام والحروف 'ـ' و 'ى'"""
-    text = re.sub(r'[^أ-يa-zA-Z]', '', text)
+    """إزالة التشكيل والحروف غير الأبجدية وتكرار الحروف."""
+    text = strip_tashkeel(text)  # إزالة التشكيل (الحركات)
+    text = re.sub(r'[^أ-يa-zA-Z]', '', text)  # إزالة كل شيء عدا الأحرف العربية والإنجليزية
     remove_chars = ['پ', 'ڤ', 'هـ', 'چ', 'گ', 'أ', 'إ', 'آ', 'ئ', 'ژ']
     for char in remove_chars:
         text = text.replace(char, '')
-    text = text.replace('ـ', '')
-    text = text.replace('ى', '')
-    text = re.sub(r'(.)\1+', r'\1', text)
+    text = text.replace('ـ', '').replace('ى', 'ي')  # إزالة المدود وتغيير "ى" إلى "ي"
+    text = re.sub(r'(.)\1+', r'\1', text)  # إزالة التكرار الزائد للأحرف
     return text
 
 def check_message(message):
     """التحقق مما إذا كانت الرسالة تحتوي على كلمة محظورة حتى لو كان فيها حروف مكررة"""
     words = message.split()
     normalized_words = [normalize_text(word) for word in words]
-    for word in normalized_words:
-        if "ى" * 3 in word:  # إذا كانت الكلمة تحتوي على ىىى
-            return True
+    
     for banned_word in banned_words:
         if normalize_text(banned_word) in normalized_words:
             return True
@@ -80,7 +79,6 @@ async def handler(event):
             await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
             await event.reply(f"↩ المستخدم {event.sender.first_name} \n تم تقييده بسبب استخدامه لكلمه محظوره ☠ ")
             
-
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")
 ABH.run_until_disconnected()

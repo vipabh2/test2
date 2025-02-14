@@ -29,7 +29,7 @@ def normalize_text(text):
 
 def clean_message(message):
     words = message.split()
-    cleaned_words = [word if normalize_text(word) not in map(normalize_text, banned_words) else "****" for word in words]
+    cleaned_words = [word if word not in banned_words else "****" for word in words]
     return " ".join(cleaned_words)
 
 @ABH.on(events.NewMessage)

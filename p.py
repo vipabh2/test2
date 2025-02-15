@@ -30,22 +30,28 @@ banned_words = [
 normalized_banned_words = {word: re.sub(r'(.)\1+', r'\1', word) for word in banned_words}
 
 def normalize_text(text):
-    """تحويل النص ليكون قابلًا للمقارنة بدون حذف الرموز"""
+    """إزالة الرموز والعلامات الخاصة، وتوحيد الحروف، وإزالة التكرار"""
     text = text.lower()  # تحويل النص إلى حروف صغيرة
+    
+    # حذف جميع الرموز والعلامات الخاصة
+    text = re.sub(r'[^أ-يa-zA-Z\s]', '', text)
+
+    # توحيد بعض الحروف العربية
     replace_map = {'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ى': 'ي', 'ؤ': 'و', 'ئ': 'ي'}
     for old, new in replace_map.items():
         text = text.replace(old, new)
-    text = re.sub(r'(.)\1+', r'\1', text)  # إزالة التكرار الزائد للحروف
+
+    # إزالة التكرار الزائد للحروف
+    text = re.sub(r'(.)\1+', r'\1', text)
+
     return text
 
 def check_message(message):
     """التحقق مما إذا كانت الرسالة تحتوي على كلمة محظورة"""
-    words = message.split()
-    normalized_words = [normalize_text(word) for word in words]
+    normalized_message = normalize_text(message)
+    words = normalized_message.split()
 
-    for word in normalized_words:
-        if "ى" * 3 in word:  # إذا كانت الكلمة تحتوي على ىىى
-            return True
+    for word in words:
         if word in normalized_banned_words.values():  # مقارنة بالكلمات المحظورة المعالجة مسبقًا
             return True
 

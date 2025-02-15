@@ -2,9 +2,12 @@ import asyncio, os
 from telethon import TelegramClient, events
 from telethon.tl.types import ChatBannedRights
 
+# تحميل API_ID و API_HASH و BOT_TOKEN من البيئة
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN')
+
+# إعداد عميل Telethon
 client = TelegramClient('session_name', api_id, api_hash)
 
 # تحديد القيود (الصلاحيات المحظورة)
@@ -21,23 +24,30 @@ restrict_rights = ChatBannedRights(
 
 @client.on(events.ChatAction)
 async def handler(event):
-    # التحقق من نوع الحدث
+    # التحقق من نوع الحدث إذا كان تقييد المستخدم
     if isinstance(event.action, events.ChatAction.UserBanned):
-        # هذا يعني أن الحدث هو تقييد لمستخدم
+        # التحقق إذا كان هناك user_id
         if event.user_id:
             print(f"تم تقييد المستخدم {event.user_id} بواسطة بوت أو مشرف آخر.")
             
-            # التحقق إذا كانت الصلاحيات الحالية تساوي القيود
+            # الحصول على الصلاحيات الحالية للمستخدم في الدردشة
             current_permissions = await client.get_permissions(event.chat_id, event.user_id)
             
-            # إذا كانت الصلاحيات تساوي القيود المحددة
-            if current_permissions == restrict_rights:
+            # التحقق إذا كانت الصلاحيات الحالية تساوي القيود المحددة
+            if current_permissions.send_messages == restrict_rights.send_messages and \
+               current_permissions.send_media == restrict_rights.send_media and \
+               current_permissions.send_stickers == restrict_rights.send_stickers and \
+               current_permissions.send_gifs == restrict_rights.send_gifs and \
+               current_permissions.send_games == restrict_rights.send_games and \
+               current_permissions.send_inline == restrict_rights.send_inline and \
+               current_permissions.embed_links == restrict_rights.embed_links:
+                
                 print(f"صلاحيات المستخدم {event.user_id} هي نفس القيود المحددة.")
                 
                 # الانتظار لمدة ثانية واحدة
                 await asyncio.sleep(1)
                 
-                # إلغاء تقييد المستخدم بعد ثانية
+                # إلغاء تقييد المستخدم بعد ثانية واحدة
                 unrestrict_rights = ChatBannedRights(
                     until_date=None,
                     send_messages=True,  # السماح بإرسال الرسائل

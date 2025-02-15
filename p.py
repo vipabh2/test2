@@ -26,17 +26,15 @@ banned_words = [
     "ارقه جاي", "يموط", "تموط", "موطلي", "اموط", "بورن", "الفرخ", "الفرحْ", "تيز", "كسم"
 ]
 
-# إنشاء نسخة معالجة من الكلمات المحظورة لمقارنتها بشكل أسرع
-normalized_banned_words = {word: re.sub(r'(.)\1+', r'\1', re.sub(r'[^أ-يa-zA-Z؟!.,]', '', word)) for word in banned_words}
+# قائمة الكلمات المحظورة بعد معالجتها
+normalized_banned_words = {word: re.sub(r'(.)\1+', r'\1', word) for word in banned_words}
 
 def normalize_text(text):
-    """إزالة الحروف غير العربية مع الإبقاء على علامات الترقيم"""
-    text = re.sub(r'[^أ-يa-zA-Z؟!.,]', '', text)  # السماح فقط بالأحرف العربية والإنجليزية وعلامات الترقيم
-    remove_chars = ['پ', 'ڤ', 'هـ', 'چ', 'گ', 'أ', 'إ', 'آ', 'ئ', 'ژ']
-    for char in remove_chars:
-        text = text.replace(char, '')
-    text = text.replace('ـ', '')
-    text = text.replace('ى', '')
+    """تحويل النص ليكون قابلًا للمقارنة بدون حذف الرموز"""
+    text = text.lower()  # تحويل النص إلى حروف صغيرة
+    replace_map = {'أ': 'ا', 'إ': 'ا', 'آ': 'ا', 'ى': 'ي', 'ؤ': 'و', 'ئ': 'ي'}
+    for old, new in replace_map.items():
+        text = text.replace(old, new)
     text = re.sub(r'(.)\1+', r'\1', text)  # إزالة التكرار الزائد للحروف
     return text
 
@@ -95,4 +93,3 @@ async def handler(event):
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")
 ABH.run_until_disconnected()
-

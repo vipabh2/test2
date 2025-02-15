@@ -61,8 +61,6 @@ async def handler(event):
         
         elif check_message(event.raw_text):
             user_id = event.sender_id
-            warning_msg = "🚨 **تحذير:** لا يمكنك استخدام كلمات محظورة في المحادثة! 🚫"
-            await event.reply(warning_msg)
 
             # تقييد المستخدم الذي أرسل الكلمة المحظورة
             chat = await event.get_chat()
@@ -77,7 +75,7 @@ async def handler(event):
                 embed_links=True
             )
             await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
-            await event.reply(f"🚫 تم تقييد {event.sender.first_name} من إرسال الرسائل بسبب استخدام كلمة محظورة.")
+            await event.reply(f"⤶ المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) \n تم تقييده لاستخدامه كلمة محظورة ☠")
             
 
 # تشغيل البوت

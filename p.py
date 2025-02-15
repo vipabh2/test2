@@ -1,19 +1,17 @@
 import os
 import re
+import asyncio
 from telethon import TelegramClient, events
 from telethon.tl.functions.channels import EditBannedRequest, GetParticipantRequest
 from telethon.tl.types import ChatBannedRights, ChannelParticipantAdmin, ChannelParticipantCreator
 from telethon.errors.rpcerrorlist import UserAdminInvalidError, UserNotParticipantError, ParticipantIdInvalidError
 
-# تحميل المتغيرات البيئية
 api_id = int(os.getenv('API_ID'))      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
 
-# بدء تشغيل البوت
 ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# قائمة الكلمات المحظورة
 banned_words = [
     "افتحج","افتحك","انيچة","انيچة","nude","nudse","porn","pornhub","xnxx","سكس","سكسي",
     "منيوك","نتلاوط","حلوك","نودز","نودزها","نودزج","لوطي","ابن اللوكي","ابن المهان",
@@ -36,40 +34,53 @@ banned_words = [
     "زب","زبي","زبة","زبه","عير","عيري","عيره","عيرة","عيرج","بعيري",
     "ينغل","النغل","كسمه","كسمة","كسمي","كسمكم","كسمها","كسي","كسك",
     "تنيج","ينيج","نيج","نياج","نياجك","نياجها","نياجكم","مناويج",
-    "سب"
             ]
 
-# دالة لتطبيع النص
 def normalize_text(text):
     text = re.sub(r'[^أ-يa-zA-Z]', '', text)
+    remove_chars = ['پ', 'ڤ', 'هـ', 'چ', 'گ', 'أ', 'إ', 'آ', 'ئ', 'ژ']
+    for char in remove_chars:
+        text = text.replace(char, '')
+    text = text.replace('ـ', '').replace('ى', '')
+    text = re.sub(r'(.)\1+', r'\1', text)
     return text
 
-# دالة لتنظيف الرسالة
 def clean_message(message):
     words = message.split()
-    cleaned_words = [word if word not in banned_words else "****" for word in words]
-    return " ".join(cleaned_words)
+    deleted_words = []  # متغير لتخزين الكلمات المحذوفة
+    cleaned_words = []
+    for word in words:
+        normalized_word = normalize_text(word)
+        if normalized_word in map(normalize_text, banned_words):
+            deleted_words.append(word)  # تخزين الكلمة المحذوفة
+            cleaned_words.append("****")  # استبدال الكلمة المحذوفة بـ "****"
+        else:
+            cleaned_words.append(word)
+    return " ".join(cleaned_words), deleted_words
 
-# معالج الأحداث
 @ABH.on(events.NewMessage)
 async def handler(event):
-    if event.is_group and event.sender_id == 1910015590:
+    if event.is_group:
         if event.raw_text.startswith('#'):
             new_word = event.raw_text[1:].strip()
             if new_word not in banned_words:
                 banned_words.append(new_word)
                 await event.reply(f"✅ تم إضافة الكلمة '{new_word}' إلى قائمة الكلمات المحظورة!")
         else:
-            cleaned_text = clean_message(event.raw_text)
+            cleaned_text, deleted_words = clean_message(event.raw_text)
             if cleaned_text != event.raw_text:
+                original_message = event.raw_text  # تخزين الرسالة الأصلية في متغير
+                await event.delete()
+                await event.respond(f"🔹 تم تعديل الرسالة: {cleaned_text}")
+                await event.respond(f"⚠️ الكلمات المحذوفة: {', '.join(deleted_words)}")
+
                 user_id = event.sender_id
                 chat = await event.get_chat()
                 try:
                     participant = await ABH(GetParticipantRequest(chat.id, user_id))
                     if isinstance(participant.participant, (ChannelParticipantAdmin, ChannelParticipantCreator)):
                         return
-                except (UserAdminInvalidError, UserNotParticipantError, ParticipantIdInvalidError) as e:
-                    print(f"حدث خطأ: {e}")
+                except (UserAdminInvalidError, UserNotParticipantError, ParticipantIdInvalidError):
                     return
 
                 restrict_rights = ChatBannedRights(
@@ -83,8 +94,7 @@ async def handler(event):
                     embed_links=True
                 )
                 await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
-                await event.delete()
-                await event.reply(f"⤶ المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) \n تم تقييده لاستخدامه كلمة محظورة ☠")
+                await event.reply(f"↩ المستخدم {event.sender.first_name} \n تم تقييده لاستخدامه كلمة محظورة ☠")
 
 print("✅ البوت شغال وينتظر الرسائل...")
 ABH.run_until_disconnected()

@@ -2,8 +2,8 @@ import os
 import re
 import asyncio
 from telethon import TelegramClient, events
-from telethon.tl.functions.channels import EditBannedRequest
-from telethon.tl.types import ChatBannedRights
+from telethon.tl.functions.channels import EditBannedRequest, GetParticipantRequest
+from telethon.tl.types import ChatBannedRights, ChannelParticipantAdmin, ChannelParticipantCreator
 
 # جلب البيانات من متغيرات البيئة
 api_id = int(os.getenv('API_ID'))      
@@ -57,11 +57,21 @@ def check_message(message):
 
     return False
 
+async def is_admin(chat, user_id):
+    """التحقق مما إذا كان المستخدم مشرفًا أو منشئ المجموعة"""
+    try:
+        participant = await ABH(GetParticipantRequest(chat, user_id))
+        return isinstance(participant.participant, (ChannelParticipantAdmin, ChannelParticipantCreator))
+    except:
+        return False
+
 @ABH.on(events.NewMessage)
 async def handler(event):
     """التعامل مع الرسائل"""
     if event.is_group:
         message_text = event.raw_text.strip()
+        user_id = event.sender_id
+        chat = await event.get_chat()
 
         if message_text.startswith('#'):
             new_word = message_text[1:].strip()
@@ -78,10 +88,12 @@ async def handler(event):
                 await event.reply(f"❌ تم حذف الكلمة '{remove_word}' من قائمة الكلمات المحظورة!")
 
         elif check_message(event.raw_text):
-            user_id = event.sender_id
+            if await is_admin(chat, user_id):
+                await event.delete()  # حذف رسالة المشرف بدون تقييده
+                await event.reply(f"⚠️ المشرف [{event.sender.first_name}](tg://user?id={event.sender_id})، لا تستخدم الكلمات المحظورة!")
+                return
 
             # تقييد المستخدم الذي أرسل الكلمة المحظورة
-            chat = await event.get_chat()
             restrict_rights = ChatBannedRights(
                 until_date=None,  # لا يوجد تاريخ انتهاء
                 send_messages=True,  # منع إرسال الرسائل

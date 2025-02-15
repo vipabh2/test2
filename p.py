@@ -4,7 +4,8 @@ from telethon.tl.types import ChatBannedRights
 
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
-bot_token = os.getenv('BOT_TOKEN') client = TelegramClient('session_name', api_id, api_hash)
+bot_token = os.getenv('BOT_TOKEN')
+client = TelegramClient('session_name', api_id, api_hash)
 
 # تحديد القيود (الصلاحيات المحظورة)
 restrict_rights = ChatBannedRights(

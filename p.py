@@ -1,7 +1,9 @@
 import asyncio
 from telethon import TelegramClient, events
 from telethon.tl.types import ChatBannedRights
-
+api_id = os.getenv('API_ID')      
+api_hash = os.getenv('API_HASH')  
+bot_token = os.getenv('BOT_TOKEN') 
 # إعداد عميل Telethon
 client = TelegramClient('session_name', api_id, api_hash)
 

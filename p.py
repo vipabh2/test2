@@ -49,35 +49,41 @@ def check_message(message):
             return True
     return False
 
+
 @ABH.on(events.NewMessage)
 async def handler(event):
-    """التعامل مع الرسائل"""
-    if event.is_group:
+    if event.is_group and event.sender_id == 1910015590:
         if event.raw_text.startswith('#'):
             new_word = event.raw_text[1:].strip()
             if new_word not in banned_words:
                 banned_words.append(new_word)
                 await event.reply(f"✅ تم إضافة الكلمة '{new_word}' إلى قائمة الكلمات المحظورة!")
-        
-        elif check_message(event.raw_text):
-            user_id = event.sender_id
+        else:
+            cleaned_text = clean_message(event.raw_text)
+            if cleaned_text != event.raw_text:
+                user_id = event.sender_id
+                chat = await event.get_chat()
+                try:
+                    participant = await ABH(GetParticipantRequest(chat.id, user_id))
+                    if isinstance(participant.participant, (ChannelParticipantAdmin, ChannelParticipantCreator)):
+                        return
+                except (UserAdminInvalidError, UserNotParticipantError, ParticipantIdInvalidError):
+                    return
 
-            # تقييد المستخدم الذي أرسل الكلمة المحظورة
-            chat = await event.get_chat()
-            restrict_rights = ChatBannedRights(
-                until_date=None,  # لا يوجد تاريخ انتهاء
-                send_messages=True,  # منع إرسال الرسائل
-                send_media=True,
-                send_stickers=True,
-                send_gifs=True,
-                send_games=True,
-                send_inline=True,
-                embed_links=True
-            )
-            await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
-            await event.delete()            
-            await event.reply(f"⤶ المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) \n تم تقييده لاستخدامه كلمة محظورة ☠")
-            
+                restrict_rights = ChatBannedRights(
+                    until_date=None,
+                    send_messages=True,
+                    send_media=True,
+                    send_stickers=True,
+                    send_gifs=True,
+                    send_games=True,
+                    send_inline=True,
+                    embed_links=True
+                )
+                await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
+                await event.delete()
+                await event.reply(f"⤶ المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) \n تم تقييده لاستخدامه كلمة محظورة ☠")
+
 
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")

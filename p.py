@@ -1,4 +1,4 @@
-import asyncio
+import asyncio, os
 from telethon import TelegramClient, events
 from telethon.tl.types import ChatBannedRights
 api_id = os.getenv('API_ID')      

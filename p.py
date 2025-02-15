@@ -26,53 +26,38 @@ banned_words = [
     "ارقه جاي", "يموط", "تموط", "موطلي", "اموط", "بورن", "الفرخ", "الفرحْ", "تيز", "كسم"
 ]
 
-# إنشاء نسخة معالجة من الكلمات المحظورة لمقارنتها بشكل أسرع
-normalized_banned_words = {word: re.sub(r'(.)\1+', r'\1', re.sub(r'[^أ-يa-zA-Z]', '', word)) for word in banned_words}
-
 def normalize_text(text):
     """إزالة كل شيء عدا الأحرف مع إزالة الأرقام والحروف 'ـ' و 'ى'"""
     text = re.sub(r'[^أ-يa-zA-Z]', '', text)
     remove_chars = ['پ', 'ڤ', 'هـ', 'چ', 'گ', 'أ', 'إ', 'آ', 'ئ', 'ژ']
     for char in remove_chars:
         text = text.replace(char, '')
-    text = text.replace('ـ', '')
     text = text.replace('ى', '')
     text = re.sub(r'(.)\1+', r'\1', text)
     return text
 
 def check_message(message):
-    """التحقق مما إذا كانت الرسالة تحتوي على كلمة محظورة"""
+    """التحقق مما إذا كانت الرسالة تحتوي على كلمة محظورة حتى لو كان فيها حروف مكررة"""
     words = message.split()
     normalized_words = [normalize_text(word) for word in words]
-
     for word in normalized_words:
         if "ى" * 3 in word:  # إذا كانت الكلمة تحتوي على ىىى
             return True
-        if word in normalized_banned_words.values():  # مقارنة بالكلمات المحظورة المعالجة مسبقًا
+    for banned_word in banned_words:
+        if normalize_text(banned_word) in normalized_words:
             return True
-
     return False
 
 @ABH.on(events.NewMessage)
 async def handler(event):
     """التعامل مع الرسائل"""
-    if event.is_group:
-        message_text = event.raw_text.strip()
-
-        if message_text.startswith('#'):
-            new_word = message_text[1:].strip()
-            if new_word and new_word not in banned_words:
+    if event.is_group and event.sender_id == 1910015590:
+        if event.raw_text.startswith('#'):
+            new_word = event.raw_text[1:].strip()
+            if new_word not in banned_words:
                 banned_words.append(new_word)
-                normalized_banned_words[new_word] = normalize_text(new_word)  # تحديث القائمة
                 await event.reply(f"✅ تم إضافة الكلمة '{new_word}' إلى قائمة الكلمات المحظورة!")
-
-        elif message_text.startswith('-'):
-            remove_word = message_text[1:].strip()
-            if remove_word in banned_words:
-                banned_words.remove(remove_word)
-                normalized_banned_words.pop(remove_word, None)  # إزالة من القائمة المعالجة
-                await event.reply(f"❌ تم حذف الكلمة '{remove_word}' من قائمة الكلمات المحظورة!")
-
+        
         elif check_message(event.raw_text):
             user_id = event.sender_id
 
@@ -91,6 +76,7 @@ async def handler(event):
             await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
             await event.delete()            
             await event.reply(f"⤶ المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) \n تم تقييده لاستخدامه كلمة محظورة ☠")
+            
 
 # تشغيل البوت
 print("✅ البوت شغال وينتظر الرسائل...")

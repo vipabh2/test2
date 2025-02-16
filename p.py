@@ -1,4 +1,4 @@
-import os
+import os, re
 from telethon import TelegramClient, events
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.channels import GetAdminedPublicChannelsRequest

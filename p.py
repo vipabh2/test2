@@ -55,5 +55,7 @@ async def iundlt(event):
                     file=msg.old.media,
                 )
 
-
-ABH.run_until_disconnected()
+try:
+    await client.connect()
+except ConnectionError:
+    print("❌ لا يمكن الاتصال بالخادم. حاول لاحقًا.")

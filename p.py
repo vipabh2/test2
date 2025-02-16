@@ -11,7 +11,7 @@ ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
 @ABH.on(events.NewMessage(pattern="الاحداث( -ر)?(?: |$)(\d*)?"))
 async def iundlt(event):
     uid = event.sender_id
-    await event.reply(event, "᯽︙ يـتم الـبحث عن اخـر الاحداث")
+    await event.reply("᯽︙ يـتم الـبحث عن اخـر الاحداث")
     flag = event.pattern_match.group(1)
     if event.pattern_match.group(2) != "":
         lim = int(event.pattern_match.group(2))

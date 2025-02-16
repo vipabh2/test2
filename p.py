@@ -77,6 +77,5 @@ async def check_answer(event):
             del user_states[user_id]
             return        
         else:
-            await event.reply("❌ إجابة خاطئة، حاول مرة أخرى!")
             return
 ABH.run_until_disconnected()

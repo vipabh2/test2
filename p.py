@@ -33,18 +33,18 @@ async def iundlt(event):
     if not flag:
         for msg in adminlog:
             ruser = await event.client(GetFullUserRequest(msg.old.from_id.user_id))
-            media_type = media_type(msg.old)
-            if media_type is None:
+            msg_media_type = media_type(msg.old)  # تغيير اسم المتغير
+            if msg_media_type is None:
                 deleted_msg += f"\n {msg.old.message} \n ᯽︙ تم ارسالها بـواسطة {ruser.users[0].first_name}"
             else:
-                deleted_msg += f"\n {media_type} \n ᯽︙ ارسلت بـواسطـة {ruser.users[0].first_name}"
+                deleted_msg += f"\n {msg_media_type} \n ᯽︙ ارسلت بـواسطـة {ruser.users[0].first_name}"
         await event.reply(deleted_msg)
     else:
         main_msg = await event.reply(deleted_msg)
         for msg in adminlog:
             ruser = await event.client(GetFullUserRequest(msg.old.from_id.user_id))
-            media_type = media_type(msg.old)
-            if media_type is None:
+            msg_media_type = media_type(msg.old)  # تغيير اسم المتغير
+            if msg_media_type is None:
                 await main_msg.reply(f"{msg.old.message}\n᯽︙ ارسلت بواسطه {ruser.users[0].first_name}")
             else:
                 await main_msg.reply(f"{msg.old.message}\n᯽︙ ارسلت بواسطه {ruser.users[0].first_name}",

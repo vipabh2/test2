@@ -18,7 +18,7 @@ async def count(event):
     bc = 0
     b = 0
     result = ""
-    catevent = await event.edit(event, "᯽︙ يتم الحساب انتـظر ")
+    catevent = await event.edit("᯽︙ يتم الحساب انتـظر ")
     dialogs = await event.client.get_dialogs(limit=None, ignore_migrated=True)
     for d in dialogs:
         currrent_entity = d.entity

@@ -54,8 +54,4 @@ async def iundlt(event):
                     f"{msg.old.message}\n᯽︙ ارسلت بواسطه {_format.mentionuser(ruser.first_name ,ruser.id)}",
                     file=msg.old.media,
                 )
-
-try:
-    await client.connect()
-except ConnectionError:
-    print("❌ لا يمكن الاتصال بالخادم. حاول لاحقًا.")
+client.connect()

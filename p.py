@@ -1,5 +1,5 @@
-from telethon import TelegramClient, events, Button
-import os, asyncio, smtplib, random
+from telethon import TelegramClient, events
+import os, random
 
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
@@ -54,7 +54,11 @@ questions_and_answers = [
     {"question": "من هو اللاعب الذي يُعرف بلقب 'المايسترو'؟", "answer": ["أندريا بيرلو"]},
     {"question": "ما هو النادي الذي يُعرف بلقب 'النسور'؟", "answer": ["لاتسيو"]},
 ]
+
+# تخزين حالة المستخدمين
 user_states = {}
+
+# عند إرسال "رياضة" أو "/sport" يبدأ السؤال العشوائي
 @ABH.on(events.NewMessage(pattern='رياضة|/sport'))
 async def start(event):
     user_id = event.sender_id
@@ -64,21 +68,24 @@ async def start(event):
         "waiting_for_answer": True 
     }
     await event.reply(f"{question['question']}")
+
+# التحقق من الإجابة
 @ABH.on(events.NewMessage)
 async def check_answer(event):
     user_id = event.sender_id
-    user_message = event.text.strip().lower()
-    if user_id in user_states and user_states[user_id].get("waiting_for_answer"):
-        current_question = user_states[user_id].get("question", {})
-        correct_answer = current_question.get('answer', '')
-        if isinstance(correct_answer, str):
-            correct_answer = correct_answer.lower()
-        else:
-            correct_answer = str(correct_answer)
+    user_message = event.text.strip().lower()  # تحويل النص إلى أحرف صغيرة وإزالة الفراغات
 
-        if user_message == correct_answer:
-            await event.reply("اجابة صحيحة احسنت.")
+    if user_id in user_states and user_states[user_id].get("waiting_for_answer"):
+        current_question = user_states[user_id]["question"]
+        correct_answers = current_question["answer"]
+
+        # تحويل كل الإجابات الصحيحة إلى lowercase وإزالة الفراغات الزائدة
+        correct_answers = [ans.strip().lower() for ans in correct_answers]
+
+        if user_message in correct_answers:
+            await event.reply("✅ إجابة صحيحة! أحسنت 🎉")
             del user_states[user_id]
         else:
-          return          
+            await event.reply("❌ إجابة خاطئة، حاول مرة أخرى!")
+
 ABH.run_until_disconnected()

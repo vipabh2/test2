@@ -18,16 +18,7 @@ plugin_category = "extra"
 
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
-@ABH.on(
-    pattern="امسح(\s*| \d+)$", 
-    command=("امسح", plugin_category),
-    info={
-        "header": "لحذف الرسائل من نوع معين.",
-        "description": "يحذف الرسائل مثل الصور، الفيديوهات، الروابط، وغيرها بناءً على الفلاتر المحددة.",
-        "usage": ["{tr}امسح"],
-        "examples": "{tr}امسح",
-    },
-)
+@ABH.on(events.NewMessage(pattern="امسح$"))
 async def delete_filtered_messages(event):
     """حذف الرسائل بناءً على فلاتر محددة."""
 
@@ -62,16 +53,7 @@ async def delete_filtered_messages(event):
     except Exception as e:
         # التعامل مع الأخطاء
         await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
-@ABH.ar_cmd(
-    pattern="امسح صور(\s*| \d+)$", 
-    command=("امسح", plugin_category),
-    info={
-        "header": "لحذف الرسائل من نوع معين.",
-        "description": "يحذف الرسائل مثل الصور، الفيديوهات، الروابط، وغيرها بناءً على الفلاتر المحددة.",
-        "usage": ["{tr}امسح"],
-        "examples": "{tr}امسح",
-    },
-)
+@ABH.on(events.NewMessage(pattern="امسح صور$"))
 async def delete_filtered_messages(event):
     """حذف الرسائل بناءً على فلاتر محددة."""
 

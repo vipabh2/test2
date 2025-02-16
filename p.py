@@ -55,3 +55,4 @@ async def iundlt(event):
                     file=msg.old.media,
                 )
 ABH.connect()
+ABH.run_until_disconnected()

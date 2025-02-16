@@ -18,7 +18,7 @@ plugin_category = "extra"
 
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
-@ABH.ar_cmd(
+@ABH.on(
     pattern="امسح(\s*| \d+)$", 
     command=("امسح", plugin_category),
     info={

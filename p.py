@@ -1,6 +1,5 @@
-import requests, os, operator, asyncio, random, uuid, datetime
-from telethon import TelegramClient, events, Button
-from telethon.errors import BadRequestError
+import os
+from telethon import TelegramClient, events
 from telethon.tl.functions.users import GetFullUserRequest
 from telethon.tl.functions.channels import GetAdminedPublicChannelsRequest
 
@@ -9,31 +8,43 @@ api_hash = os.getenv('API_HASH')
 
 # إنشاء الجلسة
 ABH = TelegramClient("ubot", api_id, api_hash)
+
+# دالة للتحقق من نوع الوسائط
+def media_type(message):
+    if message.photo:
+        return "صورة"
+    elif message.video:
+        return "فيديو"
+    elif message.document:
+        return "مستند"
+    elif message.audio:
+        return "صوت"
+    return None
+
 @ABH.on(events.NewMessage(pattern="الحساب$"))
 async def count(event):
     """For .count command, get profile stats."""
-    u = 0
-    g = 0
-    c = 0
-    bc = 0
-    b = 0
+    u = 0  # الأشخاص
+    g = 0  # المجموعات
+    c = 0  # المجموعات الخارقة
+    bc = 0  # القنوات
+    b = 0  # البوتات
     result = ""
+    
     catevent = await event.edit("᯽︙ يتم الحساب انتـظر ")
     dialogs = await event.client.get_dialogs(limit=None, ignore_migrated=True)
+    
     for d in dialogs:
         currrent_entity = d.entity
-        if isinstance(currrent_entity):
+        if isinstance(currrent_entity, type(d.entity)):  # تحقيق نوع الكائن
             if currrent_entity.bot:
                 b += 1
+            elif currrent_entity.broadcast:
+                bc += 1
+            elif hasattr(currrent_entity, 'title'):  # تحقق من وجود اسم للمجموعة
+                g += 1
             else:
                 u += 1
-        elif isinstance(currrent_entity):
-            g += 1
-        elif isinstance(currrent_entity):
-            if currrent_entity.broadcast:
-                bc += 1
-            else:
-                c += 1
 
     result += f"**᯽︙ الأشخاص:**\t**{u}**\n"
     result += f"**᯽︙ الـمجموعات:**\t**{g}**\n"
@@ -42,9 +53,10 @@ async def count(event):
     result += f"**᯽︙ البوتات:**\t**{b}**"
 
     await catevent.edit(result)
+
 @ABH.on(events.NewMessage(pattern="قنواتي$"))
-async def _(event):
-    "To list all public channels and groups."
+async def list_channels(event):
+    """لإظهار جميع القنوات والمجموعات التي قمت بإنشائها."""
     result = await event.client(GetAdminedPublicChannelsRequest())
     output_str = "᯽︙ جميع القنوات والمجموعات التي قمت بأنشائها :\n"
     output_str += "".join(
@@ -55,10 +67,11 @@ async def _(event):
 
 @ABH.on(events.NewMessage(pattern="الاحداث( -ر)?(?: |$)(\d*)?"))
 async def iundlt(event):
+    """لإظهار الأحداث الأخيرة (الرسائل المحذوفة)"""
     await event.edit("᯽︙ يـتم الـبحث عن اخـر الاحداث")
     flag = event.pattern_match.group(1)
     lim = int(event.pattern_match.group(2) or 5)
-    
+
     if lim > 15:
         lim = 15
     if lim <= 0:

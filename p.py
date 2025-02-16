@@ -54,4 +54,4 @@ async def iundlt(event):
                     f"{msg.old.message}\n᯽︙ ارسلت بواسطه {_format.mentionuser(ruser.first_name ,ruser.id)}",
                     file=msg.old.media,
                 )
-client.connect()
+ABH.connect()

@@ -9,7 +9,39 @@ api_hash = os.getenv('API_HASH')
 
 # إنشاء الجلسة
 ABH = TelegramClient("ubot", api_id, api_hash)
+@ABH.on(events.NewMessage(pattern="الحساب$"))
+async def count(event):
+    """For .count command, get profile stats."""
+    u = 0
+    g = 0
+    c = 0
+    bc = 0
+    b = 0
+    result = ""
+    catevent = await edit(event, "᯽︙ يتم الحساب انتـظر ")
+    dialogs = await event.client.get_dialogs(limit=None, ignore_migrated=True)
+    for d in dialogs:
+        currrent_entity = d.entity
+        if isinstance(currrent_entity):
+            if currrent_entity.bot:
+                b += 1
+            else:
+                u += 1
+        elif isinstance(currrent_entity):
+            g += 1
+        elif isinstance(currrent_entity):
+            if currrent_entity.broadcast:
+                bc += 1
+            else:
+                c += 1
 
+    result += f"**᯽︙ الأشخاص:**\t**{u}**\n"
+    result += f"**᯽︙ الـمجموعات:**\t**{g}**\n"
+    result += f"**᯽︙ المجموعات الخارقه:**\t**{c}**\n"
+    result += f"**᯽︙ القنوات:**\t**{bc}**\n"
+    result += f"**᯽︙ البوتات:**\t**{b}**"
+
+    await catevent.edit(result)
 @ABH.on(events.NewMessage(pattern="قنواتي$"))
 async def _(event):
     "To list all public channels and groups."

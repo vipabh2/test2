@@ -14,7 +14,7 @@ def media_type(message):
 
 @ABH.on(events.NewMessage(pattern="الاحداث( -ر)?(?: |$)(\d*)?"))
 async def iundlt(event):
-    await event.reply("᯽︙ يـتم الـبحث عن اخـر الاحداث")
+    await event.edit("᯽︙ يـتم الـبحث عن اخـر الاحداث")
     flag = event.pattern_match.group(1)
     lim = int(event.pattern_match.group(2) or 5)
     

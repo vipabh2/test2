@@ -2,14 +2,18 @@ import requests, os, operator, asyncio, random, uuid, datetime
 from telethon import TelegramClient, events, Button
 from telethon.errors import BadRequestError
 from telethon.tl.functions.users import GetFullUserRequest
-from telethon import TelegramClient, events
 
+# جلب معلومات API من المتغيرات البيئية
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 
+# التحقق من أن API_ID و API_HASH غير فارغين
+if not api_id or not api_hash:
+    print("❌ تأكد من ضبط المتغيرات البيئية API_ID و API_HASH")
+    exit(1)
 
 # إنشاء الجلسة
-client = TelegramClient("userbot", API_ID, API_HASH)
+client = TelegramClient("userbot", api_id, api_hash)
 
 @client.on(events.NewMessage(pattern=r"\.مطور"))
 async def developer_info(event):
@@ -31,4 +35,3 @@ async def logger(event):
 print("🚀 UserBot يعمل الآن!")
 client.start()
 client.run_until_disconnected()
-

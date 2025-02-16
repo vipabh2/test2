@@ -18,7 +18,16 @@ plugin_category = "extra"
 
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
-@ABH.on(events.NewMessage(pattern="امسح$"))
+@ABH.ar_cmd(
+    pattern="امسح(\s*| \d+)$", 
+    command=("امسح", plugin_category),
+    info={
+        "header": "لحذف الرسائل من نوع معين.",
+        "description": "يحذف الرسائل مثل الصور، الفيديوهات، الروابط، وغيرها بناءً على الفلاتر المحددة.",
+        "usage": ["{tr}امسح"],
+        "examples": "{tr}امسح",
+    },
+)
 async def delete_filtered_messages(event):
     """حذف الرسائل بناءً على فلاتر محددة."""
 
@@ -53,7 +62,16 @@ async def delete_filtered_messages(event):
     except Exception as e:
         # التعامل مع الأخطاء
         await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
-@ABH.on(events.NewMessage(pattern="امسح صور$"))
+@ABH.ar_cmd(
+    pattern="امسح صور(\s*| \d+)$", 
+    command=("امسح", plugin_category),
+    info={
+        "header": "لحذف الرسائل من نوع معين.",
+        "description": "يحذف الرسائل مثل الصور، الفيديوهات، الروابط، وغيرها بناءً على الفلاتر المحددة.",
+        "usage": ["{tr}امسح"],
+        "examples": "{tr}امسح",
+    },
+)
 async def delete_filtered_messages(event):
     """حذف الرسائل بناءً على فلاتر محددة."""
 
@@ -133,6 +151,95 @@ async def iundlt(event):
             else:
                 await main_msg.edit(f"{msg.old.message}\n᯽︙ ارسلت بواسطه {ruser.users[0].first_name}",
                                      file=msg.old.media)
+@ABH.on(events.NewMessage(pattern="مشاركاتة (الكل)?(?:\s|$)([\s\S]*)"))
+async def fast_purger(event):
+    "To purge messages from the replied message of replied user."
+    chat = await event.get_input_chat()
+    msgs = []
+    count = 0
+    flag = event.pattern_match.group(1)
+    input_str = event.pattern_match.group(2)
+    ptype = re.findall(r"-\w+", input_str)
+    try:
+        p_type = ptype[0].replace("-", "")
+        input_str = input_str.replace(ptype[0], "").strip()
+    except IndexError:
+        p_type = None
+    error = ""
+    result = ""
+    await event.delete()
+    reply = await event.get_reply_message()
+    if not reply or reply.sender_id is None:
+        return await event.edit(
+            event, "**- خطـأ :**\n__This cmd Works only if you reply to user message.__"
+        )
+    if not flag:
+        if input_str and p_type == "كلمة":
+            async for msg in event.client.iter_messages(
+                event.chat_id,
+                search=input_str,
+                from_user=reply.sender_id,
+            ):
+                count += 1
+                msgs.append(msg)
+                if len(msgs) == 50:
+                    await event.client.delete_messages(chat, msgs)
+                    msgs = []
+        elif input_str and input_str.isnumeric():
+            async for msg in event.client.iter_messages(
+                event.chat_id,
+                limit=int(input_str),
+                offset_id=reply.id - 1,
+                reverse=True,
+                from_user=reply.sender_id,
+            ):
+                msgs.append(msg)
+                count += 1
+                if len(msgs) == 50:
+                    await event.client.delete_messages(chat, msgs)
+                    msgs = []
+        elif input_str:
+            error += f"\n• `.upurge {input_str}` __is invalid syntax try again by reading__ `.help -c purge`"
+        else:
+            async for msg in event.client.iter_messages(
+                chat,
+                min_id=event.reply_to_msg_id - 1,
+                from_user=reply.sender_id,
+            ):
+                count += 1
+                msgs.append(msg)
+                if len(msgs) == 50:
+                    await event.client.delete_messages(chat, msgs)
+                    msgs = []
+    elif input_str.isnumeric():
+        async for msg in event.client.iter_messages(
+            chat,
+            limit=int(input_str),
+            from_user=reply.sender_id,
+        ):
+            count += 1
+            msgs.append(msg)
+            if len(msgs) == 50:
+                await event.client.delete_messages(chat, msgs)
+                msgs = []
+    else:
+        async for msg in event.client.iter_messages(
+            chat,
+            from_user=reply.sender_id,
+        ):
+            count += 1
+            msgs.append(msg)
+            if len(msgs) == 50:
+                await event.client.delete_messages(chat, msgs)
+                msgs = []
+    if msgs:
+        await event.client.delete_messages(chat, msgs)
+    if count > 0:
+        result += "**- حـذف رسائلـه تم بنجـاح ✅**\n**- تم حـذف** " + str(count) + "**رسالـه 🗑**"
+    if error != "":
+        result += f"\n\n**- خطـأ :**{error}"
+    if not result:
+        result += "**- عـذراً .. الرسـالة غيـر موجـودة**"
 
 # بدء الجلسة
 ABH.start()

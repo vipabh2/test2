@@ -56,11 +56,11 @@ async def handler(event):
         if check_message(message_text):
             if await is_admin(chat, user_id):
                 await event.delete()
-                await event.reply(f"المشرف [{event.sender.first_name}](tg://user?id={event.sender_id})، لا تستخدم الكلمات المحظورة!")
+                # await event.reply(f"المشرف [{event.sender.first_name}](tg://user?id={event.sender_id})، لا تستخدم الكلمات المحظورة!")
                 return
             me = await ABH.get_me()
             if not await is_admin(chat, me.id):
-                await event.reply("❌ لا أملك صلاحية تقييد الأعضاء، الرجاء إعطائي الصلاحيات اللازمة!")
+                # await event.reply("❌ لا أملك صلاحية تقييد الأعضاء، الرجاء إعطائي الصلاحيات اللازمة!")
                 return
             restrict_rights = ChatBannedRights(
                 until_date=None,
@@ -85,13 +85,12 @@ async def handler(event):
             try:
                 await ABH(EditBannedRequest(chat.id, user_id, restrict_rights))
                 await event.delete()
-                await event.reply(f"المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) تم تقييده لاستخدامه كلمات محظورة.")
-                await asyncio.sleep(1)
+                # await event.reply(f"المستخدم [{event.sender.first_name}](tg://user?id={event.sender_id}) تم تقييده لاستخدامه كلمات محظورة.")
+                await asyncio.sleep(30 * 60)
                 await ABH(EditBannedRequest(chat.id, user_id, unrestrict_rights))
 
             except Exception as e:
-                await event.reply(f"لم أتمكن من تقييد المستخدم بسبب: {str(e)}")
-                
-# تشغيل البوت
-print("✅ البوت شغال وينتظر الرسائل...")
+                # await event.reply(f"لم أتمكن من تقييد المستخدم بسبب: {str(e)}")
+                return
+print("البوت شغال وينتظر الرسائل...")
 ABH.run_until_disconnected()

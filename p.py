@@ -18,7 +18,7 @@ def convert_to_gif(image_path):
     return gif_path
 
 # التعامل مع الصور الواردة
-@client.on(events.NewMessage)
+@ABH.on(events.NewMessage)
 async def handler(event):
     if event.photo:
         # حفظ الصورة مؤقتاً
@@ -31,7 +31,7 @@ async def handler(event):
         await event.reply(file=gif_path)
 
 # تشغيل البوت
-client.start()
-client.run_until_disconnected()
+ABH.start()
+ABH.run_until_disconnected()
 
 

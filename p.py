@@ -18,7 +18,7 @@ plugin_category = "extra"
 
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
-@ABH.on(events.NewMessage(pattern="امسح$"))
+@ABH.on(events.NewMessage(pattern=".امسح$"))
 async def delete_filtered_messages(event):
     if event.sender_id != 1910015590:
         return

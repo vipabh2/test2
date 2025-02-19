@@ -59,7 +59,7 @@ async def rm_deletedacc(show):
     await event.edit(event, del_status, 5)
 
   
-@ABH.on(pattern="رسائلي$")
+@ABH.on(events.NewMessage(pattern=".رسائلي$"))
 async def zed(event):
     zzm = "me"
     a = await event.edit(event.chat_id, 0, from_user=zzm)

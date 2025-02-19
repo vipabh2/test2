@@ -17,7 +17,7 @@ api_hash = os.getenv('API_HASH')
 ABH = TelegramClient("ubot", api_id, api_hash)
 
 plugin_category = "extra"
-@ABH.on(pattern=r"المحذوفين ?([\s\S]*)")
+@ABH.on(events.NewMessage(pattern=r"المحذوفين ?([\s\S]*)"))
 async def rm_deletedacc(show):
     con = show.pattern_match.group(1).lower()
     del_u = 0

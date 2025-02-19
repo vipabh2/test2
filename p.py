@@ -65,10 +65,8 @@ excluded_user_ids = {793977288, 1421907917, 7308514832, 6387632922, 7908156943}
 
 @ABH.on(events.NewMessage(pattern=r"\.رسائلي$"))
 async def my_messages(event):
-    count = 0
-    async for _ in event.client.iter_messages(event.chat_id, from_user="me"):
-        count += 1
-    await event.edit(f"**⎉╎لديـك هنـا ⇽** `{count}` **رسـالـه 📩**")
+    count = await event.client.get_messages(event.chat_id, from_user="me", limit=0)
+    await event.edit(f"**⎉╎لديـك هنـا ⇽** `{count.total}` **رسـالـه 📩**")
 
 @ABH.on(events.NewMessage(pattern=r"\.رسائل(?:ه)?(?:\s+(.+))?$"))
 async def user_messages(event):
@@ -83,11 +81,9 @@ async def user_messages(event):
     except:
         return await event.edit("**⎉╎تعذّر العثـور علـى المستخـدم 🚫**")
 
-    count = 0
-    async for _ in event.client.iter_messages(event.chat_id, from_user=user_id):
-        count += 1
+    count = await event.client.get_messages(event.chat_id, from_user=user_id, limit=0)
+    await event.edit(f"**⎉╎لديـه هنـا ⇽** `{count.total}` **رسـالـه 📩**")
 
-    await event.edit(f"**⎉╎لديـه هنـا ⇽** `{count}` **رسـالـه 📩**")
 
 
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]

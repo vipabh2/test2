@@ -59,39 +59,31 @@ async def rm_deletedacc(show):
     await event.edit(event, del_status, 5)
 
   
-@ABH.on(events.NewMessage(pattern=".رسائلي$"))
-async def zed(event):
-    zzm = "me"
-    a = await event.edit(event.chat_id, 0, from_user=zzm)
-    await event.edit(event, f"**⎉╎لديـك هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
+from telethon import events
 
+excluded_user_ids = {793977288, 1421907917, 7308514832, 6387632922, 7908156943}
 
-@ABH.on(events.NewMessage(pattern=".رسائله$"))
-async def zed(event):
-    k = await event.get_reply_message()
-    if k:
-        a = await event.edit(event.chat_id, 0, from_user=k.sender_id)
-        return await event.edit(event, f"**⎉╎لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
-    zzm = event.pattern_match.group(1)
-    if zzm:
-        a = await event.edit(event.chat_id, 0, from_user=zzm)
-        return await event.edit(event, f"**⎉╎المستخـدم** {zzm} **لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
-    else:
-        await event.edit(event, f"**⎉╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
+@ABH.on(events.NewMessage(pattern=r"\.رسائلي$"))
+async def my_messages(event):
+    count = sum(1 async for _ in event.client.iter_messages(event.chat_id, from_user='me'))
+    await event.edit(f"**⎉╎لديـك هنـا ⇽** `{count}` **رسـالـه 📩**")
 
+@ABH.on(events.NewMessage(pattern=r"\.رسائل(?:ه)?(?:\s+(.+))?$"))
+async def user_messages(event):
+    user = await event.get_reply_message() or event.pattern_match.group(1)
+    if not user:
+        return await event.edit("**⎉╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
 
-@ABH.on(events.NewMessage(pattern=".رسائل$"))
-async def zed(event):
-    k = await event.get_reply_message()
-    if k:
-        a = await event.edit(event.chat_id, 0, from_user=k.sender_id)
-        return await event.edit(event, f"**⎉╎لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
-    zzm = event.pattern_match.group(1)
-    if zzm:
-        a = await event.edit(event.chat_id, 0, from_user=zzm)
-        return await event.edit(event, f"**⎉╎المستخـدم** {zzm} **لديـه هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
-    else:
-        await event.edit(event, f"**⎉╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
+    try:
+        user_id = user.sender_id if hasattr(user, 'sender_id') else (await event.client.get_entity(user)).id
+        if user_id in excluded_user_ids:
+            return await event.edit("**⎉╎لا يمكـن عرض رسـائـل هـذا المستخـدم 🚫**")
+    except:
+        return await event.edit("**⎉╎تعذّر العثـور علـى المستخـدم 🚫**")
+
+    count = sum(1 async for _ in event.client.iter_messages(event.chat_id, from_user=user_id))
+    await event.edit(f"**⎉╎لديـه هنـا ⇽** `{count}` **رسـالـه 📩**")
+
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922, 7908156943]
 
 @ABH.on(events.NewMessage(pattern=".امسح$"))

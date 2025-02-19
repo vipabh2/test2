@@ -66,7 +66,7 @@ async def zed(event):
     await event.edit(event, f"**⎉╎لديـك هنـا ⇽**  `{a.total}`  **رسـالـه 📩**")
 
 
-@ABH.on(pattern="رسائله ?(.*)")
+@ABH.on(events.NewMessage(pattern=".رسائله$"))
 async def zed(event):
     k = await event.get_reply_message()
     if k:
@@ -80,7 +80,7 @@ async def zed(event):
         await event.edit(event, f"**⎉╎بالـرد ع الشخص او بـ إضافة أيـدي او يـوزر الشخـص لـ الامـر**")
 
 
-@ABH.on(pattern="(الرسائل|رسائل) ?(.*)")
+@ABH.on(events.NewMessage(pattern=".رسائل$"))
 async def zed(event):
     k = await event.get_reply_message()
     if k:

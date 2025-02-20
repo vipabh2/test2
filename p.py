@@ -25,8 +25,8 @@ def update_bot():
         print("❌ لا يوجد اتصال بالإنترنت، لن يتم التحديث!")
         return
     print("🔄 جارِ التحقق من التحديثات...")
-    subprocess.run(["git", "pull", "origin", "HuRe"])
-    subprocess.run(["pip3", "install", "--no-cache-dir", "-r", "requirements.txt"])
+    subprocess.run(["git", "pull"])
+    subprocess.run(["pip3", "install", "-r", "requirements.txt"])
     print("✅ التحديث اكتمل!")
 update_bot()
 @ABH.on(events.NewMessage(pattern='كرة قدم|/sport'))

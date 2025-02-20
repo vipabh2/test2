@@ -326,13 +326,6 @@ async def calculate_days(event, target_date):
     days_difference = (target_date - t.date()).days
     msg = f"باقي {days_difference} ايام" if days_difference >= 0 else "الشهر قد بدأ \n يا مطوري حدث الكود @k_4x1"
     await event.edit(msg)
-
-@ABH.on(events.NewMessage(pattern='^تاريخ$'))
-async def start_handler(event):
-    t = datetime.datetime.now().date()
-    hd = Gregorian(t.year, t.month, t.day).to_hijri()
-    hd_str = f"{hd.day} {hd.month_name('ar')} {hd.year} هـ"    
-    await event.reply(f" الهجري: \n {hd_str} \n الميلادي: \n {t}")
 c = [
     "ههههههه",
     "😂",

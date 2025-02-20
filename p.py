@@ -1347,8 +1347,4 @@ questions = [
     "وين تحب تقضي وقتك مع العائلة؟",
     "وين تكون في الساعة الخامسة مساءً؟"
 ]
-@ABH.on(events.NewMessage(func=lambda event: event.text in ['كتويت']))
-async def send_random_question(event):
-    random_question = random.choice(questions)
-    await event.reply(random_question)
 ABH.run_until_disconnected()

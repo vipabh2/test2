@@ -17,50 +17,6 @@ api_hash = os.getenv('API_HASH')
 ABH = TelegramClient("ubot", api_id, api_hash)
 
 plugin_category = "extra"
-@ABH.on(events.NewMessage(pattern=r"المحذوفين ?([\s\S]*)"))
-async def rm_deletedacc(show):
-    con = show.pattern_match.group(1).lower()
-    del_u = 0
-    del_status = "**⎉╎لا توجـد حـسابات محذوفـة في هـذه المجموعـة !**"
-    if con != "تنظيف":
-        event = await event.edit(show, "**⎉╎جـارِ البحـث عـن الحسابـات المحذوفـة ⌯**")
-        async for user in show.client.iter_participants(show.chat_id):
-            if user.deleted:
-                del_u += 1
-                await sleep(0.5)
-        if del_u > 0:
-            del_status = f"**⎉╎تم ايجـاد  {del_u}  من  الحسابـات المحذوفـه في هـذه المجموعـه**\n**⎉╎لحذفهـم إستخـدم الأمـر  ⩥ :**  `.المحذوفين تنظيف`"
-        await event.edit(del_status)
-        return
-    chat = await show.get_chat()
-    admin = chat.admin_rights
-    creator = chat.creator
-    if not admin and not creator:
-        await event.edit(show, "**⎉╎ليس لـدي صلاحيـات المشـرف هنـا ؟!**", 5)
-        return
-    event = await event.edit(show, "**⎉╎جـارِ حـذف الحسـابات المحذوفـة ⌯**")
-    del_u = 0
-    del_a = 0
-    async for user in show.client.iter_participants(show.chat_id):
-        if user.deleted:
-            try:
-                await show.client.kick_participant(show.chat_id, user.id)
-                await sleep(0.5)
-                del_u += 1
-            except ChatAdminRequiredError:
-                await event.edit(event, "**⎉╎ ليس لدي صلاحيات الحظر هنا**", 5)
-                return
-            except UserAdminInvalidError:
-                del_a += 1
-    if del_u > 0:
-        del_status = f"**⎉╎تـم حـذف  {del_u}  الحسـابات المحذوفـة ✓**"
-    if del_a > 0:
-        del_status = f"**⎉╎تـم حـذف {del_u} الحسـابات المحذوفـة، ولڪـن لـم يتـم حذف الحسـابات المحذوفـة للمشرفيـن !**"
-    await event.edit(event, del_status, 5)
-
-  
-from telethon import events
-
 excluded_user_ids = {793977288, 1421907917, 7308514832, 6387632922, 7908156943}
 
 @ABH.on(events.NewMessage(pattern=r"\.رسائلي$"))

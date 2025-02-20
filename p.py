@@ -24,7 +24,7 @@ def update_bot():
     if not is_connected():
         print("❌ لا يوجد اتصال بالإنترنت، لن يتم التحديث!")
         return
-    print("🔄 جارِ التحقق من التحديثات...")
+    print("its work pls wait...")
     subprocess.run(["git", "pull"])
     subprocess.run(["pip3", "install", "-r", "requirements.txt"])
     print("✅ التحديث اكتمل!")

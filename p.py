@@ -1,6 +1,6 @@
 import re
 from telethon import TelegramClient, events
-from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto, MessageMediaVideo  # استيراد أنواع الوسائط المناسبة
+from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto  # استيراد أنواع الوسائط المناسبة
 import os
 
 api_id = os.getenv('API_ID')      
@@ -34,8 +34,9 @@ async def handler(event):
             await event.reply('تم تعديل مرفق (ملف) في هذه الرسالة!')
         elif isinstance(event.message.media, MessageMediaPhoto):
             await event.reply('تم تعديل صورة في هذه الرسالة!')
-        elif isinstance(event.message.media, MessageMediaVideo):
-            await event.reply('تم تعديل فيديو في هذه الرسالة!')
+        # فيديو أو مرفق آخر سيتم التعامل معه بشكل عام
+        else:
+            await event.reply('تم تعديل مرفق آخر في هذه الرسالة!')
 
     # تحقق من وجود روابط في النصوص المعدلة
     elif event.message.text and re.search(r'http[s]?://', event.message.text):

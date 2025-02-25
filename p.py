@@ -28,12 +28,12 @@ async def handler(event):
     if not is_on:
         return
     if event.message.media:
-        await event.delete()
         if isinstance(event.message.media, MessageMediaDocument):
             await event.reply('تم تعديل مرفق (ملف) في هذه الرسالة!')
         elif isinstance(event.message.media, MessageMediaPhoto):
             await event.reply('تم تعديل صورة في هذه الرسالة!')
         elif isinstance(event.message.media, MessageMedia):
             await event.reply('تم تعديل فيديو أو مرفق آخر في هذه الرسالة!')
+            await event.delete()
 
 ABH.run_until_disconnected()

@@ -19,7 +19,7 @@ async def start(event):
     buttons = [
         [Button.inline("🪨", b"rock"), Button.inline("✂️", b"cuter"), Button.inline("📜", b"paper")]
     ]
-    await event.respond("🎮 اختر أحد الاختيارات:", buttons=buttons)
+    await event.respond("اختر أحد الاختيارات🌚", buttons=buttons)
 
 @ABH.on(events.CallbackQuery())
 async def callback_handler(event):

@@ -4,7 +4,7 @@ api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
 ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
-is_on = None
+is_on = False
 @ABH.on(events.NewMessage(pattern="تفعيل"))
 async def set(event):
     global is_on

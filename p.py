@@ -23,11 +23,10 @@ async def start(event):
 
 @ABH.on(events.CallbackQuery())
 async def callback_handler(event):
-    user_choice = event.data.decode("utf-8")  # تحويل البيانات من bytes إلى string
-    bot_choice_key = random.choice(list(choices.keys()))  # اختيار عشوائي من البوت
+    user_choice = event.data.decode("utf-8")
+    bot_choice_key = random.choice(list(choices.keys()))
     bot_choice = choices[bot_choice_key]  
 
-    # تحديد النتيجة
     if user_choice == bot_choice_key:
         result = "🤝 تعادل!"
     elif (user_choice == "rock" and bot_choice_key == "cuter") or \
@@ -37,8 +36,7 @@ async def callback_handler(event):
     else:
         result = "😢 خسرت!"
 
-    # تحديث الرسالة الأصلية
-    new_text = f"📌 اختيارك: {choices[user_choice]}\n🤖 اختياري: {bot_choice}\n\n{result}"
-    await event.edit(new_text)  # تعديل الرسالة بدلًا من إرسال واحدة جديدة
+    new_text = f" اختيارك: {choices[user_choice]}\n مخفي: {bot_choice}\n\n{result}"
+    await event.edit(new_text)
 
 ABH.run_until_disconnected()

@@ -13,9 +13,7 @@ choices = ["حجره", "ورقة", "مقص"]
 @ABH.on(events.NewMessage(pattern="حجرة|/rock"))
 async def game_handler(event):
     button = [
-        [Button.inline("🪨", b"rock")],
-        [Button.inline("✂️", b"cuter")],
-        [Button.inline("📜", b"paper")]
+        [Button.inline("🪨", b"rock"), Button.inline("✂️", b"cuter"), Button.inline("📜", b"paper")]
     ]
     await event.respond("اهلا صديقي، اختر أحد الاختيارات:", buttons=button)
 

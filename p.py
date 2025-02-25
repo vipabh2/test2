@@ -12,12 +12,12 @@ choices = [
     ]
 @ABH.on(events.NewMessage(pattern="حجرة|/rock"))
 async def start(event):
-    Button = [
+    button = [
         [Button.inline("🪨", b"rock")],
         [Button.inline("✂️", b"cuter")],
         [Button.inline("📜", b"paper")]
               ]
-    await event.respond("اهلا صديقي اختر احد الاختيارات", Button=Button)
+    await event.respond("اهلا صديقي اختر احد الاختيارات", Button=button)
 
 abh = random.choice(choices)
 

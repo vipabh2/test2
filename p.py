@@ -25,19 +25,14 @@ async def deactivate(event):
 
 @ABH.on(events.MessageEdited)
 async def handler(event):
-    # تحقق إذا كان التفاعل مفعل (is_on = True)
     if not is_on:
         return
-
-    # تحقق إذا كانت الرسالة تحتوي على مرفق من نوع وسائط (صور، فيديوهات، ملفات)
     if event.message.media:
-        # تحقق إذا كان المرفق من نوع ملف
+        await event.delete(event.message.media)
         if isinstance(event.message.media, MessageMediaDocument):
             await event.reply('تم تعديل مرفق (ملف) في هذه الرسالة!')
-        # تحقق إذا كان المرفق من نوع صورة
         elif isinstance(event.message.media, MessageMediaPhoto):
             await event.reply('تم تعديل صورة في هذه الرسالة!')
-        # تحقق إذا كان المرفق من نوع فيديو
         elif isinstance(event.message.media, MessageMedia):
             await event.reply('تم تعديل فيديو أو مرفق آخر في هذه الرسالة!')
 

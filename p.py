@@ -8,7 +8,9 @@ choices = {"rock": "🪨حجره", "paper": "📜ورقة", "cuter": "✂️مق
 active_games = {}  
 @ABH.on(events.NewMessage(pattern="حجرة|/rock"))
 async def start(event):
- active_games[event.chat_id] = event.sender_id  
+ global n
+ active_games[event.chat_id] = event.sender_id
+ n = event.sender.first_name
  buttons = [[Button.inline("🪨", b"rock"), Button.inline("✂️", b"cuter"), Button.inline("📜", b"paper")]]
  await event.respond("اختر أحد الاختيارات 🌚", buttons=buttons)
 @ABH.on(events.CallbackQuery())
@@ -24,5 +26,5 @@ async def callback_handler(event):
  bot_choice = choices[bot_choice_key]  
  user_id = event.sender_id
  result = "🤝تعادل" if user_choice == bot_choice_key else "🎉فزت" if (user_choice == "rock" and bot_choice_key == "cuter") or (user_choice == "paper" and bot_choice_key == "rock") or (user_choice == "cuter" and bot_choice_key == "paper") else "😢خسرت"
- await event.edit(f"📌اختيارك: [اضغط هنا](tg://user?id={user_id}) {choices[user_choice]}\n🤖مخفي: [اضغط هنا](tg://user?id=7908156943) {bot_choice}\n\n{result}")
+ await event.edit(f"[{n}](tg://user?id={user_id}) {choices[user_choice]}\n[مخفي](tg://user?id=7908156943) {bot_choice}\n\n{result}")
 ABH.run_until_disconnected()

@@ -28,7 +28,7 @@ async def handler(event):
     if not is_on:
         return
     if event.message.media:
-        await event.delete(event.message.media)
+        await event.delete()
         if isinstance(event.message.media, MessageMediaDocument):
             await event.reply('تم تعديل مرفق (ملف) في هذه الرسالة!')
         elif isinstance(event.message.media, MessageMediaPhoto):

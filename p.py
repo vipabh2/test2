@@ -1,5 +1,6 @@
 import re
 from telethon import TelegramClient, events
+from telethon.tl.types import MessageMediaDocument  # استيراد MessageMediaDocument
 import os
 
 api_id = os.getenv('API_ID')      
@@ -24,10 +25,15 @@ async def deactivate(event):
 
 @ABH.on(events.MessageEdited)
 async def handler(event):
+    # تحقق إذا كان التفاعل مفعل (is_on = True)
     if not is_on:
         return
-    if event.message.media and isinstance(event.message.media, events.MessageMediaDocument):
+
+    # تحقق إذا كانت الرسالة تحتوي على مرفق من نوع ملف
+    if event.message.media and isinstance(event.message.media, MessageMediaDocument):
         await event.reply('تم تعديل مرفق (ملف) في هذه الرسالة!')
+
+    # تحقق إذا كانت الرسالة تحتوي على رابط
     elif event.message.text and re.search(r'http[s]?://', event.message.text):
         await event.reply('تم تعديل رابط في هذه الرسالة!')
 

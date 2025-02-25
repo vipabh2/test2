@@ -1,6 +1,6 @@
 import re
 from telethon import TelegramClient, events
-from telethon.tl.types import MessageMediaDocument  # فقط استيراد MessageMediaDocument
+from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto, MessageMediaVideo  # استيراد أنواع الوسائط المناسبة
 import os
 
 api_id = os.getenv('API_ID')      
@@ -29,12 +29,16 @@ async def handler(event):
     if not is_on:
         return
 
-    # تحقق إذا كانت الرسالة تحتوي على مرفق
-    if event.message.media and isinstance(event.message.media, MessageMediaDocument):
-        await event.reply('تم تعديل مرفق (ملف) في هذه الرسالة!')
-
-    # تحقق إذا كانت الرسالة تحتوي على رابط
-    elif event.message.text and re.search(r'http[s]?://', event.message.text):
-        await event.reply('تم تعديل رابط في هذه الرسالة!')
+    # تحقق إذا كانت الرسالة تحتوي على مرفق من نوع وسائط (صور، فيديوهات، ملفات)
+    if event.message.media:
+        # تحقق إذا كان المرفق من نوع ملف
+        if isinstance(event.message.media, MessageMediaDocument):
+            await event.reply('تم تعديل مرفق (ملف) في هذه الرسالة!')
+        # تحقق إذا كان المرفق من نوع صورة
+        elif isinstance(event.message.media, MessageMediaPhoto):
+            await event.reply('تم تعديل صورة في هذه الرسالة!')
+        # تحقق إذا كان المرفق من نوع فيديو
+        elif isinstance(event.message.media, MessageMediaVideo):
+            await event.reply('تم تعديل فيديو في هذه الرسالة!')
 
 ABH.run_until_disconnected()

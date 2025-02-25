@@ -1,6 +1,6 @@
 import re
 from telethon import TelegramClient, events
-from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto, MessageMediaVideo  # استيراد أنواع الوسائط المناسبة
+from telethon.tl.types import MessageMediaDocument, MessageMediaPhoto  # استيراد أنواع الوسائط المناسبة
 import os
 
 api_id = os.getenv('API_ID')      
@@ -38,7 +38,7 @@ async def handler(event):
         elif isinstance(event.message.media, MessageMediaPhoto):
             await event.reply('تم تعديل صورة في هذه الرسالة!')
         # تحقق إذا كان المرفق من نوع فيديو
-        elif isinstance(event.message.media, MessageMediaVideo):
-            await event.reply('تم تعديل فيديو في هذه الرسالة!')
+        elif isinstance(event.message.media, MessageMedia):
+            await event.reply('تم تعديل فيديو أو مرفق آخر في هذه الرسالة!')
 
 ABH.run_until_disconnected()

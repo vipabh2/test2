@@ -1,30 +1,48 @@
 from telethon import TelegramClient, events, Button
 import random, os
+from telethon.tl.types import (
+    InputMessagesFilterDocument,
+    InputMessagesFilterPhotos,
+    InputMessagesFilterUrl
+)
 api_id = os.getenv('API_ID')      
 api_hash = os.getenv('API_HASH')  
 bot_token = os.getenv('BOT_TOKEN') 
 ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
-choices = {"rock": "🪨حجره", "paper": "📜ورقة", "cuter": "✂️مقص"}
-active_games = {}  
-@ABH.on(events.NewMessage(pattern="حجرة|/rock"))
-async def start(event):
- global n
- active_games[event.chat_id] = event.sender_id
- n = event.sender.first_name
- buttons = [[Button.inline("🪨", b"rock"), Button.inline("✂️", b"cuter"), Button.inline("📜", b"paper")]]
- await event.respond("اختر أحد الاختيارات 🌚", buttons=buttons)
-@ABH.on(events.CallbackQuery())
-async def callback_handler(event):
- game_owner = active_games.get(event.chat_id)  
- if game_owner != event.sender_id:
-  await event.answer("من تدخل في ما لا يعنيه لقي كلام لا يرضيه 🙄", alert=True)
-  return  
- user_choice = event.data.decode("utf-8")
- if user_choice not in choices:
-  return  
- bot_choice_key = random.choice(list(choices.keys()))
- bot_choice = choices[bot_choice_key]  
- user_id = event.sender_id
- result = "🤝تعادل" if user_choice == bot_choice_key else "🎉فزت" if (user_choice == "rock" and bot_choice_key == "cuter") or (user_choice == "paper" and bot_choice_key == "rock") or (user_choice == "cuter" and bot_choice_key == "paper") else "😢خسرت"
- await event.edit(f"[{n}](tg://user?id={user_id}) {choices[user_choice]}\n[مخفي](tg://user?id=7908156943) {bot_choice}\n\n{result}")
+
+excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922]
+
+@ABH.on(events.NewMessage(pattern="/delall"))
+async def delete_filtered_messages(event):
+    """حذف الرسائل بناءً على فلاتر محددة."""
+
+    await event.delete()
+
+    try:
+        filters = {
+            "الملفات": InputMessagesFilterDocument,
+            "الروابط": InputMessagesFilterUrl,
+            "الصور": InputMessagesFilterPhotos
+        }
+
+        total_deleted = 0 
+        deleted_counts = {key: 0 for key in filters.keys()}
+
+        for msg_type, msg_filter in filters.items():
+            async for message in event.client.iter_messages(event.chat_id, filter=msg_filter):
+                if message.sender_id in excluded_user_ids:
+                    continue 
+                if message:
+                    await message.delete()
+                    deleted_counts[msg_type] += 1
+                    total_deleted += 1
+
+        if total_deleted > 0:
+            details = "\n".join([f"{msg_type}: {count}" for msg_type, count in deleted_counts.items() if count > 0])
+            await event.reply(f"تم حذف {total_deleted} رسالة.\nالتفاصيل:\n{details}")
+        else:
+            await event.reply("لا توجد رسائل تطابق الفلاتر المحددة!")
+
+    except Exception as e:
+        await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
 ABH.run_until_disconnected()

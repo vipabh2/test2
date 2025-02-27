@@ -1,6 +1,6 @@
-
 from telethon import TelegramClient, events
 import os
+import yt_dlp  # تأكد من تثبيت yt-dlp
 import base64
 from pathlib import Path
 # جلب البيانات من المتغيرات البيئية

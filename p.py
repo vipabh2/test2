@@ -1,6 +1,7 @@
 from telethon import TelegramClient, events
-import os, re
+import os
 import yt_dlp  # بدلاً من pytube
+import re  # استيراد مكتبة التعبيرات العادية
 
 # جلب البيانات من المتغيرات البيئية
 api_id = os.getenv('API_ID')      

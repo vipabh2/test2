@@ -14,17 +14,20 @@ async def youtube_download(event):
     search_query = event.pattern_match.group(1)  # استخراج اسم البحث من الرسالة
     await event.reply(f"🔍 جاري البحث عن: {search_query}")
 
-    # إعدادات تحميل الصوت
+    # إعدادات تحميل الصوت بدون كوكيز
     ydl_opts = {
-        'format': 'bestaudio/best',
+        'format': 'bestaudio/best',  # تحميل أفضل جودة للصوت فقط
         'postprocessors': [{
             'key': 'FFmpegExtractAudio',
             'preferredcodec': 'mp3',
             'preferredquality': '192',
         }],
         'outtmpl': 'downloaded_audio.%(ext)s',  # حفظ الملف مؤقتًا باسم ثابت
-        'noplaylist': True,
-        'cookies': 'cookies.txt'  # دعم الكوكيز لتجاوز التحقق
+        'noplaylist': True,  # تعطيل تحميل قوائم التشغيل
+        'extractor-args': {'youtube': {'player_client': ['web']}},  # فرض مشغل الويب لتجاوز الحماية
+        'http_headers': {
+            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+        }  # تغيير هوية المتصفح لخداع يوتيوب
     }
 
     try:

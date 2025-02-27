@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-import os
+import os, re
 import yt_dlp  # بدلاً من pytube
 
 # جلب البيانات من المتغيرات البيئية

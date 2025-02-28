@@ -1,5 +1,6 @@
 from telethon import TelegramClient, events
 import os
+import json
 
 # جلب بيانات البوت
 api_id = int(os.getenv('API_ID'))
@@ -9,31 +10,34 @@ bot_token = os.getenv('BOT_TOKEN')
 # تشغيل العميل
 ABH = TelegramClient("bot_session", api_id, api_hash).start(bot_token=bot_token)
 
+# ملف لتخزين معرفات المجموعات
+GROUPS_FILE = "groups.json"
+
+# تحميل معرفات المجموعات من الملف
+def load_groups():
+    if os.path.exists(GROUPS_FILE):
+        with open(GROUPS_FILE, "r") as f:
+            return set(json.load(f))
+    return set()
+
+# حفظ معرفات المجموعات إلى الملف
+def save_groups():
+    with open(GROUPS_FILE, "w") as f:
+        json.dump(list(group_ids), f)
+
 # قائمة معرفات المجموعات
-group_ids = set()
+group_ids = load_groups()
 
-# وظيفة لاكتشاف جميع المجموعات وإضافتها إلى القائمة
-async def discover_groups():
-    async for dialog in ABH.iter_dialogs():
-        if dialog.is_group:  # التأكد من أن المحادثة مجموعة وليس خاص
-            group_ids.add(dialog.id)
-            print(f"✅ اكتشفنا مجموعة: {dialog.title} - {dialog.id}")
-
-# عند تشغيل البوت، يقوم بفحص المجموعات تلقائيًا
-@ABH.on(events.NewMessage(pattern="/scan"))
-async def scan_groups(event):
-    await event.reply("🔍 جاري البحث عن جميع المجموعات التي يمكنني الوصول إليها...")
-    await discover_groups()
-    await event.reply(f"✅ تم تسجيل {len(group_ids)} مجموعة!")
-
-# عند إضافة البوت إلى مجموعة جديدة، يتم تسجيلها تلقائيًا
+# عند إضافة البوت إلى مجموعة، يتم تسجيلها تلقائيًا
 @ABH.on(events.ChatAction)
 async def join_group(event):
     if event.user_added and event.user_id == (await ABH.get_me()).id:
         group_ids.add(event.chat_id)
-        print(f"✅ تم تسجيل المجموعة الجديدة: {event.chat_id}")
+        save_groups()
+        print(f"✅ تم تسجيل المجموعة الجديدة: {event.chat.title} - {event.chat_id}")
+        await event.reply("✅ تم تسجيل هذه المجموعة! استخدم /alert لإرسال تنبيهات.")
 
-# أمر /alert لإرسال التنبيه لكل المجموعات
+# أمر /alert لإرسال التنبيه لكل المجموعات المسجلة
 @ABH.on(events.NewMessage(pattern="/alert"))
 async def send_alert(event):
     message_text = None
@@ -50,7 +54,7 @@ async def send_alert(event):
         await event.reply("⚠️ يرجى الرد على رسالة أو كتابة نص بعد `/alert`.")
         return
 
-    await event.reply("🚀 جاري إرسال التنبيه إلى جميع المجموعات...")
+    await event.reply(f"🚀 جاري إرسال التنبيه إلى {len(group_ids)} مجموعة...")
 
     for group_id in group_ids:
         try:
@@ -61,6 +65,5 @@ async def send_alert(event):
 
     await event.reply("✅ تم إرسال التنبيه لكل المجموعات!")
 
-# تشغيل البوت
 print("✅ البوت يعمل...")
 ABH.run_until_disconnected()

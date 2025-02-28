@@ -56,9 +56,13 @@ async def update_dialogs(event):
 # إرسال التنبيه إلى جميع المحادثات
 @ABH.on(events.NewMessage(pattern="/alert"))
 async def send_alert(event):
+    if event.sender_id != 1910015590:  # التأكد من أن المرسل هو المستخدم المستهدف فقط
+        await event.reply("❌ هذه الخدمة مخصصة فقط للمستخدم المحدد.")
+        return
+
     message_text = None
-    # التأكد من أن المرسل هو المستخدم المستهدف
-    if event.reply_to_msg_id and event.sender_id != 1910015590:
+    # التأكد من أن الرسالة هي رد على رسالة أو تحتوي على نص
+    if event.reply_to_msg_id:
         replied_msg = await event.get_reply_message()
         message_text = replied_msg.text
     else:

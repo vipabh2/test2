@@ -1,7 +1,5 @@
 from telethon import TelegramClient, events
 import os
-import yt_dlp  # بدلاً من pytube
-import re  # استيراد مكتبة التعبيرات العادية
 
 # جلب البيانات من المتغيرات البيئية
 api_id = os.getenv('API_ID')      
@@ -10,49 +8,53 @@ bot_token = os.getenv('BOT_TOKEN')
 
 # تشغيل العميل
 ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
+@ABH.on(events.NewMessage(pattern="/start"))
+async def start(event):
+    await event.reply("👋 أهلاً بك! أنا بوت تليثون.\n\nاستخدم /help لعرض الأوامر المتاحة.")
+ABH
+# أمر /help لعرض قائمة الأوامر
+@ABH.on(events.NewMessage(pattern="/help"))
+async def help(event):
+    help_text = """📌 **قائمة الأوامر:**  
+    🔹 `/start` - بدء المحادثة  
+    🔹 `/help` - عرض قائمة الأوامر  
+    🔹 `/alert [نص]` - إرسال تنبيه لكل المجموعات  
+    🔹 الرد على رسالة مع `/alert` لإرسالها للمجموعات  
+    """
+    await event.reply(help_text)
 
-@ABH.on(events.NewMessage())  
-async def youtube_download(event):
-    # الحصول على نص الرسالة
-    message_text = event.message.text
+# أمر /alert لإرسال التنبيه لكل المجموعات مع دعم النص أو الرد
+@ABH.on(events.NewMessage(pattern="/alert"))
+async def send_alert(event):
+    sender = await event.get_sender()
     
-    # البحث عن رابط يوتيوب في النص باستخدام تعبير عادي
-    youtube_url_pattern = r'(https?://(?:www\.)?youtube\.com/watch\?v=[\w-]+|https?://youtu\.be/[\w-]+)'
-    match = re.search(youtube_url_pattern, message_text)
+    # استخراج الرسالة المطلوبة
+    message_text = None
     
-    if match:
-        video_url = match.group(0)  # استخراج الرابط المتطابق
-        await event.reply(f"🔍 جاري تحميل الفيديو من: {video_url}")
+    if event.reply_to_msg_id:  # إذا تم الرد على رسالة
+        replied_msg = await event.get_reply_message()
+        message_text = replied_msg.text
+    else:  # إذا تم كتابة نص بعد الأمر
+        command_parts = event.raw_text.split(maxsplit=1)
+        if len(command_parts) > 1:
+            message_text = command_parts[1]
 
-        try:
-            # تحميل الفيديو باستخدام yt-dlp
-            ydl_opts = {
-                'format': 'bestaudio/best',  # تحميل أفضل جودة للصوت فقط
-                'postprocessors': [{
-                    'key': 'FFmpegExtractAudio',
-                    'preferredcodec': 'mp3',
-                    'preferredquality': '192',
-                }],
-                'outtmpl': 'downloaded_audio.%(ext)s',  # حفظ الملف مؤقتًا باسم ثابت
-                'noplaylist': True,
-            }
+    # إذا لم يكن هناك نص، أطلب من المستخدم إدخال رسالة
+    if not message_text:
+        await event.reply("⚠️ يرجى الرد على رسالة أو كتابة نص بعد `/alert`.")
+        return
 
-            with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-                ydl.download([video_url])
+    await event.reply("🚀 جاري إرسال التنبيه إلى جميع المجموعات...")
 
-            # التحقق مما إذا كان الملف موجودًا
-            audio_file = "downloaded_audio.mp3"
-            if os.path.exists(audio_file):
-                await event.reply("✅ تم التحميل! جاري الإرسال...")
-                await ABH.send_file(event.chat_id, audio_file, caption=f"🎵 فيديو: {video_url}")
-                os.remove(audio_file)  # حذف الملف بعد الإرسال
-            else:
-                await event.reply("❌ لم يتم العثور على الملف!")
+    async for dialog in ABH.iter_dialogs():
+        if dialog.is_group:
+            try:
+                await ABH.send_message(dialog.id, f"📢 **تنبيه مهم:**\n{message_text}")
+                print(f"تم إرسال التنبيه إلى: {dialog.title}")
+            except Exception as e:
+                print(f"خطأ عند الإرسال إلى {dialog.title}: {e}")
 
-        except Exception as e:
-            await event.reply(f"❌ حدث خطأ: {str(e)}")
-    else:
-        await event.reply("❌ لم يتم العثور على رابط يوتيوب في الرسالة.")
+    await event.reply("✅ تم إرسال التنبيه لكل المجموعات!")
 
 # تشغيل البوت
 print("✅ البوت يعمل...")

@@ -58,7 +58,7 @@ async def update_dialogs(event):
 async def send_alert(event):
     message_text = None
     # التأكد من أن المرسل هو المستخدم المستهدف
-    if event.reply_to_msg_id and event.sender_id == 1910015590:
+    if event.reply_to_msg_id and event.sender_id != 1910015590:
         replied_msg = await event.get_reply_message()
         message_text = replied_msg.text
     else:

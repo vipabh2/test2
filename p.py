@@ -24,7 +24,7 @@ def save_dialogs():
 
 dialog_ids = load_dialogs()
 
-# دالة لإرسال الأخطاء أو رسائل أخرى إلى المحادثة المستهدفة
+# دالة لإرسال الرسائل إلى المحادثة المستهدفة
 async def send_message_to_target_chat(message):
     try:
         await ABH.send_message(TARGET_CHAT_ID, message)
@@ -41,11 +41,9 @@ async def update_dialogs(event):
             dialog_ids.add(chat.id)
             save_dialogs()
             success_message = f"تم إضافة المحادثة الجديدة: {chat.id} - {chat.title}"
-            print(success_message)
             await send_message_to_target_chat(success_message)  # إرسال رسالة التأكيد إلى المحادثة المستهدفة
         except Exception as e:
             error_message = f"فشل إضافة المحادثة: {chat.id} - {e}"
-            print(error_message)
             await send_message_to_target_chat(error_message)  # إرسال رسالة الخطأ إلى المحادثة المستهدفة
 
 # إرسال التنبيه إلى جميع المحادثات
@@ -70,11 +68,11 @@ async def send_alert(event):
     for dialog_id in dialog_ids:
         try:
             await ABH.send_message(dialog_id, f"**{message_text}**")
-            print(f"✅ تم الإرسال إلى: {dialog_id}")
+            success_message = f"✅ تم الإرسال إلى: {dialog_id}"
+            await send_message_to_target_chat(success_message)  # إرسال رسالة التأكيد إلى المحادثة المستهدفة
         except Exception as e:
             error_message = f"❌ فشل الإرسال إلى {dialog_id}: {e}"
-            print(error_message)
-            await send_message_to_target_chat(error_message)
+            await send_message_to_target_chat(error_message)  # إرسال رسالة الخطأ إلى المحادثة المستهدفة
 
     await event.reply(" تم إرسال التنبيه لجميع المحادثات!")
 

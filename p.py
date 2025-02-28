@@ -10,41 +10,41 @@ bot_token = os.getenv('BOT_TOKEN')
 # تشغيل العميل
 ABH = TelegramClient("bot_session", api_id, api_hash).start(bot_token=bot_token)
 
-# ملف لتخزين معرفات المجموعات
-GROUPS_FILE = "groups.json"
+# ملف لتخزين معرفات المحادثات
+GROUPS_FILE = "dialogs.json"
 
-# تحميل معرفات المجموعات من الملف
-def load_groups():
+# تحميل معرفات المحادثات من الملف
+def load_dialogs():
     if os.path.exists(GROUPS_FILE):
         with open(GROUPS_FILE, "r") as f:
             return set(json.load(f))
     return set()
 
-# حفظ معرفات المجموعات إلى الملف
-def save_groups():
+# حفظ معرفات المحادثات إلى الملف
+def save_dialogs():
     with open(GROUPS_FILE, "w") as f:
-        json.dump(list(group_ids), f)
+        json.dump(list(dialog_ids), f)
 
-# قائمة معرفات المجموعات المخزنة
-group_ids = load_groups()
+# قائمة معرفات المحادثات المخزنة
+dialog_ids = load_dialogs()
 
-# 🛠️ **تحديث المجموعات التي البوت فيها مشرف عند وصول رسالة**
+# 🛠️ **تحديث المحادثات التي يوجد فيها البوت (سواء كانت مجموعات أو قنوات أو محادثات فردية)**
 @ABH.on(events.NewMessage)
-async def update_groups(event):
-    global group_ids
+async def update_dialogs(event):
+    global dialog_ids
 
     chat = await event.get_chat()
-    if chat.id not in group_ids:  # التحقق إذا كانت المجموعة غير مسجلة
+    
+    if chat.id not in dialog_ids:  # التحقق إذا كانت المحادثة غير مسجلة
         try:
-            permissions = await ABH.get_permissions(chat, 'me')  # جلب صلاحيات البوت
-            if permissions.is_admin:  # التحقق إذا كان البوت مشرفًا
-                group_ids.add(chat.id)
-                save_groups()
-                print(f"✅ البوت مشرف في: {chat.title} - {chat.id}")
+            # إذا كانت محادثة مع مستخدم عادي أو مع مجموعة/قناة
+            dialog_ids.add(chat.id)
+            save_dialogs()
+            print(f"✅ تم إضافة المحادثة: {chat.id}")
         except Exception as e:
-            print(f"❌ فشل التحقق من {chat.title}: {e}")
+            print(f"❌ فشل إضافة المحادثة: {chat.id} - {e}")
 
-# 📢 **إرسال تنبيه للمجموعات التي فيها البوت مشرف**
+# 📢 **إرسال تنبيه إلى جميع المحادثات (سواء كانت مجموعات أو محادثات فردية)**
 @ABH.on(events.NewMessage(pattern="/alert"))
 async def send_alert(event):
     message_text = None
@@ -61,16 +61,16 @@ async def send_alert(event):
         await event.reply("⚠️ يرجى الرد على رسالة أو كتابة نص بعد `/alert`.")
         return
 
-    await event.reply(f"🚀 جاري إرسال التنبيه إلى {len(group_ids)} مجموعة...")
+    await event.reply(f"🚀 جاري إرسال التنبيه إلى {len(dialog_ids)} محادثة...")
 
-    for group_id in group_ids:
+    for dialog_id in dialog_ids:
         try:
-            await ABH.send_message(group_id, f"📢 **تنبيه مهم:**\n{message_text}")
-            print(f"✅ تم الإرسال إلى: {group_id}")
+            await ABH.send_message(dialog_id, f"📢 **تنبيه مهم:**\n{message_text}")
+            print(f"✅ تم الإرسال إلى: {dialog_id}")
         except Exception as e:
-            print(f"❌ فشل الإرسال إلى {group_id}: {e}")
+            print(f"❌ فشل الإرسال إلى {dialog_id}: {e}")
 
-    await event.reply("✅ تم إرسال التنبيه لكل المجموعات!")
+    await event.reply("✅ تم إرسال التنبيه لجميع المحادثات!")
 
 print("✅ البوت يعمل...")
 ABH.run_until_disconnected()

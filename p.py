@@ -28,30 +28,21 @@ def save_groups():
 # قائمة معرفات المجموعات المخزنة
 group_ids = load_groups()
 
-# 🔍 **فحص المجموعات وإضافة المشرف منها فقط**
-async def scan_groups():
-    global group_ids
-    group_ids.clear()  # إعادة تعيين القائمة
-
-    async for dialog in ABH.iter_dialogs():
-        if dialog.is_group:  # تأكد أن المحادثة مجموعة
-            try:
-                chat = await ABH.get_entity(dialog.id)
-                if chat.admin_rights:  # تحقق من أن البوت مشرف في هذه المجموعة
-                    group_ids.add(dialog.id)
-                    print(f"✅ البوت مشرف في المجموعة: {chat.title} - {chat.id}")
-            except Exception as e:
-                print(f"❌ فشل التحقق من {dialog.title}: {e}")
-
-    save_groups()
-    print(f"📌 تم حفظ {len(group_ids)} مجموعة.")
-
-# 🛠️ **أمر لتحديث قائمة المجموعات المشرف فيها**
-@ABH.on(events.NewMessage(pattern="/scan"))
+# 🛠️ **تحديث المجموعات التي البوت فيها مشرف عند وصول رسالة**
+@ABH.on(events.NewMessage)
 async def update_groups(event):
-    await event.reply("🔄 جاري تحديث قائمة المجموعات...")
-    await scan_groups()
-    await event.reply(f"✅ تم تحديث القائمة، البوت مشرف في {len(group_ids)} مجموعة.")
+    global group_ids
+
+    chat = await event.get_chat()
+    if chat.id not in group_ids:  # التحقق إذا كانت المجموعة غير مسجلة
+        try:
+            permissions = await ABH.get_permissions(chat, 'me')  # جلب صلاحيات البوت
+            if permissions.is_admin:  # التحقق إذا كان البوت مشرفًا
+                group_ids.add(chat.id)
+                save_groups()
+                print(f"✅ البوت مشرف في: {chat.title} - {chat.id}")
+        except Exception as e:
+            print(f"❌ فشل التحقق من {chat.title}: {e}")
 
 # 📢 **إرسال تنبيه للمجموعات التي فيها البوت مشرف**
 @ABH.on(events.NewMessage(pattern="/alert"))
@@ -81,11 +72,5 @@ async def send_alert(event):
 
     await event.reply("✅ تم إرسال التنبيه لكل المجموعات!")
 
-# تشغيل فحص المجموعات عند بدء تشغيل البوت
-async def startup():
-    print("🔍 جاري البحث عن المجموعات...")
-    await scan_groups()
-
 print("✅ البوت يعمل...")
-ABH.loop.run_until_complete(startup())  # تنفيذ البحث عند بدء التشغيل
 ABH.run_until_disconnected()

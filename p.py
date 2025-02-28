@@ -1,31 +1,39 @@
 from telethon import TelegramClient, events
 import os
 
-# جلب البيانات من المتغيرات البيئية
-api_id = int(os.getenv('API_ID'))      
-api_hash = os.getenv('API_HASH')  
-bot_token = os.getenv('BOT_TOKEN') 
-
-# قائمة معرفات المجموعات (يجب إضافتها يدويًا)
-group_ids = [-1001234567890, -1009876543210]  # ضع معرفات المجموعات هنا
+# جلب بيانات البوت
+api_id = int(os.getenv('API_ID'))
+api_hash = os.getenv('API_HASH')
+bot_token = os.getenv('BOT_TOKEN')
 
 # تشغيل العميل
-ABH = TelegramClient('bot_session', api_id, api_hash).start(bot_token=bot_token)
+ABH = TelegramClient("bot_session", api_id, api_hash).start(bot_token=bot_token)
 
-@ABH.on(events.NewMessage(pattern="/start"))
-async def start(event):
-    await event.reply("👋 أهلاً بك! أنا بوت تليثون.\n\nاستخدم /help لعرض الأوامر المتاحة.")
+# قائمة معرفات المجموعات
+group_ids = set()
 
-@ABH.on(events.NewMessage(pattern="/help"))
-async def help(event):
-    help_text = """📌 **قائمة الأوامر:**  
-    🔹 `/start` - بدء المحادثة  
-    🔹 `/help` - عرض قائمة الأوامر  
-    🔹 `/alert [نص]` - إرسال تنبيه لكل المجموعات  
-    🔹 الرد على رسالة مع `/alert` لإرسالها للمجموعات  
-    """
-    await event.reply(help_text)
+# وظيفة لاكتشاف جميع المجموعات وإضافتها إلى القائمة
+async def discover_groups():
+    async for dialog in ABH.iter_dialogs():
+        if dialog.is_group:  # التأكد من أن المحادثة مجموعة وليس خاص
+            group_ids.add(dialog.id)
+            print(f"✅ اكتشفنا مجموعة: {dialog.title} - {dialog.id}")
 
+# عند تشغيل البوت، يقوم بفحص المجموعات تلقائيًا
+@ABH.on(events.NewMessage(pattern="/scan"))
+async def scan_groups(event):
+    await event.reply("🔍 جاري البحث عن جميع المجموعات التي يمكنني الوصول إليها...")
+    await discover_groups()
+    await event.reply(f"✅ تم تسجيل {len(group_ids)} مجموعة!")
+
+# عند إضافة البوت إلى مجموعة جديدة، يتم تسجيلها تلقائيًا
+@ABH.on(events.ChatAction)
+async def join_group(event):
+    if event.user_added and event.user_id == (await ABH.get_me()).id:
+        group_ids.add(event.chat_id)
+        print(f"✅ تم تسجيل المجموعة الجديدة: {event.chat_id}")
+
+# أمر /alert لإرسال التنبيه لكل المجموعات
 @ABH.on(events.NewMessage(pattern="/alert"))
 async def send_alert(event):
     message_text = None

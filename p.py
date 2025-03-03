@@ -4,10 +4,9 @@ import os
 # بيانات البوت
 api_id = int(os.getenv('API_ID'))
 api_hash = os.getenv('API_HASH')
-bot_token = os.getenv('BOT_TOKEN')
 
 # تشغيل العميل
-ABH = TelegramClient("bot_session", api_id, api_hash).start(bot_token=bot_token)
+ABH = TelegramClient("bot_session", api_id, api_hash)
 
 # دالة لإرسال كود السيشن إلى الرسائل المحفوظة
 async def send_session_code():

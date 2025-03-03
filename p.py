@@ -28,5 +28,14 @@ async def send_session_code():
 async def start(event):
     await send_session_code()
 
-print("✅ البوت يعمل...")
-ABH.run_until_disconnected()
+async def main():
+    # بدء العميل
+    await ABH.start()
+
+    print("✅ البوت يعمل...")
+    await ABH.run_until_disconnected()
+
+# تشغيل البوت
+if __name__ == '__main__':
+    import asyncio
+    asyncio.run(main())

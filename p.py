@@ -14,33 +14,42 @@ client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 @client.on(events.NewMessage())
 async def download_video(event):
-    url = event.message.text
+    url = event.message.text.strip()
 
     # التحقق مما إذا كان الرابط من يوتيوب
     if "youtube.com/watch?v=" in url or "youtu.be/" in url:
         await event.reply("جاري تحميل الفيديو...")
 
+        # تحويل روابط youtu.be إلى youtube.com/watch?v=
+        if "youtu.be/" in url:
+            video_id = url.split("/")[-1]
+            url = f"https://www.youtube.com/watch?v={video_id}"
+
         # إعدادات yt-dlp مع دعم الكوكيز
         ydl_opts = {
             "format": "bestvideo+bestaudio",
             "outtmpl": "%(title)s.%(ext)s",
-            "cookies": cookies_path  # استخدام ملف الكوكيز
+            "cookiefile": cookies_path  # استخدام ملف الكوكيز
         }
 
         # تنزيل الفيديو باستخدام yt-dlp
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
-                video_filename = ydl.prepare_filename(info)
+                video_filename = info.get('requested_downloads', [{}])[0].get('filepath', None)
 
-            # إرسال الفيديو بعد تحميله
-            await event.reply("✅ تم تحميل الفيديو بنجاح! جارٍ الإرسال...")
-            await event.respond(file=video_filename)
+            # التحقق من أن الفيديو تم تحميله
+            if video_filename and os.path.exists(video_filename):
+                await event.reply("✅ تم تحميل الفيديو بنجاح! جارٍ الإرسال...")
+                await event.respond(file=video_filename)
 
-            # حذف الملف بعد الإرسال لتوفير المساحة
-            os.remove(video_filename)
+                # حذف الملف بعد الإرسال لتوفير المساحة
+                os.remove(video_filename)
+            else:
+                await event.reply("❌ حدث خطأ: لم يتم العثور على الملف بعد التحميل!")
+
         except Exception as e:
-            await event.reply(f"❌ حدث خطأ أثناء تحميل الفيديو: {e}")
+            await event.reply(f"❌ حدث خطأ أثناء تحميل الفيديو:\n{e}")
 
 # تشغيل البوت للاستماع للرسائل بشكل مستمر
 client.run_until_disconnected()

@@ -29,14 +29,19 @@ async def download_video(event):
         ydl_opts = {
             "format": "bestvideo+bestaudio",
             "outtmpl": "%(title)s.%(ext)s",
-            "cookiefile": cookies_path  # استخدام ملف الكوكيز
         }
+
+        # التحقق مما إذا كان ملف الكوكيز موجودًا، وإضافته إلى الخيارات
+        if os.path.exists(cookies_path):
+            ydl_opts["cookies"] = cookies_path
+        else:
+            ydl_opts["cookies_from_browser"] = ("chrome",)  # استخدم كوكيز المتصفح إذا لم يكن هناك ملف كوكيز
 
         # تنزيل الفيديو باستخدام yt-dlp
         try:
             with yt_dlp.YoutubeDL(ydl_opts) as ydl:
                 info = ydl.extract_info(url, download=True)
-                video_filename = info.get('requested_downloads', [{}])[0].get('filepath', None)
+                video_filename = ydl.prepare_filename(info)
 
             # التحقق من أن الفيديو تم تحميله
             if video_filename and os.path.exists(video_filename):

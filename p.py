@@ -13,13 +13,15 @@ async def download_video(event):
     url = event.message.text
 
     # التحقق مما إذا كان الرابط من يوتيوب
-    if "youtube.com/watch?v=" in url:
+    if "youtube.com/watch?v=" in url or "youtu.be/" in url:
         await event.reply("جاري تحميل الفيديو...")
 
         # إعدادات yt-dlp
         ydl_opts = {
             "format": "bestvideo+bestaudio",
-            "outtmpl": "%(title)s.%(ext)s"
+            "outtmpl": "%(title)s.%(ext)s",
+            # تأكد من استخدام الكوكيز إذا كانت متاحة
+            "cookies": "cookies.txt",  # وضع مسار ملف الكوكيز إذا كنت بحاجة إليه
         }
 
         # تنزيل الفيديو باستخدام yt-dlp

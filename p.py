@@ -1,10 +1,9 @@
 from telethon import TelegramClient, events
-import yt_dlp
+import yt_dlp, os
 
-# إعدادات التليجرام
-api_id = 'YOUR_API_ID'
-api_hash = 'YOUR_API_HASH'
-bot_token = 'YOUR_BOT_TOKEN'
+api_id = os.getenv('API_ID')      
+api_hash = os.getenv('API_HASH')  
+bot_token = os.getenv('BOT_TOKEN')
 
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 

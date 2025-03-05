@@ -1,11 +1,14 @@
 from telethon import TelegramClient, events
-import yt_dlp, os
+import yt_dlp
+import os
 import asyncio
 
+# إعداد المتغيرات
 api_id = os.getenv('API_ID')      # API_ID
 api_hash = os.getenv('API_HASH')  # API_HASH
 bot_token = os.getenv('BOT_TOKEN') # BOT_TOKEN
 
+# إنشاء العميل للبوت
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
 @client.on(events.NewMessage())
@@ -19,9 +22,8 @@ async def download_video(event):
         # إعدادات yt-dlp
         ydl_opts = {
             "format": "bestvideo+bestaudio",
-            "outtmpl": "%(title)s.%(ext)s",
-            # تأكد من استخدام الكوكيز إذا كانت متاحة
-            "cookies": "cookies.txt",  # وضع مسار ملف الكوكيز إذا كنت بحاجة إليه
+            "outtmpl": "موارد/%(title)s.%(ext)s",  # تحديد المجلد الذي سيتم حفظ الفيديو فيه
+            "noplaylist": True  # عدم تحميل القوائم التلقائية
         }
 
         # تنزيل الفيديو باستخدام yt-dlp
@@ -32,7 +34,8 @@ async def download_video(event):
             # الرد برسالة عند اكتمال التحميل
             await event.reply("✅ تم تحميل الفيديو بنجاح!")
         except Exception as e:
-            await event.reply(f"❌ حدث خطأ أثناء تحميل الفيديو: {e}")
+            # الرد برسالة في حال حدوث خطأ
+            await event.reply(f"❌ حدث خطأ أثناء تحميل الفيديو: {str(e)}")
 
 # تشغيل البوت للاستماع للرسائل بشكل مستمر
 client.run_until_disconnected()

@@ -1,23 +1,33 @@
-from telethon import TelegramClient
-import os
+from telethon import TelegramClient, events
+import yt_dlp
 
-# بيانات البوت
-api_id = int(os.getenv('API_ID'))
-api_hash = os.getenv('API_HASH')
+# إعدادات التليجرام
+api_id = 'YOUR_API_ID'
+api_hash = 'YOUR_API_HASH'
+bot_token = 'YOUR_BOT_TOKEN'
 
-async def main():
-    client = TelegramClient('userbot_session', api_id, api_hash)
-    await client.start()
+client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-    # التأكد من تسجيل الدخول
-    me = await client.get_me()
-    
-    # استخراج session string
-    session_string = client.session.save()
+@client.on(events.NewMessage(pattern='https://www.youtube.com/watch?v='))
+async def download_video(event):
+    url = event.message.text
+    await event.reply("جاري تحميل الفيديو...")
 
-    print("✅ تم استخراج الكود بنجاح!")
-    print(f"Session String: {session_string}")
+    # إعدادات yt-dlp
+    ydl_opts = {
+        "format": "bestvideo+bestaudio",
+        "outtmpl": "%(title)s.%(ext)s"
+    }
 
-# تشغيل البرنامج
-import asyncio
-asyncio.run(main())
+    # تنزيل الفيديو باستخدام yt-dlp
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            ydl.download([url])
+        
+        # الرد برسالة عند اكتمال التحميل
+        await event.reply("✅ تم تحميل الفيديو بنجاح!")
+    except Exception as e:
+        await event.reply(f"❌ حدث خطأ أثناء تحميل الفيديو: {e}")
+
+# تشغيل البوت
+client.run_until_disconnected()

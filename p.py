@@ -20,7 +20,7 @@ filters = {
     "الصور": InputMessagesFilterPhotos
 }
 
-@client.on(events.NewMessage(pattern="امسح(\s*| \d+)$"))
+@client.on(events.NewMessage(pattern=r"امسح(\s*| \d+)$"))
 async def delete_filtered_messages(event):
     """حذف الرسائل بناءً على فلاتر محددة."""
     await event.delete()  # حذف الرسالة الأصلية لإخفاء الأمر

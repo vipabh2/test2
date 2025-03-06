@@ -6,14 +6,14 @@ from telethon.tl.types import (
 )
 import os
 
-api_id = os.getenv('API_ID')
-api_hash = os.getenv('API_HASH')
-bot_token = os.getenv('BOT_TOKEN')
+api_id = os.getenv('API_ID')  # إدخال API ID الخاص بك
+api_hash = os.getenv('API_HASH')  # إدخال API Hash الخاص بك
+bot_token = os.getenv('BOT_TOKEN')  # إدخال Token الخاص بالبوت
 
 # إنشاء العميل الخاص بالبوت
 client = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# قائمة المعرفات التي سيتم استثناؤها
+# قائمة المعرفات التي سيتم استثناؤها (بإمكانك تعديل المعرفات حسب الحاجة)
 excluded_user_ids = [793977288, 1421907917, 7308514832, 6387632922]
 
 # الفلاتر لأنواع الرسائل

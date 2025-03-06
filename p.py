@@ -2,8 +2,8 @@ from telethon.tl.types import ChatBannedRights, ChannelParticipantAdmin, Channel
 import requests, os, operator, asyncio, random, uuid, datetime, re, json, validators
 from telethon.tl.functions.channels import EditBannedRequest, GetParticipantRequest
 from playwright.async_api import async_playwright # type: ignore
-from database import store_whisper, get_whisper #type: ignore
-from db import save_date, get_saved_date #type: ignore
+# from database import store_whisper, get_whisper #type: ignore
+# from db import save_date, get_saved_date #type: ignore
 from telethon.tl.types import KeyboardButtonCallback
 from telethon import TelegramClient, events, Button
 from playwright.async_api import async_playwright

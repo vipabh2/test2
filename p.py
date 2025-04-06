@@ -1,27 +1,30 @@
 import os
+from asyncio import sleep
 from telethon import TelegramClient, events
+from telethon.tl.functions.users import GetFullUserRequest
+from telethon.tl.functions.channels import GetAdminedPublicChannelsRequest
+from telethon.errors import ChatAdminRequiredError, UserAdminInvalidError
 from telethon.tl.types import (
     InputMessagesFilterDocument,
     InputMessagesFilterPhotos,
     InputMessagesFilterUrl
 )
 
-# استبدل بـ API_ID و API_HASH الخاصة بك
-api_id = os.getenv('API_ID')  # API_ID من تطبيق Telegram الخاص بك
-api_hash = os.getenv('API_HASH')  # API_HASH من تطبيق Telegram الخاص بك
+api_id = os.getenv('API_ID')      
+api_hash = os.getenv('API_HASH')
 
-# أنشئ العميل باستخدام TelegramClient
-client = TelegramClient('session_name', api_id, api_hash)
+# إنشاء الجلسة
+ABH = TelegramClient("ubot", api_id, api_hash)
 
 plugin_category = "extra"
 excluded_user_ids = {793977288, 1421907917, 7308514832, 6387632922, 7908156943}
 
-@client.on(events.NewMessage(pattern=r"\.رسائلي$"))
+@ABH.on(events.NewMessage(pattern=r"\.رسائلي$"))
 async def my_messages(event):
     count = await event.client.get_messages(event.chat_id, from_user="me", limit=0)
     await event.edit(f"**⎉╎لديـك هنـا ⇽** `{count.total}` **رسـالـه 📩**")
 
-@client.on(events.NewMessage(pattern=r"\.رسائل(?:ه)?(?:\s+(.+))?$"))
+@ABH.on(events.NewMessage(pattern=r"\.رسائل(?:ه)?(?:\s+(.+))?$"))
 async def user_messages(event):
     user = await event.get_reply_message() or event.pattern_match.group(1)
     if not user:
@@ -37,12 +40,12 @@ async def user_messages(event):
 
     count = await event.client.get_messages(event.chat_id, from_user=user_id, limit=0)
     await event.edit(f"**⎉╎لديـه هنـا ⇽** `{count.total}` **رسـالـه 📩**")
-
+    
 ids = [201728276, 7864847751, 1910015590]
 
-@client.on(events.NewMessage(pattern="/امسح$"))
+@ABH.on(events.NewMessage(pattern="/امسح$"))
 async def delete_filtered_messages(event):
-    if event.sender_id not in ids:
+    if event.sender_id not in ids:  # هنا تم إصلاح المشكلة واستبدال `uid` بـ `event.sender_id`
         await event.delete()
         return
 
@@ -53,13 +56,13 @@ async def delete_filtered_messages(event):
             "الصور": InputMessagesFilterPhotos
         }
 
-        total_deleted = 0
+        total_deleted = 0 
         deleted_counts = {key: 0 for key in filters.keys()}
 
         for msg_type, msg_filter in filters.items():
             async for message in event.client.iter_messages(event.chat_id, filter=msg_filter):
                 if message.sender_id in excluded_user_ids:
-                    continue
+                    continue 
                 if message:
                     await message.delete()
                     deleted_counts[msg_type] += 1
@@ -74,5 +77,4 @@ async def delete_filtered_messages(event):
     except Exception as e:
         await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
 
-# لا تقم بإغلاق الجلسة بعد تنفيذ main()، استخدم هذه الطريقة لترك السكربت يعمل بلا انقطاع.
-client.run_until_disconnected()
+ABH.run_until_disconnected()

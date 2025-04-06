@@ -1,4 +1,4 @@
-import os, asyncio
+import os
 from asyncio import sleep
 from telethon import TelegramClient, events
 from telethon.tl.functions.users import GetFullUserRequest
@@ -40,11 +40,12 @@ async def user_messages(event):
 
     count = await event.client.get_messages(event.chat_id, from_user=user_id, limit=0)
     await event.edit(f"**⎉╎لديـه هنـا ⇽** `{count.total}` **رسـالـه 📩**")
+
 ids = [201728276, 7864847751, 1910015590]
 
 @ABH.on(events.NewMessage(pattern="/امسح$"))
 async def delete_filtered_messages(event):
-    if uid not in ids:
+    if event.sender_id not in ids:
         await event.delete()
         return
 
@@ -76,8 +77,4 @@ async def delete_filtered_messages(event):
     except Exception as e:
         await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
 
-    await ABH.run_until_disconnected()
-
-if __name__ == "__main__":
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(start_bot())
+ABH.run_until_disconnected()

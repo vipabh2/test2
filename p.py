@@ -1,4 +1,4 @@
-import os
+import os, asyncio
 from asyncio import sleep
 from telethon import TelegramClient, events
 from telethon.tl.functions.users import GetFullUserRequest

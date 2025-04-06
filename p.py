@@ -76,4 +76,8 @@ async def delete_filtered_messages(event):
     except Exception as e:
         await event.reply(f"حدث خطأ أثناء الحذف: {str(e)}")
 
-ABH.run_until_disconnected()
+    await ABH.run_until_disconnected()
+
+if __name__ == "__main__":
+    loop = asyncio.get_event_loop()
+    loop.run_until_complete(start_bot())

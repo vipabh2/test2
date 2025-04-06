@@ -40,12 +40,11 @@ async def user_messages(event):
 
     count = await event.client.get_messages(event.chat_id, from_user=user_id, limit=0)
     await event.edit(f"**⎉╎لديـه هنـا ⇽** `{count.total}` **رسـالـه 📩**")
-
 ids = [201728276, 7864847751, 1910015590]
 
 @ABH.on(events.NewMessage(pattern="/امسح$"))
 async def delete_filtered_messages(event):
-    if event.sender_id not in ids:
+    if uid not in ids:
         await event.delete()
         return
 

@@ -11,9 +11,6 @@ bot_token = os.getenv('BOT_TOKEN')
 if not api_id or not api_hash or not bot_token:
     raise ValueError("يرجى ضبط API_ID, API_HASH، و BOT_TOKEN")
 ABH = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
-
-
-
 async def download_audio(query: str):
     ydl_opts = {
         'format': 'worstaudio',
@@ -71,8 +68,7 @@ async def handler_audio(event):
             reply_to=event.message.id)
         os.remove(audio_file)
     else:
-        await event.respond("فشل تحميل الصوت.")
-        
+        return        
 async def download_video(query: str):
     ydl_opts = {
         'format': 'best',  
@@ -118,5 +114,5 @@ async def handler(event):
         )
         os.remove(video_file)
     else:
-        await event.respond("فشل تحميل الفيديو. تحقق من الرابط أو استعلم عن سبب المشكلة.")
+        return
 ABH.run_until_disconnected()

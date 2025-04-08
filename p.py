@@ -1,37 +1,45 @@
 from telethon import TelegramClient, events
-import yt_dlp
+import ytmdl
 import os
+
+# قراءة متغيرات البيئة
 api_id = os.getenv('API_ID')
 api_hash = os.getenv('API_HASH')
 bot_token = os.getenv('BOT_TOKEN')
+
+# إنشاء مجلد التنزيل إن لم يكن موجوداً
+os.makedirs('downloads', exist_ok=True)
+
 # تهيئة العميل
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# دالة تحميل فيديو من يوتيوب
-def download_youtube_video(url):
-    ydl_opts = {
-        'format': 'best',
-        'outtmpl': 'downloads/%(title)s.%(ext)s',
-    }
+# دالة تحميل الصوت بصيغة mp3 باستخدام ytmdl
+def download_youtube_audio(url):
+    # تحديد المسار لتحميل الملف
+    output_path = 'downloads/%(title)s.%(ext)s'
+    
+    # تنزيل الصوت من الفيديو وتحديد التنسيق MP3
+    ytmdl.download(url, path='downloads')
+    
+    # تحديد الملف بعد التحميل
+    file_name = os.path.join('downloads', f"{ytmdl.utils.get_name(url)}.mp3")
+    
+    return file_name
 
-    with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        info = ydl.extract_info(url, download=True)
-        return ydl.prepare_filename(info)
-
-# الاستماع للرسائل
+# الاستماع للروابط
 @bot.on(events.NewMessage(pattern=r'https?://(?:www\.)?youtube\.com/watch\?v=.*|https?://youtu\.be/.*'))
 async def handler(event):
     url = event.raw_text
-    await event.respond("⏳ جاري تحميل الفيديو من YouTube...")
+    await event.respond("🎵 جاري تحميل الصوت من YouTube...")
 
     try:
-        file_path = download_youtube_video(url)
-        await event.respond("✅ تم التحميل. جارٍ الإرسال...")
+        file_path = download_youtube_audio(url)
+        await event.respond("✅ تم التحميل، جارٍ الإرسال...")
         await bot.send_file(event.chat_id, file_path)
         os.remove(file_path)  # تنظيف الملف بعد الإرسال
     except Exception as e:
-        await event.respond(f"❌ حدث خطأ أثناء التحميل: {str(e)}")
+        await event.respond(f"❌ خطأ أثناء التحميل: {str(e)}")
 
-# بدء البوت
-print("✅ البوت يعمل الآن.")
+# تشغيل البوت
+print("✅ البوت يعمل الآن باستخدام ytmdl لتحميل الصوت.")
 bot.run_until_disconnected()

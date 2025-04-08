@@ -19,7 +19,7 @@ def download_youtube_video(url):
     output_path = 'downloads/%(title)s.%(ext)s'
     
     # تحديد ملف الكوكيز
-    cookies_file = '/test2/cookies.txt'  # تأكد من تحديث المسار الصحيح للكوكيز
+    cookies_file = 'cookies.txt'  # تأكد من تحديث المسار الصحيح للكوكيز
     
     ydl_opts = {
         'format': 'best',  # تحميل أفضل جودة

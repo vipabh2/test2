@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-import ytmdl
+import subprocess
 import os
 
 # قراءة متغيرات البيئة
@@ -13,16 +13,19 @@ os.makedirs('downloads', exist_ok=True)
 # تهيئة العميل
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# دالة تحميل الصوت بصيغة mp3 باستخدام ytmdl
+# دالة لتحميل الصوت باستخدام ytmdl عبر subprocess
 def download_youtube_audio(url):
     # تحديد المسار لتحميل الملف
-    output_path = 'downloads/%(title)s.%(ext)s'
+    output_path = 'downloads/%(title)s.mp3'
     
-    # تنزيل الصوت من الفيديو وتحديد التنسيق MP3
-    ytmdl.download(url, path='downloads')
+    # تنفيذ أمر ytmdl لتحميل الصوت
+    command = f"ytmdl --output '{output_path}' {url}"
     
+    # تنفيذ الأمر عبر subprocess
+    subprocess.run(command, shell=True, check=True)
+
     # تحديد الملف بعد التحميل
-    file_name = os.path.join('downloads', f"{ytmdl.utils.get_name(url)}.mp3")
+    file_name = os.path.join('downloads', f"{url.split('=')[-1]}.mp3")
     
     return file_name
 

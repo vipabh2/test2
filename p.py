@@ -19,7 +19,7 @@ def download_youtube_video(url):
     output_path = 'downloads/%(title)s.%(ext)s'
     
     # تمرير ملف الكوكيز مع الأمر
-    cookies_file = '/path/to/your/cookies.txt'  # ضع مسار ملف الكوكيز هنا
+    cookies_file = '/root/test2/cookies.txt'  # ضع المسار الصحيح هنا
     
     command = f"you-get -o downloads --cookies {cookies_file} {url}"
     

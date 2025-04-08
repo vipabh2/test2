@@ -13,11 +13,18 @@ os.makedirs('downloads', exist_ok=True)
 # تهيئة العميل
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# دالة لتحميل الفيديو باستخدام yt-dlp
+# دالة لتحميل الفيديو باستخدام yt-dlp مع الكوكيز
 def download_youtube_video(url):
+    # تحديد المسار لتحميل الفيديو
+    output_path = 'downloads/%(title)s.%(ext)s'
+    
+    # تحديد ملف الكوكيز
+    cookies_file = '/root/test2/cookies.txt'  # تأكد من تحديث المسار الصحيح للكوكيز
+    
     ydl_opts = {
         'format': 'best',  # تحميل أفضل جودة
-        'outtmpl': 'downloads/%(title)s.%(ext)s',  # تحديد المجلد ومسار التحميل
+        'outtmpl': output_path,  # تحديد مجلد التحميل
+        'cookies': cookies_file,  # تمرير ملف الكوكيز
     }
 
     try:
@@ -47,5 +54,5 @@ async def handler(event):
         await event.respond(f"❌ حدث خطأ أثناء التحميل: {str(e)}")
 
 # تشغيل البوت
-print("✅ البوت يعمل الآن باستخدام yt-dlp لتحميل الفيديو.")
+print("✅ البوت يعمل الآن باستخدام yt-dlp لتحميل الفيديو مع الكوكيز.")
 bot.run_until_disconnected()

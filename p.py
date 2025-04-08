@@ -13,13 +13,15 @@ os.makedirs('downloads', exist_ok=True)
 # تهيئة العميل
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# دالة لتحميل الفيديو باستخدام you-get عبر subprocess
+# دالة لتحميل الفيديو باستخدام you-get عبر subprocess مع تمرير الكوكيز
 def download_youtube_video(url):
     # تحديد المسار لتحميل الفيديو
     output_path = 'downloads/%(title)s.%(ext)s'
     
-    # تنفيذ أمر you-get لتحميل الفيديو
-    command = f"you-get -o downloads {url}"
+    # تمرير ملف الكوكيز مع الأمر
+    cookies_file = '/path/to/your/cookies.txt'  # ضع مسار ملف الكوكيز هنا
+    
+    command = f"you-get -o downloads --cookies {cookies_file} {url}"
     
     try:
         # تنفيذ الأمر عبر subprocess

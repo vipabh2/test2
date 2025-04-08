@@ -1,5 +1,5 @@
 from telethon import TelegramClient, events
-import subprocess
+import yt_dlp
 import os
 
 # قراءة متغيرات البيئة
@@ -13,31 +13,21 @@ os.makedirs('downloads', exist_ok=True)
 # تهيئة العميل
 bot = TelegramClient('bot', api_id, api_hash).start(bot_token=bot_token)
 
-# دالة لتحميل الفيديو باستخدام you-get عبر subprocess مع تمرير الكوكيز
+# دالة لتحميل الفيديو باستخدام yt-dlp
 def download_youtube_video(url):
-    # تحديد المسار لتحميل الفيديو
-    output_path = 'downloads/%(title)s.%(ext)s'
-    
-    # تمرير ملف الكوكيز مع الأمر
-    cookies_file = '/root/test2/cookies.txt'  # ضع المسار الصحيح هنا
-    
-    command = f"you-get -o downloads --cookies {cookies_file} {url}"
-    
-    try:
-        # تنفيذ الأمر عبر subprocess
-        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
-        print(result.stdout)  # طباعة مخرجات الأمر
-        print(result.stderr)  # طباعة الأخطاء إن وجدت
-    except subprocess.CalledProcessError as e:
-        print(f"❌ فشل الأمر: {e}")
-        print(f"stdout: {e.stdout}")
-        print(f"stderr: {e.stderr}")
-        raise
+    ydl_opts = {
+        'format': 'best',  # تحميل أفضل جودة
+        'outtmpl': 'downloads/%(title)s.%(ext)s',  # تحديد المجلد ومسار التحميل
+    }
 
-    # تحديد الملف بعد التحميل (يمكن تعديل المسار حسب الحاجة)
-    file_name = os.path.join('downloads', f"{url.split('=')[-1]}.mp4")
-    
-    return file_name
+    try:
+        with yt_dlp.YoutubeDL(ydl_opts) as ydl:
+            # استخراج معلومات الفيديو
+            info = ydl.extract_info(url, download=True)
+            return ydl.prepare_filename(info)  # الحصول على اسم الملف الذي تم تحميله
+    except Exception as e:
+        print(f"❌ خطأ أثناء التحميل: {str(e)}")
+        return None
 
 # الاستماع للروابط
 @bot.on(events.NewMessage(pattern=r'https?://(?:www\.)?youtube\.com/watch\?v=.*|https?://youtu\.be/.*'))
@@ -47,12 +37,15 @@ async def handler(event):
 
     try:
         file_path = download_youtube_video(url)
-        await event.respond("✅ تم التحميل، جارٍ الإرسال...")
-        await bot.send_file(event.chat_id, file_path)
-        os.remove(file_path)  # تنظيف الملف بعد الإرسال
+        if file_path:
+            await event.respond("✅ تم التحميل، جارٍ الإرسال...")
+            await bot.send_file(event.chat_id, file_path)
+            os.remove(file_path)  # تنظيف الملف بعد الإرسال
+        else:
+            await event.respond("❌ فشل التحميل.")
     except Exception as e:
-        await event.respond(f"❌ خطأ أثناء التحميل: {str(e)}")
+        await event.respond(f"❌ حدث خطأ أثناء التحميل: {str(e)}")
 
 # تشغيل البوت
-print("✅ البوت يعمل الآن باستخدام you-get لتحميل الفيديو.")
+print("✅ البوت يعمل الآن باستخدام yt-dlp لتحميل الفيديو.")
 bot.run_until_disconnected()

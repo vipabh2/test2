@@ -47,7 +47,7 @@ async def promote_handler(event):
     receiver_name = message.sender.first_name or "مجهول"
     gid = str(event.chat_id)
     add_user(receiver_id, gid, receiver_name, rose, cost)
-    add_user(giver_id, gid, event.sender.first_name, rose)
+    add_user(giver_id, gid, event.sender.first_name, rose, cost)
     if rose[gid][receiver_id]["status"] == "مرفوع":
         await event.reply(f"{receiver_name} مرفوع من قبل")
         return

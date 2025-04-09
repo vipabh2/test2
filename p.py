@@ -109,6 +109,6 @@ async def show_handler(event):
     response = "قائمة الوردات👇\n"
     for uid, data in rose[chat_id].items():
         status_icon = "🌹" if data["status"] == "مرفوع" else "👤"
-        response += f"{status_icon} ({data['name']})[tg://user?id={data['receiver_id']}] ب سعر {data['money']}\n"
+        response += f"{status_icon} [{data['name']}](tg://user?id={data['receiver_id']}) ب سعر {data['money']}\n"
     await event.reply(response)
 ABH.run_until_disconnected()

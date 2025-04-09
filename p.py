@@ -79,8 +79,8 @@ async def demote_handler(event):
     target_id = str(message.sender_id)
     target_name = message.sender.first_name or "مجهول"
     gid = str(event.chat_id)
-    add_user(target_id, gid, target_name, rose, cost)
-    add_user(executor_id, gid, event.sender.first_name, rose, cost)
+    add_user(target_id, gid, target_name, rose)
+    add_user(executor_id, gid, event.sender.first_name, rose)
     if rose[gid][target_id]["status"] != "مرفوع":
         await event.reply("المستخدم هاذ ما مرفوع من قبل😐")
         return
@@ -108,6 +108,6 @@ async def show_handler(event):
     response = "قائمة الوردات👇\n"
     for uid, data in rose[chat_id].items():
         status_icon = "🌹" if data.get("status") == "مرفوع" else "👤"
-        response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ب سعر {data['cost']}\n"
+        response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ⇦ {data['cost']}\n"
     await event.reply(response, parse_mode="Markdown")
 ABH.run_until_disconnected()

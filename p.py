@@ -28,7 +28,7 @@ def add_user(uid, gid, name, rose):
     if uid not in rose[gid]:
         rose[gid][uid] = {
             "name": name,
-            "money": 12000,
+            "money": 1200,
             "status": "عادي",
             "giver": None
         }
@@ -106,12 +106,9 @@ async def show_handler(event):
     if chat_id not in rose or not rose[chat_id]:
         await event.reply("ماكو وردات هنا بالمجموعة!")
         return
-
     response = "قائمة الوردات👇\n"
     for uid, data in rose[chat_id].items():
         status_icon = "🌹" if data.get("status") == "مرفوع" else "👤"
-        response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ب سعر {data['money']}\n"
-
+        response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ب سعر {data['giver']}\n"
     await event.reply(response, parse_mode="Markdown")
-
 ABH.run_until_disconnected()

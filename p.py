@@ -21,7 +21,7 @@ def save_data(data, filename="rose.json"):
 
 rose = load_data()
 
-def add_user(uid, gid, name, rose):
+def add_user(uid, gid, name, rose, cost):
     uid, gid = str(uid), str(gid)
     if gid not in rose:
         rose[gid] = {}
@@ -30,7 +30,8 @@ def add_user(uid, gid, name, rose):
             "name": name,
             "money": 1200,
             "status": "عادي",
-            "giver": None
+            "giver": None,
+            "cost": cost
         }
     save_data(rose)
 @ABH.on(events.NewMessage(pattern=r'رفع وردة(?:\s+(\d+))?'))
@@ -68,6 +69,7 @@ async def promote_handler(event):
     rose[gid][giver_id]["money"] -= cost
     rose[gid][receiver_id]["status"] = "مرفوع"
     rose[gid][receiver_id]["giver"] = giver_id
+    rose[gid][receiver_id]["cost"] = cost
     save_data(rose)
     await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
 @ABH.on(events.NewMessage(pattern=r'تنزيل وردة'))
@@ -109,6 +111,6 @@ async def show_handler(event):
     response = "قائمة الوردات👇\n"
     for uid, data in rose[chat_id].items():
         status_icon = "🌹" if data.get("status") == "مرفوع" else "👤"
-        response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ب سعر {data['giver']}\n"
+        response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ب سعر {data['cost']}\n"
     await event.reply(response, parse_mode="Markdown")
 ABH.run_until_disconnected()

@@ -28,7 +28,7 @@ def add_user(uid, gid, name, rose, cost):
     if uid not in rose[gid]:
         rose[gid][uid] = {
             "name": name,
-            "money": 1000,
+            "money": 1200,
             "status": "عادي",
             "giver": None,
             "cost": cost
@@ -88,9 +88,9 @@ async def demote_handler(event):
     giver_id = rose[gid][target_id].get("giver")
     executor_money = rose[gid][sender_id]["money"]
     if sender_id == target_id or sender_id == giver_id:
-        cost = cost
+        cost = cost * 2
     else:
-        cost = cost / 4
+        cost = cost * 4
     min_required = 3
     if executor_money < min_required:
         await event.reply(f"ماتكدر تنزله لان رصيدك {executor_money} لازم يكون {min_required} ")

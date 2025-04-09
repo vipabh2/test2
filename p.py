@@ -79,16 +79,16 @@ async def demote_handler(event):
     sender_id = str(event.sender_id)
     target_id = str(message.sender_id)
     target_name = message.sender.first_name or "مجهول"
-    cost_money = rose[gid][sender_id]["cost"]
-    add_user(target_id, gid, target_name, rose)
-    add_user(sender_id, gid, event.sender.first_name, rose)
+    cost = rose[gid][sender_id]["cost"]
+    add_user(target_id, gid, target_name, rose, cost)
+    add_user(sender_id, gid, event.sender.first_name, rose, cost)
     if rose[gid][target_id]["status"] != "مرفوع":
         await event.reply("المستخدم هاذ ما مرفوع من قبل😐")
         return
     giver_id = rose[gid][target_id].get("giver")
     executor_money = rose[gid][sender_id]["money"]
     if sender_id == target_id or sender_id == giver_id:
-        cost = cost_money
+        cost = cost
     else:
         cost = executor_money / 4
     min_required = 3000

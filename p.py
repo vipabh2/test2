@@ -91,7 +91,7 @@ async def demote_handler(event):
         cost = cost
     else:
         cost = executor_money / 4
-    min_required = 3000
+    min_required = 3
     if executor_money < min_required:
         await event.reply(f"ماتكدر تنزله لان رصيدك {executor_money} لازم يكون {min_required} ")
         return

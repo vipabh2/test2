@@ -75,11 +75,11 @@ async def demote_handler(event):
     if not message or not message.sender:
         await event.reply("متكدر تنزل العدم , سوي رد على شخص")
         return
-    cost_money = rose[gid][sender_id]["cost"]
+    gid = str(event.chat_id)
     sender_id = str(event.sender_id)
     target_id = str(message.sender_id)
     target_name = message.sender.first_name or "مجهول"
-    gid = str(event.chat_id)
+    cost_money = rose[gid][sender_id]["cost"]
     add_user(target_id, gid, target_name, rose)
     add_user(sender_id, gid, event.sender.first_name, rose)
     if rose[gid][target_id]["status"] != "مرفوع":

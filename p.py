@@ -40,6 +40,8 @@ async def promote_handler(event):
     if not message or not message.sender:
         await event.reply("الامر يعمل بالرد , تحب اسويلك شرح🙄؟")
         return
+    match = event.pattern_match    
+    cost = int(match.group(1)) if match.group(1) else 2
     giver_id = str(event.sender_id)
     receiver_id = str(message.sender_id)
     receiver_name = message.sender.first_name or "مجهول"
@@ -48,11 +50,6 @@ async def promote_handler(event):
     add_user(giver_id, gid, event.sender.first_name, rose)
     if rose[gid][receiver_id]["status"] == "مرفوع":
         await event.reply(f"{receiver_name} مرفوع من قبل")
-        return
-    match = event.pattern_match
-    try:
-        cost = int(match.group(1)) if match.group(1) else 2
-    except ValueError:
         return
     x = 1
     if cost < x:

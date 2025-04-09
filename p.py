@@ -44,7 +44,7 @@ async def promote_handler(event):
     receiver_id = str(message.sender_id)
     receiver_name = message.sender.first_name or "مجهول"
     gid = str(event.chat_id)
-    add_user(receiver_id, gid, receiver_name, rose)
+    add_user(receiver_id, gid, receiver_name, rose, cost)
     add_user(giver_id, gid, event.sender.first_name, rose)
     if rose[gid][receiver_id]["status"] == "مرفوع":
         await event.reply(f"{receiver_name} مرفوع من قبل")
@@ -82,8 +82,8 @@ async def demote_handler(event):
     target_id = str(message.sender_id)
     target_name = message.sender.first_name or "مجهول"
     gid = str(event.chat_id)
-    add_user(target_id, gid, target_name, rose)
-    add_user(executor_id, gid, event.sender.first_name, rose)
+    add_user(target_id, gid, target_name, rose, cost)
+    add_user(executor_id, gid, event.sender.first_name, rose, cost)
     if rose[gid][target_id]["status"] != "مرفوع":
         await event.reply("المستخدم هاذ ما مرفوع من قبل😐")
         return

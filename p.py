@@ -28,7 +28,7 @@ def add_user(uid, gid, name, rose, cost):
     if uid not in rose[gid]:
         rose[gid][uid] = {
             "name": name,
-            "money": 12000,
+            "money": 1200,
             "status": "عادي",
             "giver": None,
             "cost": cost
@@ -111,4 +111,11 @@ async def show_handler(event):
         status_icon = "🌹" if data.get("status") == "مرفوع" else "👤"
         response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ⇦ {data['cost']}\n"
     await event.reply(response, parse_mode="Markdown")
+
+@ABH.on(events.NewMessage(pattern='ف'))
+async def m(event):
+    gid = event.chat_id
+    sender_id = event.sender_id
+    m = rose[gid][sender_id]["money"]
+    await event.reply(f'{m}')
 ABH.run_until_disconnected()

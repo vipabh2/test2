@@ -106,9 +106,9 @@ async def show_handler(event):
     if chat_id not in rose or not rose[chat_id]:
         await event.reply("ماكو وردات هنا بالمجموعة!")
         return
-    response = "📊 قائمة الحسابات:\n"
+    response = "الوردات\n"
     for uid, data in rose[chat_id].items():
         status_icon = "🌹" if data["status"] == "مرفوع" else "👤"
-        response += f"{status_icon} {data['name']}: 💰 {data['money']} فلوس | 🏷️ الحالة: {data['status']}\n"
+        response += f"{status_icon} {data['name']}: 💰 {data['money']}\n"
     await event.reply(response)
 ABH.run_until_disconnected()

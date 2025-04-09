@@ -28,7 +28,7 @@ def add_user(uid, gid, name, rose, cost):
     if uid not in rose[gid]:
         rose[gid][uid] = {
             "name": name,
-            "money": 12000,
+            "money": 1200,
             "status": "عادي",
             "giver": None,
             "cost": cost
@@ -75,26 +75,27 @@ async def demote_handler(event):
     if not message or not message.sender:
         await event.reply("متكدر تنزل العدم , سوي رد على شخص")
         return
-    executor_id = str(event.sender_id)
+    cost_money = rose[gid][sender_id]["cost"]
+    sender_id = str(event.sender_id)
     target_id = str(message.sender_id)
     target_name = message.sender.first_name or "مجهول"
     gid = str(event.chat_id)
     add_user(target_id, gid, target_name, rose)
-    add_user(executor_id, gid, event.sender.first_name, rose)
+    add_user(sender_id, gid, event.sender.first_name, rose)
     if rose[gid][target_id]["status"] != "مرفوع":
         await event.reply("المستخدم هاذ ما مرفوع من قبل😐")
         return
     giver_id = rose[gid][target_id].get("giver")
-    if executor_id == target_id or executor_id == giver_id:
-        cost = 2
+    executor_money = rose[gid][sender_id]["money"]
+    if sender_id == target_id or sender_id == giver_id:
+        cost = cost_money
     else:
-        cost = 4
+        cost = executor_money / 4
     min_required = 3000
-    executor_money = rose[gid][executor_id]["money"]
     if executor_money < min_required:
         await event.reply(f"ماتكدر تنزله لان رصيدك {executor_money} لازم يكون {min_required} ")
         return
-    rose[gid][executor_id]["money"] -= cost
+    rose[gid][sender_id]["money"] -= cost
     rose[gid][target_id]["status"] = "عادي"
     rose[gid][target_id]["giver"] = None
     save_data(rose)

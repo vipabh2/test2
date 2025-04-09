@@ -114,8 +114,8 @@ async def show_handler(event):
 
 @ABH.on(events.NewMessage(pattern='ف'))
 async def m(event):
-    gid = event.chat_id
-    sender_id = event.sender_id
+    gid = str(event.chat_id)
+    sender_id = str(event.sender_id)
     m = rose[gid][sender_id]["money"]
     await event.reply(f'{m}')
 ABH.run_until_disconnected()

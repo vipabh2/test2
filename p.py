@@ -28,7 +28,7 @@ def add_user(uid, gid, name, rose, cost):
     if uid not in rose[gid]:
         rose[gid][uid] = {
             "name": name,
-            "money": 1000,
+            "money": 1200,
             "status": "عادي",
             "giver": None,
             "cost": cost

@@ -70,6 +70,7 @@ async def promote_handler(event):
     rose[gid][receiver_id]["cost"] = cost
     save_data(rose)
     await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
+@ABH.on(events.NewMessage(pattern='ت'))
 async def demote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:

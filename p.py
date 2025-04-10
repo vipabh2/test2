@@ -37,7 +37,7 @@ def add_user(uid, gid, name, rose, cost):
         }
     save_data(rose)
 
-@ABH.on(events.NewMessage(pattern=r'رفع وردة(?:\s+(\d+))?'))
+@ABH.on(events.NewMessage(pattern=r'رفع سمب(?:\s+(\d+))?'))
 async def promote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:
@@ -83,7 +83,7 @@ async def promote_handler(event):
     save_data(rose)
     await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
 
-@ABH.on(events.NewMessage(pattern='ت'))
+@ABH.on(events.NewMessage(pattern='تنزيل سمب'))
 async def demote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:
@@ -127,7 +127,7 @@ async def demote_handler(event):
 async def show_handler(event):
     chat_id = str(event.chat_id)
     if chat_id not in rose or not rose[chat_id]:
-        await event.reply("ماكو وردات هنا بالمجموعة!")
+        await event.reply("ماكو سمبات هنا بالمجموعة!")
         return
 
     response = "قائمة الوردات👇\n"

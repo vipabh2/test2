@@ -71,37 +71,47 @@ async def promote_handler(event):
     save_data(rose)
     # هنا اضافه قيمه للفلوس المستقطعه لداله add لفصله عن المتغير الاول متغيير pattren group
     await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
-@ABH.on(events.NewMessage(pattern=r'تنزيل وردة'))
 async def demote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:
         await event.reply("متكدر تنزل العدم , سوي رد على شخص")
         return
+
     gid = str(event.chat_id)
     sender_id = str(event.sender_id)
     target_id = str(message.sender_id)
     target_name = message.sender.first_name or "مجهول"
+
     cost = rose[gid][sender_id]["cost"]
     add_user(target_id, gid, target_name, rose, cost)
     add_user(sender_id, gid, event.sender.first_name, rose, cost)
+
     if rose[gid][target_id]["status"] != "مرفوع":
         await event.reply("المستخدم هاذ ما مرفوع من قبل😐")
         return
+
+    if sender_id == target_id:
+        await event.reply("ما تگدر تنزل نفسك.")
+        return
+
     giver_id = rose[gid][target_id].get("giver")
     executor_money = rose[gid][sender_id]["money"]
-    if sender_id == target_id or sender_id == giver_id:
-        cost = cost * 2
+
+    if sender_id == giver_id:
+        cost = int(cost * 1.5)
     else:
-        cost = cost * 4
-    min_required = 3
-    if executor_money < min_required:
-        await event.reply(f"ماتكدر تنزله لان رصيدك {executor_money} لازم يكون {min_required} ")
+        cost = int(cost * 2)
+
+    if executor_money < cost:
+        await event.reply(f"ما تگدر تنزله لأن رصيدك {executor_money}، والكلفة المطلوبة {cost}")
         return
+
     rose[gid][sender_id]["money"] -= cost
     rose[gid][target_id]["status"] = "عادي"
     rose[gid][target_id]["giver"] = None
     save_data(rose)
-    await event.reply(f"تم تنزيل المستخدم من قائمة الوردات")
+
+    await event.reply("تم تنزيل المستخدم من قائمة الوردات.")
 @ABH.on(events.NewMessage(pattern='الحساب'))
 async def show_handler(event):
     chat_id = str(event.chat_id)

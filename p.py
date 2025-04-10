@@ -69,9 +69,7 @@ async def promote_handler(event):
     rose[gid][receiver_id]["giver"] = giver_id
     rose[gid][receiver_id]["cost"] = cost
     save_data(rose)
-    # هنا اضافه قيمه للفلوس المستقطعه لداله add لفصله عن المتغير الاول متغيير pattren group
     await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
-@ABH.on(events.NewMessage(pattern='ت'))
 async def demote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:
@@ -90,11 +88,6 @@ async def demote_handler(event):
     if rose[gid][target_id]["status"] != "مرفوع":
         await event.reply("المستخدم هاذ ما مرفوع من قبل😐")
         return
-
-    if sender_id == target_id:
-        await event.reply("ما تگدر تنزل نفسك.")
-        return
-
     giver_id = rose[gid][target_id].get("giver")
     executor_money = rose[gid][sender_id]["money"]
 

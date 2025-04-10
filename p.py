@@ -20,18 +20,18 @@ def save_data(data, filename="rose.json"):
         json.dump(data, file, indent=4)
 
 rose = load_data()
-
-def add_user(uid, gid, name, rose, cost):
+# غير ال كوست ب اسم اخر اي يعني المبلغ النهائي
+def add_user(uid, gid, name, rose, m):
     uid, gid = str(uid), str(gid)
     if gid not in rose:
         rose[gid] = {}
     if uid not in rose[gid]:
         rose[gid][uid] = {
             "name": name,
-            "money": 1000,
+            "money": 1200,
             "status": "عادي",
             "giver": None,
-            "cost": cost
+            "m": m
         }
     save_data(rose)
 @ABH.on(events.NewMessage(pattern=r'رفع وردة(?:\s+(\d+))?'))
@@ -41,13 +41,14 @@ async def promote_handler(event):
         await event.reply("الامر يعمل بالرد , تحب اسويلك شرح🙄؟")
         return
     match = event.pattern_match    
-    cost = int(match.group(1)) if match.group(1) else 2
+    cost = int(match.group(1)) if match.group(1) else 313
+    m = cost
     giver_id = str(event.sender_id)
     receiver_id = str(message.sender_id)
     receiver_name = message.sender.first_name or "مجهول"
     gid = str(event.chat_id)
-    add_user(receiver_id, gid, receiver_name, rose, cost)
-    add_user(giver_id, gid, event.sender.first_name, rose, cost)
+    add_user(receiver_id, gid, receiver_name, rose, m)
+    add_user(giver_id, gid, event.sender.first_name, rose, m)
     if rose[gid][receiver_id]["status"] == "مرفوع":
         await event.reply(f"{receiver_name} مرفوع من قبل")
         return
@@ -79,18 +80,18 @@ async def demote_handler(event):
     sender_id = str(event.sender_id)
     target_id = str(message.sender_id)
     target_name = message.sender.first_name or "مجهول"
-    cost = rose[gid][sender_id]["cost"]
-    add_user(target_id, gid, target_name, rose, cost)
-    add_user(sender_id, gid, event.sender.first_name, rose, cost)
+    m = rose[gid][sender_id]["m"]
+    add_user(target_id, gid, target_name, rose, m)
+    add_user(sender_id, gid, event.sender.first_name, rose, m)
     if rose[gid][target_id]["status"] != "مرفوع":
         await event.reply("المستخدم هاذ ما مرفوع من قبل😐")
         return
     giver_id = rose[gid][target_id].get("giver")
     executor_money = rose[gid][sender_id]["money"]
     if sender_id == target_id or sender_id == giver_id:
-        cost = cost * 2
+        cost = m * 2
     else:
-        cost = cost * 4
+        cost = m * 4
     min_required = 3
     if executor_money < min_required:
         await event.reply(f"ماتكدر تنزله لان رصيدك {executor_money} لازم يكون {min_required} ")
@@ -109,7 +110,7 @@ async def show_handler(event):
     response = "قائمة الوردات👇\n"
     for uid, data in rose[chat_id].items():
         status_icon = "🌹" if data.get("status") == "مرفوع" else "👤"
-        response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ⇦ {data['cost']}\n"
+        response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ⇦ {data['m']}\n"
     await event.reply(response, parse_mode="Markdown")
 
 @ABH.on(events.NewMessage(pattern='ف'))

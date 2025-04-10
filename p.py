@@ -31,7 +31,7 @@ def add_user(uid, gid, name, rose, cost):
             "money": 1201,
             "status": "عادي",
             "giver": None,
-            "cost": cost
+            "m": cost
         }
     save_data(rose)
 @ABH.on(events.NewMessage(pattern=r'رفع وردة(?:\s+(\d+))?'))
@@ -67,7 +67,7 @@ async def promote_handler(event):
     rose[gid][giver_id]["money"] -= cost
     rose[gid][receiver_id]["status"] = "مرفوع"
     rose[gid][receiver_id]["giver"] = giver_id
-    rose[gid][receiver_id]["cost"] = cost
+    rose[gid][receiver_id]["m"] = cost
     save_data(rose)
     await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
 @ABH.on(events.NewMessage(pattern='ت'))

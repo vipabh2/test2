@@ -33,20 +33,22 @@ def add_user(uid, gid, name, rose, cost):
 async def promote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:
+        await event.reply("يجب الرد على شخص حتى ترفعه.")
         return
     match = event.pattern_match
     cost = int(match.group(1)) if match.group(1) else 313
     giver_id = str(event.sender_id)
     receiver_id = str(message.sender_id)
     receiver_name = message.sender.first_name or "مجهول"
+    giver_name = (await event.get_sender()).first_name or "مجهول"
     gid = str(event.chat_id)
     add_user(receiver_id, gid, receiver_name, rose, cost)
-    add_user(giver_id, gid, event.sender.first_name, rose, cost)
+    add_user(giver_id, gid, giver_name, rose, cost)
     if rose[gid][receiver_id]["status"] == "مرفوع":
-        await event.reply(f"{receiver_name} مرفوع من قبل")
+        await event.reply(f"{receiver_name} مرفوع من قبل.")
         return
     if cost < 1:
-        await event.reply("اقل مبلغ تكدر ترفع بي 1")
+        await event.reply("🚫 أقل مبلغ مسموح للرفع هو 1.")
         return
     min_required = 10
     giver_money = rose[gid][giver_id]["money"]
@@ -94,7 +96,7 @@ async def demote_handler(event):
     rose[gid][target_id]["promote_value"] = 0
     save_data(rose)
     await event.reply("تم تنزيل المستخدم من قائمة السمبات.")
-@ABH.on(events.NewMessage(pattern='الحساب'))
+@ABH.on(events.NewMessage(pattern='ا'))
 async def show_handler(event):
     chat_id = str(event.chat_id)
     if chat_id not in rose or not rose[chat_id]:
@@ -106,7 +108,7 @@ async def show_handler(event):
         data = rose[chat_id][uid]
         if data.get("status") == "مرفوع":
             status_icon = "🌹"
-            response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ⇖ {data.get('promote_value', 0)}\n"
+            response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ⇜ {data.get('promote_value', 0)}\n"
         else:
             removed_users.append(uid)
     for uid in removed_users:

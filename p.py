@@ -29,43 +29,56 @@ def add_user(uid, gid, name, rose, cost):
             "promote_value": 0
         }
     save_data(rose)
-@ABH.on(events.NewMessage(pattern=r'ر(?:\s+(\d+))?'))
+@ABH.on(events.NewMessage(pattern=r'رفع سمب(?:\s+(\d+))?'))
 async def promote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:
         await event.reply("يجب الرد على شخص حتى ترفعه.")
         return
+
     match = event.pattern_match
     cost = int(match.group(1)) if match.group(1) else 313
+
     giver_id = str(event.sender_id)
     receiver_id = str(message.sender_id)
     receiver_name = message.sender.first_name or "مجهول"
     giver_name = (await event.get_sender()).first_name or "مجهول"
     gid = str(event.chat_id)
+
     add_user(receiver_id, gid, receiver_name, rose, cost)
     add_user(giver_id, gid, giver_name, rose, cost)
+
     if rose[gid][receiver_id]["status"] == "مرفوع":
         await event.reply(f"{receiver_name} مرفوع من قبل.")
         return
+
     if cost < 1:
         await event.reply("🚫 أقل مبلغ مسموح للرفع هو 1.")
         return
-    min_required = 10
+
     giver_money = rose[gid][giver_id]["money"]
+    min_required = 10
+
     if giver_money < min_required:
         await event.reply(f"❌ رصيدك {giver_money}، والحد الأدنى للرفع هو {min_required}.")
         return
+
     if giver_money < cost:
         await event.reply(f"❌ رصيدك لا يكفي. تحاول ترفع بـ {cost} فلوس ورصيدك فقط {giver_money}.")
         return
-    rose[gid][giver_id]["money"] -= cost
+
+    # 👇 تنفيذ خصم المبلغ من الرافع
+    rose[gid][giver_id]["money"] = giver_money - cost
+
+    # 👇 تحديث حالة المرفوع
     rose[gid][receiver_id]["status"] = "مرفوع"
     rose[gid][receiver_id]["giver"] = giver_id
     rose[gid][receiver_id]["m"] = cost
     rose[gid][receiver_id]["promote_value"] = cost
+
     save_data(rose)
     await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
-@ABH.on(events.NewMessage(pattern='ت'))
+@ABH.on(events.NewMessage(pattern='تنزيل سمب'))
 async def demote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:

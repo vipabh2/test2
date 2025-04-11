@@ -28,7 +28,7 @@ def add_user(uid, gid, name, rose, cost):
             "m": cost,
             "promote_value": 0
         }
-    save_data(rose)
+
 @ABH.on(events.NewMessage(pattern=r'رفع سمب(?:\s+(\d+))?'))
 async def promote_handler(event):
     message = await event.get_reply_message()
@@ -67,15 +67,14 @@ async def promote_handler(event):
         await event.reply(f"❌ رصيدك لا يكفي. تحاول ترفع بـ {cost} فلوس ورصيدك فقط {giver_money}.")
         return
 
-    # 👇 تنفيذ خصم المبلغ من الرافع
+    # ✅ خصم المبلغ وتحديث بيانات المرفوع
     rose[gid][giver_id]["money"] = giver_money - cost
-
-    # 👇 تحديث حالة المرفوع
     rose[gid][receiver_id]["status"] = "مرفوع"
     rose[gid][receiver_id]["giver"] = giver_id
     rose[gid][receiver_id]["m"] = cost
     rose[gid][receiver_id]["promote_value"] = cost
 
+    # ✅ حفظ بعد كل التعديلات
     save_data(rose)
     await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
 @ABH.on(events.NewMessage(pattern='تنزيل سمب'))

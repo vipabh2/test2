@@ -29,7 +29,7 @@ def add_user(uid, gid, name, rose, cost):
             "promote_value": 0
         }
 
-@ABH.on(events.NewMessage(pattern=r'رفع سمب(?:\s+(\d+))?'))
+@ABH.on(events.NewMessage(pattern=r'ر(?:\s+(\d+))?'))
 async def promote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:
@@ -77,7 +77,7 @@ async def promote_handler(event):
     # ✅ حفظ بعد كل التعديلات
     save_data(rose)
     await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
-@ABH.on(events.NewMessage(pattern='تنزيل سمب'))
+@ABH.on(events.NewMessage(pattern='ت'))
 async def demote_handler(event):
     message = await event.get_reply_message()
     if not message or not message.sender:

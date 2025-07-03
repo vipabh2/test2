@@ -4,6 +4,7 @@ from telethon.tl.types import ReactionEmoji
 import os, re, asyncio
 accounts = []
 session_configs = [
+    {"session": "session_1", "api_id": int(os.getenv("API_ID")), "api_hash": os.getenv("API_HASH")},
     {"session": "session_2", "api_id": int(os.getenv("API_ID_2")), "api_hash": os.getenv("API_HASH_2")},
     {"session": "session_3", "api_id": int(os.getenv("API_ID_3")), "api_hash": os.getenv("API_HASH_3")},
     {"session": "session_4", "api_id": int(os.getenv("API_ID_4")), "api_hash": os.getenv("API_HASH_4")},
@@ -47,7 +48,7 @@ for ABH in accounts:
             except Exception as e:
                 print(f"\u26a0\ufe0f فشل التفاعل مع الرسالة {event.id}: {e}")
 target_user_id = 1421907917
-@ABH.on(events.NewMessage(pattern=r"^.كلمات (\d+)\s+(\d+)$", outgoing=True))
+@ABH.on(events.NewMessage(pattern=r"^.?كلمات (\d+)\s+(\d+)$"))
 async def words(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -69,7 +70,7 @@ async def words(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.تركيب (\d+)$", outgoing=True))
+@ABH.on(events.NewMessage(pattern=r"^.?تركيب (\d+)$"))
 async def unspilt(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -90,7 +91,7 @@ async def unspilt(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.تفكيك (\d+)$", outgoing=True))
+@ABH.on(events.NewMessage(pattern=r"^.?تفكيك (\d+)$"))
 async def spilt(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -112,7 +113,7 @@ async def spilt(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.احسب (\d+)$", outgoing=True))
+@ABH.on(events.NewMessage(pattern=r"^.?احسب (\d+)$"))
 async def calc(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -139,7 +140,7 @@ async def calc(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.جمل (\d+)$", outgoing=True))
+@ABH.on(events.NewMessage(pattern=r"^.?جمل (\d+)$"))
 async def j(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -163,7 +164,7 @@ async def j(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.تفاعل|تفاعل\s+(\d+)\s+(\d+(?:\.\d+)?)$", outgoing=True))
+@ABH.on(events.NewMessage(pattern=r"^.?تفاعل|تفاعل\s+(\d+)\s+(\d+(?:\.\d+)?)$"))
 async def sends(event):
     much = int(event.pattern_match.group(1))
     time = float(event.pattern_match.group(2))
@@ -176,7 +177,6 @@ async def sends(event):
         await asyncio.sleep(time)
 for ABH in accounts:
     ABH.start()
-    print('done')
 from asyncio import get_event_loop, gather
 loop = get_event_loop()
 loop.run_until_complete(gather(*[client.run_until_disconnected() for client in accounts]))

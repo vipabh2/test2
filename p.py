@@ -28,9 +28,6 @@ for ABH in accounts:
             print(f"تم تحديد {target_user_id} للتفاعل التلقائي باستخدام: {' '.join(e.emoticon for e in selected_emojis)}")
         else:
             await event.respond("\u2757 يجب الرد على رسالة المستخدم الذي تريد إزعاجه باستخدام الأمر: `ازعاج + \ud83c\udf53\ud83c\udf4c\u2728` (يمكنك وضع أكثر من رمز)")
-    @ABH.on(events.NewMessage(pattern=r'^ها$'))
-    async def cancel_auto_react(event):
-        await event.reply('...')
     @ABH.on(events.NewMessage(pattern=r'^الغاء ازعاج$'))
     async def cancel_auto_react(event):
         global target_user_id, selected_emojis

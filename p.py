@@ -20,7 +20,7 @@ for ABH in accounts:
     async def set_target_user_with_reaction(event):
         global target_user_id, selected_emojis
         id = event.sender_id
-        if not id == 1910015590 or not id == 201728276:
+        if id != 1910015590 or  id != 201728276:
             return
         if event.is_reply:
             reply_msg = await event.get_reply_message()
@@ -33,7 +33,7 @@ for ABH in accounts:
     @ABH.on(events.NewMessage(pattern=r'^الغاء ازعاج$'))
     async def cancel_auto_react(event):
         id = event.sender_id
-        if not id == 1910015590 or not id == 201728276:
+        if id != 1910015590 or  id != 201728276:
             return
         global target_user_id, selected_emojis
         target_user_id = None

@@ -3,10 +3,14 @@ from telethon.sessions import StringSession
 from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
 import asyncio, json, re, os
+from telethon.sessions import StringSession
+from telethon import TelegramClient
+import json
+import os
 
 def input_session_data():
     sessions = []
-    print("ملف sessions.json غير موجود. يرجى إدخال بيانات الجلسات:")
+    print("ملف sessions.json غير موجود أو فارغ. يرجى إدخال بيانات الجلسات:")
     while True:
         session_string = input("أدخل session_string (أو اتركه فارغًا للخروج): ").strip()
         if not session_string:
@@ -25,11 +29,15 @@ def input_session_data():
     return sessions
 
 def load_sessions(filename="sessions.json"):
-    if not os.path.exists(filename):
+    if not os.path.exists(filename) or os.stat(filename).st_size == 0:
+        # الملف غير موجود أو فارغ
         sessions = input_session_data()
-        with open(filename, "w", encoding="utf-8") as f:
-            json.dump(sessions, f, indent=2, ensure_ascii=False)
-        print(f"تم إنشاء {filename} وحفظ البيانات.")
+        if sessions:
+            with open(filename, "w", encoding="utf-8") as f:
+                json.dump(sessions, f, indent=2, ensure_ascii=False)
+            print(f"تم إنشاء {filename} وحفظ البيانات.")
+        else:
+            print("لم يتم إدخال أي جلسة.")
         return sessions
     else:
         try:
@@ -37,7 +45,23 @@ def load_sessions(filename="sessions.json"):
                 return json.load(f)
         except json.JSONDecodeError as e:
             print(f"خطأ في قراءة JSON من الملف {filename}: {e}")
-            return []
+            # طلب بيانات جديدة في حالة وجود خطأ في الملف
+            sessions = input_session_data()
+            if sessions:
+                with open(filename, "w", encoding="utf-8") as f:
+                    json.dump(sessions, f, indent=2, ensure_ascii=False)
+                print(f"تم تحديث {filename} وحفظ البيانات.")
+            return sessions
+
+sessions_data = load_sessions()
+
+# إنشاء عملاء TelegramClient لكل جلسة
+clients = []
+for sess in sessions_data:
+    client = TelegramClient(StringSession(sess["session_string"]), sess["api_id"], sess["api_hash"])
+    clients.append(client)
+
+print(f"تم تحميل وإنشاء {len(clients)} جلسة Telegram.")
 
 def register_handlers(abh_dict):
     client = abh_dict["client"]

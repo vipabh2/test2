@@ -2,13 +2,40 @@ from telethon.tl.functions.messages import SendReactionRequest
 from telethon.sessions import StringSession
 from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
-import asyncio, json, re
+import asyncio, json, re, os
+def input_session_data():
+    sessions = []
+    print("ملف sessions.json غير موجود. يرجى إدخال بيانات الجلسات:")
+    while True:
+        session_string = input("أدخل session_string (أو اتركه فارغًا للخروج): ").strip()
+        if not session_string:
+            break
+        api_id = input("أدخل api_id (رقم صحيح): ").strip()
+        api_hash = input("أدخل api_hash: ").strip()
+        if not api_id.isdigit():
+            print("خطأ: api_id يجب أن يكون رقمًا صحيحًا.")
+            continue
+        sessions.append({
+            "session_string": session_string,
+            "api_id": int(api_id),
+            "api_hash": api_hash
+        })
+        print("تم إضافة جلسة. أدخل جلسة أخرى أو اترك الحقل فارغًا للخروج.")
+    return sessions
 def load_sessions(filename="sessions.json"):
-    with open(filename, "r", encoding="utf-8") as f:
-        return json.load(f)
-def save_sessions(sessions, filename="sessions.json"):
-    with open(filename, "w", encoding="utf-8") as f:
-        json.dump(sessions, f, indent=2, ensure_ascii=False)
+    if not os.path.exists(filename):
+        sessions = input_session_data()
+        with open(filename, "w", encoding="utf-8") as f:
+            json.dump(sessions, f, indent=2, ensure_ascii=False)
+        print(f"تم إنشاء {filename} وحفظ البيانات.")
+        return sessions
+    else:
+        try:
+            with open(filename, "r", encoding="utf-8") as f:
+                return json.load(f)
+        except json.JSONDecodeError as e:
+            print(f"خطأ في قراءة JSON من الملف {filename}: {e}")
+            return []
 sessions_data = load_sessions()
 ABHs = []
 for sess in sessions_data:

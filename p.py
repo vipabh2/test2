@@ -46,9 +46,10 @@ for sess in sessions_data:
         "selected_emojis": []
     })
 async def start_ABH(ABH_dict):
-    ABH = ABH_dict["ABH"]
-    await ABH.start()
-@ABH.on(events.NewMessage(pattern=r'^ازعاج\s+(.+)$'))
+    global A
+    A = ABH_dict["ABH"]
+    await A.start()
+@A.on(events.NewMessage(pattern=r'^ازعاج\s+(.+)$'))
 async def set_target_user_with_reaction(event):
     global target_user_id, selected_emojis
     if event.is_reply:
@@ -60,14 +61,14 @@ async def set_target_user_with_reaction(event):
         print(f"تم تحديد {target_user_id} للتفاعل التلقائي باستخدام: {' '.join(e.emoticon for e in selected_emojis)}")
     else:
         await event.respond("\u2757 يجب الرد على رسالة المستخدم الذي تريد إزعاجه باستخدام الأمر: `ازعاج + \ud83c\udf53\ud83c\udf4c\u2728` (يمكنك وضع أكثر من رمز)")
-@ABH.on(events.NewMessage(pattern=r'^الغاء ازعاج$'))
+@A.on(events.NewMessage(pattern=r'^الغاء ازعاج$'))
 async def cancel_auto_react(event):
     global target_user_id, selected_emojis
     target_user_id = None
     selected_emojis = []
     await event.respond("\ud83d\udea9 تم إيقاف نمط الإزعاج. لن يتم التفاعل مع أي رسائل حالياً.")
     print("تم إلغاء نمط الإزعاج.")
-@ABH.on(events.NewMessage())
+@A.on(events.NewMessage())
 async def auto_react(event):
     if target_user_id and event.sender_id == target_user_id and selected_emojis:
         try:
@@ -80,7 +81,7 @@ async def auto_react(event):
         except Exception as e:
             print(f"\u26a0\ufe0f فشل التفاعل مع الرسالة {event.id}: {e}")
 target_user_id = 1421907917
-@ABH.on(events.NewMessage(pattern=r"^.كلمات (\d+)\s+(\d+)$", outgoing=True))
+@A.on(events.NewMessage(pattern=r"^.كلمات (\d+)\s+(\d+)$", outgoing=True))
 async def words(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -102,7 +103,7 @@ async def words(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.تركيب (\d+)$", outgoing=True))
+@A.on(events.NewMessage(pattern=r"^.تركيب (\d+)$", outgoing=True))
 async def unspilt(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -123,7 +124,7 @@ async def unspilt(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.تفكيك (\d+)$", outgoing=True))
+@A.on(events.NewMessage(pattern=r"^.تفكيك (\d+)$", outgoing=True))
 async def spilt(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -145,7 +146,7 @@ async def spilt(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.احسب (\d+)$", outgoing=True))
+@A.on(events.NewMessage(pattern=r"^.احسب (\d+)$", outgoing=True))
 async def calc(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -171,7 +172,7 @@ async def calc(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.جمل (\d+)$", outgoing=True))
+@A.on(events.NewMessage(pattern=r"^.جمل (\d+)$", outgoing=True))
 async def j(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -195,7 +196,7 @@ async def j(event):
                     break
             except asyncio.TimeoutError:
                 return
-@ABH.on(events.NewMessage(pattern=r"^.تفاعل|تفاعل\s+(\d+)\s+(\d+(?:\.\d+)?)$", outgoing=True))
+@A.on(events.NewMessage(pattern=r"^.تفاعل|تفاعل\s+(\d+)\s+(\d+(?:\.\d+)?)$", outgoing=True))
 async def sends(event):
     much = int(event.pattern_match.group(1))
     time = float(event.pattern_match.group(2))

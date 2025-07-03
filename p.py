@@ -3,6 +3,9 @@ from telethon.sessions import StringSession
 from telethon.tl.types import ReactionEmoji
 from telethon import events, TelegramClient
 import asyncio, json, re, os
+def register_handlers(abh_dict):
+    client = abh_dict["client"]
+
 def input_session_data():
     sessions = []
     print("ملف sessions.json غير موجود. يرجى إدخال بيانات الجلسات:")
@@ -22,6 +25,7 @@ def input_session_data():
         })
         print("تم إضافة جلسة. أدخل جلسة أخرى أو اترك الحقل فارغًا للخروج.")
     return sessions
+
 def load_sessions(filename="sessions.json"):
     if not os.path.exists(filename):
         sessions = input_session_data()
@@ -36,20 +40,18 @@ def load_sessions(filename="sessions.json"):
         except json.JSONDecodeError as e:
             print(f"خطأ في قراءة JSON من الملف {filename}: {e}")
             return []
+
 sessions_data = load_sessions()
+
 ABHs = []
 for sess in sessions_data:
-    ABH = TelegramClient(StringSession(sess["session_string"]), sess["api_id"], sess["api_hash"])
+    client = TelegramClient(StringSession(sess["session_string"]), sess["api_id"], sess["api_hash"])
     ABHs.append({
-        "ABH": ABH,
+        "client": client,
         "target_user_id": None,
         "selected_emojis": []
-    })
-async def start_ABH(ABH_dict):
-    global A
-    A = ABH_dict["ABH"]
-    await A.start()
-@A.on(events.NewMessage(pattern=r'^ازعاج\s+(.+)$'))
+    })    
+@client.on(events.NewMessage(pattern=r'^ازعاج\s+(.+)$'))
 async def set_target_user_with_reaction(event):
     global target_user_id, selected_emojis
     if event.is_reply:
@@ -61,18 +63,18 @@ async def set_target_user_with_reaction(event):
         print(f"تم تحديد {target_user_id} للتفاعل التلقائي باستخدام: {' '.join(e.emoticon for e in selected_emojis)}")
     else:
         await event.respond("\u2757 يجب الرد على رسالة المستخدم الذي تريد إزعاجه باستخدام الأمر: `ازعاج + \ud83c\udf53\ud83c\udf4c\u2728` (يمكنك وضع أكثر من رمز)")
-@A.on(events.NewMessage(pattern=r'^الغاء ازعاج$'))
+@client.on(events.NewMessage(pattern=r'^الغاء ازعاج$'))
 async def cancel_auto_react(event):
     global target_user_id, selected_emojis
     target_user_id = None
     selected_emojis = []
     await event.respond("\ud83d\udea9 تم إيقاف نمط الإزعاج. لن يتم التفاعل مع أي رسائل حالياً.")
     print("تم إلغاء نمط الإزعاج.")
-@A.on(events.NewMessage())
+@client.on(events.NewMessage())
 async def auto_react(event):
     if target_user_id and event.sender_id == target_user_id and selected_emojis:
         try:
-            await ABH(SendReactionRequest(
+            await client(SendReactionRequest(
                 peer=event.chat_id,
                 msg_id=event.id,
                 reaction=selected_emojis
@@ -81,13 +83,13 @@ async def auto_react(event):
         except Exception as e:
             print(f"\u26a0\ufe0f فشل التفاعل مع الرسالة {event.id}: {e}")
 target_user_id = 1421907917
-@A.on(events.NewMessage(pattern=r"^.كلمات (\d+)\s+(\d+)$", outgoing=True))
+@client.on(events.NewMessage(pattern=r"^.كلمات (\d+)\s+(\d+)$", outgoing=True))
 async def words(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     time = int(event.pattern_match.group(2)) or 1
     for i in range(num):
-        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+        async with client.conversation(event.chat_id, timeout=10) as conv:
             await conv.send_message("كلمات")
             try:
                 while True:
@@ -103,12 +105,12 @@ async def words(event):
                     break
             except asyncio.TimeoutError:
                 return
-@A.on(events.NewMessage(pattern=r"^.تركيب (\d+)$", outgoing=True))
+@client.on(events.NewMessage(pattern=r"^.تركيب (\d+)$", outgoing=True))
 async def unspilt(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     for i in range(num):
-        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+        async with client.conversation(event.chat_id, timeout=10) as conv:
             await conv.send_message("تركيب")
             try:
                 while True:
@@ -124,12 +126,12 @@ async def unspilt(event):
                     break
             except asyncio.TimeoutError:
                 return
-@A.on(events.NewMessage(pattern=r"^.تفكيك (\d+)$", outgoing=True))
+@client.on(events.NewMessage(pattern=r"^.تفكيك (\d+)$", outgoing=True))
 async def spilt(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     for i in range(num):
-        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+        async with client.conversation(event.chat_id, timeout=10) as conv:
             await conv.send_message("تفكيك")
             try:
                 while True:
@@ -146,12 +148,12 @@ async def spilt(event):
                     break
             except asyncio.TimeoutError:
                 return
-@A.on(events.NewMessage(pattern=r"^.احسب (\d+)$", outgoing=True))
+@client.on(events.NewMessage(pattern=r"^.احسب (\d+)$", outgoing=True))
 async def calc(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     for _ in range(num):
-        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+        async with client.conversation(event.chat_id, timeout=10) as conv:
             await conv.send_message("احسب")
             try:
                 while True:
@@ -172,12 +174,12 @@ async def calc(event):
                     break
             except asyncio.TimeoutError:
                 return
-@A.on(events.NewMessage(pattern=r"^.جمل (\d+)$", outgoing=True))
+@client.on(events.NewMessage(pattern=r"^.جمل (\d+)$", outgoing=True))
 async def j(event):
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
     for _ in range(num):
-        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+        async with client.conversation(event.chat_id, timeout=10) as conv:
             await conv.send_message("جمل")
             try:
                 while True:
@@ -196,7 +198,7 @@ async def j(event):
                     break
             except asyncio.TimeoutError:
                 return
-@A.on(events.NewMessage(pattern=r"^.تفاعل|تفاعل\s+(\d+)\s+(\d+(?:\.\d+)?)$", outgoing=True))
+@client.on(events.NewMessage(pattern=r"^.تفاعل|تفاعل\s+(\d+)\s+(\d+(?:\.\d+)?)$", outgoing=True))
 async def sends(event):
     much = int(event.pattern_match.group(1))
     time = float(event.pattern_match.group(2))
@@ -207,9 +209,18 @@ async def sends(event):
     for i in range(much):
         await words(event)
         await asyncio.sleep(time)
-    print(f"تم تشغيل الجلسة: {ABH.session.save()[:20]}...")
-    await ABH.run_until_disconnected()
 async def main():
-    await asyncio.gather(*(start_ABH(c) for c in ABHs))
+    for abh_dict in ABHs:
+        client = abh_dict["client"]
+
+async def main():
+    for abh_dict in ABHs:
+        register_handlers(abh_dict)  # تسجيل الأحداث لكل جلسة
+        await abh_dict["client"].start()
+        print(f"تم تشغيل الجلسة: {abh_dict['client'].session.save()}")
+
+    # تشغيل جميع الجلسات بشكل متزامن وانتظار انتهاءها
+    await asyncio.gather(*[abh_dict["client"].run_until_disconnected() for abh_dict in ABHs])
+
 if __name__ == "__main__":
     asyncio.run(main())

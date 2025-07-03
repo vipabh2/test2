@@ -51,7 +51,7 @@ target_user_id = 1421907917
 @ABH.on(events.NewMessage(pattern=r"^.?كلمات (\d+)\s+(\d+)$"))
 async def words(event):
     id = event.sender_id
-    if not id == 1910015590 or not id == 201728276:
+    if not id != 1910015590 or not id != 201728276:
         return
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -76,7 +76,7 @@ async def words(event):
 @ABH.on(events.NewMessage(pattern=r"^.?تركيب (\d+)$"))
 async def unspilt(event):
     id = event.sender_id
-    if not id == 1910015590 or not id == 201728276:
+    if not id != 1910015590 or not id != 201728276:
         return
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -100,7 +100,7 @@ async def unspilt(event):
 @ABH.on(events.NewMessage(pattern=r"^.?تفكيك (\d+)$"))
 async def spilt(event):
     id = event.sender_id
-    if not id == 1910015590 or not id == 201728276:
+    if not id != 1910015590 or not id != 201728276:
         return
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -125,7 +125,7 @@ async def spilt(event):
 @ABH.on(events.NewMessage(pattern=r"^.?احسب (\d+)$"))
 async def calc(event):
     id = event.sender_id
-    if not id == 1910015590 or not id == 201728276:
+    if not id != 1910015590 or not id != 201728276:
         return
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -155,7 +155,7 @@ async def calc(event):
 @ABH.on(events.NewMessage(pattern=r"^.?جمل (\d+)$"))
 async def j(event):
     id = event.sender_id
-    if not id == 1910015590 or not id == 201728276:
+    if not id != 1910015590 or not id != 201728276:
         return
     await event.delete()
     num = int(event.pattern_match.group(1)) or 1
@@ -182,7 +182,7 @@ async def j(event):
 @ABH.on(events.NewMessage(pattern=r"^.?تفاعل|تفاعل\s+(\d+)\s+(\d+(?:\.\d+)?)$"))
 async def sends(event):
     id = event.sender_id
-    if not id == 1910015590 or not id == 201728276:
+    if not id != 1910015590 or not id != 201728276:
         return
     much = int(event.pattern_match.group(1))
     time = float(event.pattern_match.group(2))

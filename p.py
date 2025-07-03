@@ -1,139 +1,187 @@
-import os
-import json
-from telethon import TelegramClient, events
-api_id = os.getenv('API_ID')
-api_hash = os.getenv('API_HASH')
-bot_token = os.getenv('BOT_TOKEN')
-ABH = TelegramClient('code', api_id, api_hash).start(bot_token=bot_token)
-def load_data(filename="rose.json"):
-    try:
-        with open(filename, "r") as file:
-            return json.load(file)
-    except (FileNotFoundError, json.JSONDecodeError):
-        return {}
-def save_data(data, filename="rose.json"):
-    with open(filename, "w") as file:
-        json.dump(data, file, indent=4)
-rose = load_data()
-def add_user(uid, gid, name, rose, cost):
-    uid, gid = str(uid), str(gid)
-    if gid not in rose:
-        rose[gid] = {}
-    if uid not in rose[gid]:
-        rose[gid][uid] = {
-            "name": name,
-            "money": 121,
-            "status": "عادي",
-            "giver": None,
-            "m": cost,
-            "promote_value": 0
-        }
-
-@ABH.on(events.NewMessage(pattern=r'ر(?:\s+(\d+))?'))
-async def promote_handler(event):
-    message = await event.get_reply_message()
-    if not message or not message.sender:
-        await event.reply("يجب الرد على شخص حتى ترفعه.")
-        return
-
-    match = event.pattern_match
-    cost = int(match.group(1)) if match.group(1) else 313
-
-    giver_id = str(event.sender_id)
-    receiver_id = str(message.sender_id)
-    receiver_name = message.sender.first_name or "مجهول"
-    giver_name = (await event.get_sender()).first_name or "مجهول"
-    gid = str(event.chat_id)
-
-    add_user(receiver_id, gid, receiver_name, rose, cost)
-    add_user(giver_id, gid, giver_name, rose, cost)
-
-    if rose[gid][receiver_id]["status"] == "مرفوع":
-        await event.reply(f"{receiver_name} مرفوع من قبل.")
-        return
-
-    if cost < 1:
-        await event.reply("🚫 أقل مبلغ مسموح للرفع هو 1.")
-        return
-
-    giver_money = rose[gid][giver_id]["money"]
-    min_required = 10
-
-    if giver_money < min_required:
-        await event.reply(f"❌ رصيدك {giver_money}، والحد الأدنى للرفع هو {min_required}.")
-        return
-
-    if giver_money < cost:
-        await event.reply(f"❌ رصيدك لا يكفي. تحاول ترفع بـ {cost} فلوس ورصيدك فقط {giver_money}.")
-        return
-
-    # ✅ خصم المبلغ وتحديث بيانات المرفوع
-    rose[gid][giver_id]["money"] = giver_money - cost
-    rose[gid][receiver_id]["status"] = "مرفوع"
-    rose[gid][receiver_id]["giver"] = giver_id
-    rose[gid][receiver_id]["m"] = cost
-    rose[gid][receiver_id]["promote_value"] = cost
-
-    # ✅ حفظ بعد كل التعديلات
-    save_data(rose)
-    await event.reply(f"🌹 تم رفع {receiver_name} مقابل {cost} فلوس.")
-@ABH.on(events.NewMessage(pattern='ت'))
-async def demote_handler(event):
-    message = await event.get_reply_message()
-    if not message or not message.sender:
-        await event.reply("متكدر تنزل العدم , سوي رد على شخص")
-        return
-    gid = str(event.chat_id)
-    sender_id = str(event.sender_id)
-    target_id = str(message.sender_id)
-    target_name = message.sender.first_name or "مجهول"
-    add_user(target_id, gid, target_name, rose, 0)
-    add_user(sender_id, gid, event.sender.first_name, rose, 0)
-    if rose[gid][target_id]["status"] != "مرفوع":
-        await event.reply("المستخدم هاذ ما مرفوع من قبل😐")
-        return
-    giver_id = rose[gid][target_id].get("giver")
-    executor_money = rose[gid][sender_id]["money"]
-    promote_value = rose[gid][target_id].get("promote_value", 313)
-    if sender_id == giver_id:
-        cost = int(promote_value * 1.5)
+from telethon.tl.functions.messages import SendReactionRequest
+from telethon.sessions import StringSession
+from telethon.tl.types import ReactionEmoji
+from telethon import events, TelegramClient
+import asyncio, json, re
+def load_sessions(filename="sessions.json"):
+    with open(filename, "r", encoding="utf-8") as f:
+        return json.load(f)
+def save_sessions(sessions, filename="sessions.json"):
+    with open(filename, "w", encoding="utf-8") as f:
+        json.dump(sessions, f, indent=2, ensure_ascii=False)
+sessions_data = load_sessions()
+ABHs = []
+for sess in sessions_data:
+    ABH = TelegramClient(StringSession(sess["session_string"]), sess["api_id"], sess["api_hash"])
+    ABHs.append({
+        "ABH": ABH,
+        "target_user_id": None,
+        "selected_emojis": []
+    })
+async def start_ABH(ABH_dict):
+    ABH = ABH_dict["ABH"]
+    await ABH.start()
+@ABH.on(events.NewMessage(pattern=r'^ازعاج\s+(.+)$'))
+async def set_target_user_with_reaction(event):
+    global target_user_id, selected_emojis
+    if event.is_reply:
+        reply_msg = await event.get_reply_message()
+        target_user_id = reply_msg.sender_id
+        emojis_str = event.pattern_match.group(1).strip()
+        selected_emojis = [ReactionEmoji(emoticon=e.strip()) for e in emojis_str if e.strip()]
+        await event.respond(f"\u2705 تم تفعيل نمط الإزعاج على المستخدم `{target_user_id}` باستخدام الرموز: {' '.join(e.emoticon for e in selected_emojis)}")
+        print(f"تم تحديد {target_user_id} للتفاعل التلقائي باستخدام: {' '.join(e.emoticon for e in selected_emojis)}")
     else:
-        cost = int(promote_value * 2)
-    if executor_money < cost:
-        await event.reply(f"ما تگدر تنزله لأن رصيدك {executor_money}، والكلفة المطلوبة {cost}")
+        await event.respond("\u2757 يجب الرد على رسالة المستخدم الذي تريد إزعاجه باستخدام الأمر: `ازعاج + \ud83c\udf53\ud83c\udf4c\u2728` (يمكنك وضع أكثر من رمز)")
+@ABH.on(events.NewMessage(pattern=r'^الغاء ازعاج$'))
+async def cancel_auto_react(event):
+    global target_user_id, selected_emojis
+    target_user_id = None
+    selected_emojis = []
+    await event.respond("\ud83d\udea9 تم إيقاف نمط الإزعاج. لن يتم التفاعل مع أي رسائل حالياً.")
+    print("تم إلغاء نمط الإزعاج.")
+@ABH.on(events.NewMessage())
+async def auto_react(event):
+    if target_user_id and event.sender_id == target_user_id and selected_emojis:
+        try:
+            await ABH(SendReactionRequest(
+                peer=event.chat_id,
+                msg_id=event.id,
+                reaction=selected_emojis
+            ))
+            print(f"\u2705 تم التفاعل مع الرسالة {event.id} باستخدام الرموز: {' '.join(e.emoticon for e in selected_emojis)}")
+        except Exception as e:
+            print(f"\u26a0\ufe0f فشل التفاعل مع الرسالة {event.id}: {e}")
+target_user_id = 1421907917
+@ABH.on(events.NewMessage(pattern=r"^.كلمات (\d+)\s+(\d+)$", outgoing=True))
+async def words(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    time = int(event.pattern_match.group(2)) or 1
+    for i in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("كلمات")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+                    text = msg.raw_text.strip()
+                    match = re.search(r"\(\s*(.+?)\s*\)", text)
+                    if match:
+                        text = match.group(1)
+                        await asyncio.sleep(time)
+                        await conv.send_message(text)
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.تركيب (\d+)$", outgoing=True))
+async def unspilt(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    for i in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("تركيب")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+                    text = msg.raw_text.strip()
+                    match = re.search(r"\(\s*(.+?)\s*\)", text)
+                    if match:
+                        text = match.group(1)
+                        merged = ''.join(text.split())
+                        await conv.send_message(merged)
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.تفكيك (\d+)$", outgoing=True))
+async def spilt(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    for i in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("تفكيك")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+                    text = msg.raw_text.strip()
+                    match = re.search(r"\(\s*(.+?)\s*\)", text)
+                    if match:
+                        text = match.group(1)
+                        clean = ''.join(text.split())
+                        separated = ' '.join(clean)
+                        await conv.send_message(separated)
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.احسب (\d+)$", outgoing=True))
+async def calc(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    for _ in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("احسب")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+                    text = msg.raw_text.strip()
+                    match = re.search(r"([\d\s\+\-\*÷\/\.]+)\s*=", text)
+                    if match:
+                        expression = match.group(1).replace('÷', '/').replace('×', '*').strip()
+                        try:
+                            result = eval(expression)
+                            if isinstance(result, float) and result.is_integer():
+                                result = int(result)
+                            await conv.send_message(str(result))
+                        except Exception:
+                            await conv.send_message("خطأ في الحساب.")
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.جمل (\d+)$", outgoing=True))
+async def j(event):
+    await event.delete()
+    num = int(event.pattern_match.group(1)) or 1
+    for _ in range(num):
+        async with ABH.conversation(event.chat_id, timeout=10) as conv:
+            await conv.send_message("جمل")
+            try:
+                while True:
+                    msg = await conv.get_response()
+                    if msg.sender_id != target_user_id:
+                        continue
+                    text = msg.raw_text.strip()
+                    match = re.search(r"\((.*?)\)", text)
+                    if match:
+                        inside = match.group(1)
+                        cleaned = re.sub(r"[↢⇜'«»]", "", inside)
+                        normalized = re.sub(r"\s+", " ", cleaned).strip()
+                        await conv.send_message(normalized)
+                    else:
+                        return
+                    break
+            except asyncio.TimeoutError:
+                return
+@ABH.on(events.NewMessage(pattern=r"^.تفاعل|تفاعل\s+(\d+)\s+(\d+(?:\.\d+)?)$", outgoing=True))
+async def sends(event):
+    much = int(event.pattern_match.group(1))
+    time = float(event.pattern_match.group(2))
+    r = await event.get_reply_message()
+    if not r:
+        await event.edit('🤔 يجب أن ترد على رسالة.')
         return
-    rose[gid][sender_id]["money"] -= cost
-    rose[gid][target_id]["status"] = "عادي"
-    rose[gid][target_id]["giver"] = None
-    rose[gid][target_id]["promote_value"] = 0
-    save_data(rose)
-    await event.reply("تم تنزيل المستخدم من قائمة السمبات.")
-@ABH.on(events.NewMessage(pattern='ا'))
-async def show_handler(event):
-    chat_id = str(event.chat_id)
-    if chat_id not in rose or not rose[chat_id]:
-        await event.reply("ماكو سمبات هنا بالمجموعة")
-        return
-    response = "قائمة الوردات👇\n"
-    removed_users = []
-    for uid in list(rose[chat_id].keys()):
-        data = rose[chat_id][uid]
-        if data.get("status") == "مرفوع":
-            status_icon = "🌹"
-            response += f"{status_icon} [{data['name']}](tg://user?id={uid}) ⇜ {data.get('promote_value', 0)}\n"
-        else:
-            removed_users.append(uid)
-    for uid in removed_users:
-        del rose[chat_id][uid]
-    save_data(rose)
-    await event.reply(response if response.strip() != "قائمة الوردات👇" else "ماكو وردات مرفوعين بالمجموعة", parse_mode="Markdown")
-@ABH.on(events.NewMessage(pattern='ف'))
-async def m(event):
-    gid = str(event.chat_id)
-    sender_id = str(event.sender_id)
-    if gid not in rose or sender_id not in rose[gid]:
-        name = (await event.get_sender()).first_name or "مجهول"
-        add_user(sender_id, gid, name, rose, cost=0)
-    m = rose[gid][sender_id]["money"]
-    await event.reply(f'{m}')
-ABH.run_until_disconnected()
+    for i in range(much):
+        await words(event)
+        await asyncio.sleep(time)
+    print(f"تم تشغيل الجلسة: {ABH.session.save()[:20]}...")
+    await ABH.run_until_disconnected()
+async def main():
+    await asyncio.gather(*(start_ABH(c) for c in ABHs))
+if __name__ == "__main__":
+    asyncio.run(main())
